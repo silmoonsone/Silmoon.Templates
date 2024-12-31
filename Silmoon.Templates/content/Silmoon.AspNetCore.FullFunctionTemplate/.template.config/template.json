@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "SILMOON",
+  "classifications": [ "Web", "ASP.NET" ],
+  "identity": "Silmoon.AspNetCore.FullFunctionTemplate",
+  "name": "Silmoon.AspNetCore.FullFunctionTemplate",
+  "shortName": "ffweb",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "ClassName": {
+      "type": "parameter",
+      "description": "The name of the code file and class.",
+      "dataType": "text",
+      "replaces": "Silmoon.AspNetCore.FullFunctionTemplate",
+      "fileRename": "Silmoon.AspNetCore.FullFunctionTemplate",
+      "defaultValue": "Silmoon.AspNetCore.FullFunctionTemplate"
+    }
+  }
+}
