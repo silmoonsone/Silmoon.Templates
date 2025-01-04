@@ -1,0 +1,46 @@
+﻿@page "/upload"
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<h3>Dashboard</h3>
+<hr />
+<div>
+    <InputFile OnChange="OnInputFileChange"></InputFile>
+    <hr />
+    <div>
+        <div>Received: @Receive</div>
+        <div>Total: @Total</div>
+        <div>Percent: @Percent</div>
+        <div>@Message</div>
+    </div>
+</div>
+
+@code {
+    long Receive { get; set; }
+    long Total { get; set; }
+    decimal Percent { get; set; }
+
+    string Message { get; set; }
+    async void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        // var file = e.GetMultipleFiles(1);
+        // var fileStream = file[0].OpenReadStream();
+        // var fileBytes = new byte[fileStream.Length];
+        // Receive = await fileStream.ReadAsync(fileBytes, 0, (int)fileStream.Length);
+        // var fileBase64 = Convert.ToBase64String(fileBytes);
+        // Console.WriteLine(fileBase64);
+        // await InvokeAsync(StateHasChanged);
+
+        await RazorComponentHelper.ReadInputFile(e, async (receive, total, percent) =>
+        {
+            Receive = receive;
+            Total = total;
+            Percent = percent;
+            await InvokeAsync(StateHasChanged);
+        }, async (data, size) =>
+        {
+            Message = $"Received: {size} bytes, finished.";
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+}

@@ -9,6 +9,7 @@
     "language": "C#",
     "type": "project"
   },
+  "sourceName": "Silmoon.AspNetCore.FullFunctionTemplate",
   "symbols": {
     "ClassName": {
       "type": "parameter",
@@ -17,6 +18,24 @@
       "replaces": "Silmoon.AspNetCore.FullFunctionTemplate",
       "fileRename": "Silmoon.AspNetCore.FullFunctionTemplate",
       "defaultValue": "Silmoon.AspNetCore.FullFunctionTemplate"
+    },
+    "HttpPort": {
+      "type": "generated",
+      "generator": "random",
+      "parameters": {
+        "low": 5000,
+        "high": 6000
+      },
+      "replaces": "5140"
+    },
+    "HttpsPort": {
+      "type": "generated",
+      "generator": "random",
+      "parameters": {
+        "low": 7000,
+        "high": 8000
+      },
+      "replaces": "7045"
     }
   }
 }

@@ -1,0 +1,100 @@
+﻿@rendermode InteractiveServer
+@inject IJSRuntime Js
+@inject NavigationManager NavigationManager
+@inject ISilmoonAuthService SilmoonAuthService
+@inject JsSilmoonAuthInterop Jsa
+@inject JsComponentInterop Jsc
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Silmoon.AspNetCore.FullFunctionTemplate</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/signin">
+                SignIn
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/signup">
+                SignUp
+            </NavLink>
+        </div>
+
+        <hr style="background-color: white;" />
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/dashboard">
+                Dashboard
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/upload">
+                Upload
+            </NavLink>
+        </div>
+
+        <hr style="background-color: white;" />
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/counter">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/weather">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div>
+        @if (IsSignedIn)
+        {
+            <hr style="background-color: white;" />
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="javascript: void(0);" @onclick="doSignOut">
+                    SignOut
+                </NavLink>
+            </div>
+        }
+        else
+        {
+
+        }
+    </nav>
+</div>
+
+@code {
+    bool IsSignedIn { get; set; } = false;
+    User User { get; set; }
+    async void doSignOut()
+    {
+        await Jsc.MetroUIConfirm("确认", "确认退出登录？", true, async yes =>
+        {
+            if (yes)
+            {
+                var result = await Jsa.SignOut();
+                NavigationManager.Refresh(true);
+            }
+        });
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        IsSignedIn = await SilmoonAuthService.IsSignIn();
+        if (IsSignedIn) User = await SilmoonAuthService.GetUser<User>();
+        await base.OnInitializedAsync();
+    }
+}

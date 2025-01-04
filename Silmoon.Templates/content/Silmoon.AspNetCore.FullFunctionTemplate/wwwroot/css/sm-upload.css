@@ -1,0 +1,182 @@
+﻿.smm-uploader-header {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    padding-bottom: 10px;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+.smm-uploader-title {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    font-weight: 200;
+}
+
+.smm-uploader-count {
+    color: #B2B2B2;
+}
+
+.smm-uploader-body {
+    margin-bottom: -4px;
+    margin-right: -9px;
+    overflow: hidden;
+}
+
+.smm-uploader-files {
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+}
+
+.smm-uploader-file {
+    float: left;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    width: 79px;
+    height: 79px;
+    background: no-repeat center center;
+    background-size: cover;
+}
+
+.smm-uploader-status {
+    position: relative;
+}
+
+    .smm-uploader-status:before {
+        content: " ";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .smm-uploader-status .smm-uploader-statustext {
+        display: block;
+    }
+
+.smm-uploader-statustext {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    color: #FFFFFF;
+}
+
+    .smm-uploader-statustext .smm-uploader-statuserror {
+        display: inline-block;
+    }
+
+.smm-uploader-new {
+    float: left;
+    position: relative;
+    margin-right: 9px;
+    margin-bottom: 9px;
+    width: 77px;
+    height: 77px;
+    border: 1px solid #D9D9D9;
+}
+
+    .smm-uploader-new:before,
+    .smm-uploader-new:after {
+        content: " ";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        background-color: #D9D9D9;
+    }
+
+    .smm-uploader-new:before {
+        width: 2px;
+        height: 39.5px;
+    }
+
+    .smm-uploader-new:after {
+        width: 39.5px;
+        height: 2px;
+    }
+
+    .smm-uploader-new:active {
+        border-color: #999999;
+    }
+
+        .smm-uploader-new:active:before,
+        .smm-uploader-new:active:after {
+            background-color: #999999;
+        }
+
+.smm-uploader-input {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+
+.smm-uploader-block {
+    display: block;
+    position: relative;
+    border: 1px solid #999999;
+    border-radius: 3px 4px;
+    background: no-repeat center center;
+    background-size: cover;
+    height: 100%;
+    width: 100%;
+}
+
+    .smm-uploader-block:active {
+        border: 1px solid #000000;
+    }
+
+.smm-uploader-block-content, .smm-uploader-block-delete {
+    position: absolute;
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+
+.smm-uploader-block-delete {
+    display: none;
+}
+
+.smm-uploader-block-text {
+    color: #333;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.smm-uploader-block-title, .smm-uploader-block-status, .smm-uploader-block-ok {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 3px;
+    border-radius: 3px 4px;
+    font-size: 12px;
+}
+
+.smm-uploader-block-status, .smm-uploader-block-ok {
+    display: none;
+}
+
+.smm-uploader-block-input {
+    position: absolute;
+    display: block;
+    left: 0px;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    opacity: 0;
+    width: 100%
+}
