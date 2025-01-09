@@ -16,11 +16,14 @@ public class Core : MongoService, IDisposable
 {
     public override MongoExecuter Executer { get; set; }
     public SilmoonConfigureServiceImpl SilmoonConfigureService { get; set; }
+    public ILogger<Core> Logger { get; set; }
 
-    public Core(ISilmoonConfigureService silmoonConfigureService)
+    public Core(ISilmoonConfigureService silmoonConfigureService, ILogger<Core> logger)
     {
+        Logger = logger;
         SilmoonConfigureService = (SilmoonConfigureServiceImpl)silmoonConfigureService;
         Executer = new MongoExecuter(SilmoonConfigureService.MongoDBConnectionString);
+        Logger.LogInformation("当前数据库：" + Executer.Database.DatabaseNamespace.DatabaseName);
     }
     public User GetUser(string Username)
     {
