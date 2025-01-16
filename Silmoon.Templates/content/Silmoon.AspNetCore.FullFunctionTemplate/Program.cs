@@ -19,11 +19,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
 // ** Enable Mvc
-//builder.Services.AddMvc(config =>
-//{
-//    config.ModelBinderProviders.Insert(0, new BigIntegerBinderProvider());
-//    config.ModelBinderProviders.Insert(0, new ObjectIdBinderProvider());
-//}).AddNewtonsoftJson();
+builder.Services.AddMvc(config =>
+{
+    config.ModelBinderProviders.Insert(0, new BigIntegerBinderProvider());
+    config.ModelBinderProviders.Insert(0, new ObjectIdBinderProvider());
+}).AddNewtonsoftJson();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "DataProtection"));
@@ -118,9 +118,9 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 // ** Enable Mvc
-//app.UseCors(builder => builder.WithHosts("localhost"));
-//app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}");
-//app.MapControllerRoute(name: "default", pattern: "{area:exists?}/{controller=Home}/{action=Index}");
+app.UseCors(builder => builder.WithHosts("localhost"));
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}");
+app.MapControllerRoute(name: "default", pattern: "{area:exists?}/{controller=Home}/{action=Index}");
 
 // ** Add a SignalR Hub
 //app.MapHub<ChatHub>("/hubs/ChatHub");
