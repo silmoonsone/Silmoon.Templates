@@ -30,7 +30,7 @@ builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(D
 builder.Services.AddSession(o => { o.Cookie.Name = ProjectName + "_" + "Session"; });
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, o =>
 {
-    o.LoginPath = new PathString("/signin");
+    o.LoginPath = new PathString("/SignIn");
     o.AccessDeniedPath = new PathString("/access_denied");
     o.Cookie.Name = ProjectName + "_" + "Cookie";
 });
@@ -63,6 +63,7 @@ builder.Services.AddSilmoonAuth<SilmoonAuthServiceImpl>();
 
 // ** Required NuGet package for Silmoon.AspNetCore.Encryption
 //builder.Services.AddWebAuthnJsInterop();
+//builder.Services.AddWebAuthn<WebAuthnService>();
 
 //builder.Services.AddSilmoonDevApp<SilmoonDevAppServiceImpl>();
 
@@ -113,6 +114,9 @@ app.UseSilmoonAuth();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// ** Required NuGet package for Silmoon.AspNetCore.Encryption
+//app.UseWebAuthn();
 
 // ** Enable razor pages support
 app.MapRazorPages();
