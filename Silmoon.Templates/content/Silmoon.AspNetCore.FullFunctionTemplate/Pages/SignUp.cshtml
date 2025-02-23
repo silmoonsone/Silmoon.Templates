@@ -1,8 +1,10 @@
-﻿@{
-    ViewData["Title"] = "SignUp";
+﻿@page
+@model Silmoon.AspNetCore.FullFunctionTemplate.Pages.SignUpModel
+@{
+    ViewData["Title"] = "用户注册";
 }
+<h1>@ViewData["Title"]</h1>
 
-<h1>用户注册</h1>
 <hr />
 <div class="jumbotron">
     <form asp-controller="WebApi" asp-action="CreateUser" data-ajax="true" data-ajax-complete="signUp_OnComplete" data-ajax-begin="signUp_OnBegin">
@@ -16,7 +18,7 @@
         </div>
         <div class="form-group">
             <label for="Repassword">重复密码</label>
-            <input type="password" id="Repassword" name="Repassword" class="form-control" />
+            <input type="password" id="Repassword" name="Retypepassword" class="form-control" />
         </div>
         <div class="form-group">
             <button class="btn btn-primary float-left" id="signInSubmit">注册</button>
@@ -42,22 +44,5 @@
             toast("失败：" + e.responseJSON.Message, 3000);
             btn[0].disabled = false;
         }
-    }
-    function valiCodeLink_onClick(e) {
-        let userName = $("#Username").val();
-        $.ajax({
-            url: "../WebApi/SendMobilePhoneVerificationCode?Username=" + userName + "&g-recaptcha-response=" + g_recaptcha_response,
-            success: function (e) {
-                if (e.Success) {
-                    toast("验证码发送成功，注意查收。", 3000);
-                } else {
-                    toast("发送错误：" + e.Message, 3000)
-                }
-            },
-            error: function () {
-                toast("服务器错误", 3000);
-            }
-        })
-        setDisableCountdown(e, "等待{0}秒", 60);
     }
 </script>

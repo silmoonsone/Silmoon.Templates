@@ -27,10 +27,10 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
             return View();
         }
 
-        public IActionResult CreateUser(string Username, string Password, string Repassword)
+        public IActionResult CreateUser(string Username, string Password, string Retypepassword)
         {
             if (Username.IsNullOrEmpty() || Password.IsNullOrEmpty()) return (false, "用户名或密码为空").GetStateFlagResult();
-            if (Password != Repassword) return (false, "两次密码不一致").GetStateFlagResult();
+            if (Password != Retypepassword) return (false, "两次密码不一致").GetStateFlagResult();
             var existUser = Core.GetUser(Username);
             if (existUser is null) return (false, "用户名已存在").GetStateFlagResult();
             User user = new User()
