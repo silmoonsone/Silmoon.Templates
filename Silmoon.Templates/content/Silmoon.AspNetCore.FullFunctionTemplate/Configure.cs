@@ -14,7 +14,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate;
 
 public class Configure
 {
-    public static void RegisterStartClassSupport()
+    public static void InitialTypeRegister()
     {
         TypeDescriptor.AddAttributes(typeof(ObjectId), new TypeConverterAttribute(typeof(ObjectIdTypeConverter)));
 

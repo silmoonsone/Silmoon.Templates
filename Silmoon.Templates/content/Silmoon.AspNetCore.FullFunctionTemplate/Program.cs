@@ -11,7 +11,7 @@ using Silmoon.AspNetCore.Blazor.Extensions;
 using Silmoon.AspNetCore.FullFunctionTemplate.Components;
 
 string ProjectName = Assembly.GetExecutingAssembly().GetName().Name;
-Configure.RegisterStartClassSupport();
+Configure.InitialTypeRegister();
 
 var builder = WebApplication.CreateBuilder(args);
 
