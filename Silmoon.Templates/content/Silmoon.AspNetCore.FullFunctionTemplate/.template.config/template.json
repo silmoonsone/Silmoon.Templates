@@ -3,7 +3,7 @@
   "author": "SILMOON",
   "classifications": [ "Web", "ASP.NET" ],
   "identity": "Silmoon.AspNetCore.FullFunctionTemplate",
-  "name": "Silmoon.AspNetCore.FullFunctionTemplate",
+  "name": "Silmoon.AspNetCore 全功能Web应用",
   "shortName": "ffweb",
   "tags": {
     "language": "C#",

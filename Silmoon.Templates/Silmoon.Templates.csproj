@@ -17,12 +17,12 @@
 
   <PropertyGroup>
     <PackageId>Silmoon.Templates</PackageId>
-    <Version>0.0.3</Version>
+    <Version>0.0.5</Version>
     <Authors>SILMOON</Authors>
     <Company>SILMOON LLC</Company>
     <Description>Silmoon templates</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/silmoonsone/Silmoon.Template</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/silmoonsone/Silmoon.Templates</PackageProjectUrl>
     <RepositoryUrl>https://github.com/silmoonsone/Silmoon.Templates.git</RepositoryUrl>
     <PackageTags>silmoon;ffweb;template</PackageTags>
     <LocalizeTemplates>false</LocalizeTemplates>
