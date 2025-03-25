@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Linq;
 using Silmoon.AspNetCore.FullFunctionTemplate.Models;
 using Silmoon.AspNetCore.FullFunctionTemplate.Services;
-using Silmoon.AspNetCore.Services.Interfaces;
+using Silmoon.AspNetCore.Interfaces;
 using Silmoon.Data.MongoDB;
 using Silmoon.Extension;
 using Silmoon.Models;
