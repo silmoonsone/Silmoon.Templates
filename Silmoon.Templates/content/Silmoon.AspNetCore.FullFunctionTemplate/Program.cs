@@ -23,6 +23,8 @@ builder.Services.AddMvc(config =>
 {
     config.ModelBinderProviders.Insert(0, new BigIntegerBinderProvider());
     config.ModelBinderProviders.Insert(0, new ObjectIdBinderProvider());
+    config.ModelBinderProviders.Insert(0, new JObjectBinderProvider());
+    config.ModelBinderProviders.Insert(0, new JArrayBinderProvider());
 }).AddNewtonsoftJson();
 
 builder.Services.AddHttpContextAccessor();
