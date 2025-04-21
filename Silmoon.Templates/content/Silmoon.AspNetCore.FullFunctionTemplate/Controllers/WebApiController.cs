@@ -70,18 +70,18 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
             return this.JsonStateFlag(true, $"You IsAuthenticated is {result}.", data: result);
         }
 
-        public IActionResult UploadTempImage(string UserId, string fileName)
+        public async Task<IActionResult> UploadTempImage(string UserId, string fileName)
         {
             if (fileName.IsNullOrEmpty()) fileName = HashHelper.RandomChars(32);
             var files = GlobalCaching<string, NameObjectCollection<byte[]>>.Get(UserId + ":temp_images");
-            var imageData = Request.Form.Files[0].OpenReadStream().ToBytes();
+            var imageData = await Request.Form.Files[0].GetBytesAsync();
             using var image = imageData.GetSKImage();
 
             using var fixedImage = image.FixiPhoneOrientation();
             using var bitmap = fixedImage.ToSKBitmap();
             using var resizedBitmap = bitmap.ResizeWidth(800, true, true);
             using var resizedImage = resizedBitmap.ToSKImage();
-            var compressedImage = resizedImage.Compress();
+            using var compressedImage = resizedImage.Compress();
             var compressedImageData = compressedImage.GetBytes();
 
             if (files.Matched)
@@ -125,11 +125,11 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
 
 
 
-        public IActionResult UploadFile(string UserId, string fileName)
+        public async Task<IActionResult> UploadFile(string UserId, string fileName)
         {
             var files = GlobalCaching<string, NameObjectCollection<byte[]>>.Get(UserId + ":temp_files");
 
-            var data = Request.Form.Files[0].OpenReadStream().ToBytes();
+            var data = await Request.Form.Files[0].GetBytesAsync();
 
             if (files.Matched)
                 files.Value.Set(fileName.IsNullOrEmpty() ? Request.Form.Files[0].FileName : fileName, data);
