@@ -65,7 +65,15 @@ builder.Services.AddSilmoonAuth<SilmoonAuthServiceImpl>();
 
 // ** Required NuGet package for Silmoon.AspNetCore.Encryption
 //builder.Services.AddWebAuthnJsInterop();
-//builder.Services.AddWebAuthn<WebAuthnService>();
+//builder.Services.AddWebAuthn<WebAuthnServiceXXX>(o =>
+//{
+//#if DEBUG
+//    o.AppName = ProjectName + "_DEBUG";
+//#else
+//    o.AppName = ProjectName;
+//    // Optional, used to specify a fixed host name.
+//    //o.Host = "localhost";
+//#endif//});
 
 //builder.Services.AddSilmoonDevApp<SilmoonDevAppServiceImpl>();
 

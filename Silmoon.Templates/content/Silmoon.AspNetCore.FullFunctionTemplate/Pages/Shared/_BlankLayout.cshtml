@@ -21,21 +21,8 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <component type="typeof(Microsoft.AspNetCore.Components.Web.HeadOutlet)" render-mode="Server" />
 </head>
-<body style="margin-bottom: 60px;">
-    <header>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2022 - Silmoon.AspNetCore.FullFunctionTemplate - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-
+<body>
+    @RenderBody()
     @await RenderSectionAsync("Scripts", required: false)
     @*<script src="~/_framework/blazor.server.js"></script>*@
     @*<script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>*@
