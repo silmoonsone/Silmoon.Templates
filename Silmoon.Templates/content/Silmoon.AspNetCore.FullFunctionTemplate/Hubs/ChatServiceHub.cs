@@ -18,9 +18,9 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
 
         public Task SendToUser(string username, string message) => _chatService.SendToUser(Context.ConnectionId, username, message);
 
-        public Task UserSignin(string username) => _chatService.UserSignin(Context.ConnectionId, username);
+        public Task UserSignIn(string username) => _chatService.UserSignIn(Context.ConnectionId, username);
 
-        public Task UserSignout(string username) => _chatService.UserSignout(username);
+        public Task UserSignOut(string username) => _chatService.UserSignOut(username);
 
         public override Task OnDisconnectedAsync(Exception? exception) => _chatService.HandleDisconnect(Context.ConnectionId);
     }

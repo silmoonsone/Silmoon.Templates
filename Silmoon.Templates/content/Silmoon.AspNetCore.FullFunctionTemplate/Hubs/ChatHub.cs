@@ -76,7 +76,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
             }
         }
 
-        public async Task UserSignin(string username)
+        public async Task UserSignIn(string username)
         {
             if (string.IsNullOrEmpty(username))
             {
@@ -93,7 +93,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
             await Clients.All.SendAsync("UserSignedIn", username);
         }
 
-        public async Task UserSignout(string username)
+        public async Task UserSignOut(string username)
         {
             if (string.IsNullOrEmpty(username))
             {

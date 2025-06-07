@@ -7,8 +7,6 @@ using Silmoon.AspNetCore.Extensions;
 using Silmoon.AspNetCore.FullFunctionTemplate.Services;
 using Silmoon.AspNetCore.FullFunctionTemplate;
 using System.Reflection;
-using Silmoon.AspNetCore.Blazor.Extensions;
-using Silmoon.AspNetCore.FullFunctionTemplate.Components;
 
 string ProjectName = Assembly.GetExecutingAssembly().GetName().Name;
 Configure.InitialTypeRegister();

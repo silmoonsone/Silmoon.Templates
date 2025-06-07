@@ -86,7 +86,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
             }
         }
 
-        public async Task UserSignin(string connectionId, string username)
+        public async Task UserSignIn(string connectionId, string username)
         {
             if (string.IsNullOrEmpty(username))
             {
@@ -106,7 +106,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
             await chatServiceHub.Clients.All.SendAsync("UserSignedIn", username);
         }
 
-        public async Task UserSignout(string username)
+        public async Task UserSignOut(string username)
         {
             if (string.IsNullOrEmpty(username))
             {

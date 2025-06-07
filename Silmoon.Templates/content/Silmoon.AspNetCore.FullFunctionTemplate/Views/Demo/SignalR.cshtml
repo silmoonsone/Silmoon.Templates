@@ -27,8 +27,8 @@
                 </div>
                 <div class="card-body">
                     <input type="text" id="usernameInput" class="form-control" placeholder="Enter username..." />
-                    <button id="signinButton" class="btn btn-success mt-2">Sign In</button>
-                    <button id="signoutButton" class="btn btn-danger mt-2">Sign Out</button>
+                    <button id="signInButton" class="btn btn-success mt-2">Sign In</button>
+                    <button id="signOutButton" class="btn btn-danger mt-2">Sign Out</button>
                 </div>
             </div>
         </div>
@@ -129,17 +129,17 @@
         event.preventDefault();
     });
 
-    document.getElementById("signinButton").addEventListener("click", function (event) {
+    document.getElementById("signInButton").addEventListener("click", function (event) {
         var username = document.getElementById("usernameInput").value;
-        connection.invoke("UserSignin", username).catch(function (err) {
+        connection.invoke("UserSignIn", username).catch(function (err) {
             console.error(err.toString());
         });
         event.preventDefault();
     });
 
-    document.getElementById("signoutButton").addEventListener("click", function (event) {
+    document.getElementById("signOutButton").addEventListener("click", function (event) {
         var username = document.getElementById("usernameInput").value;
-        connection.invoke("UserSignout", username).catch(function (err) {
+        connection.invoke("UserSignOut", username).catch(function (err) {
             console.error(err.toString());
         });
         event.preventDefault();
