@@ -15,10 +15,6 @@
       "destination": "wwwroot/lib/jquery-ajax-unobtrusive/"
     },
     {
-      "library": "vue@2.6.14",
-      "destination": "wwwroot/lib/vue/"
-    },
-    {
       "provider": "unpkg",
       "library": "@microsoft/signalr@latest",
       "destination": "wwwroot/lib/microsoft/signalr/",
