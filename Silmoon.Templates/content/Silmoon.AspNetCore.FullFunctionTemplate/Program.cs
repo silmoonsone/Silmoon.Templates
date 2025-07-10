@@ -105,7 +105,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAntiforgery();
-app.MapStaticAssets();
+//app.MapStaticAssets();
+app.UseStaticFiles();
 
 //if (app.Environment.IsDevelopment())
 //{

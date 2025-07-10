@@ -1,0 +1,36 @@
+@{
+    Layout = "_ModernColorLayout";
+}
+
+<div id="menu">
+    <div class="menu-header">
+        <h3>实例页面</h3>
+        <div class="text-secondary">现代色彩功能布局</div>
+    </div>
+    <a href="~/Index" class="menu-item @(Context.Request.Path.ToString().StartsWith("/Index", StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+        <i class="bi bi-house-door"></i>账户首页
+    </a>
+    <a href="~/ModernColorDemo" class="menu-item @(Context.Request.Path.ToString().StartsWith("/ModernColorDemo", StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+        <i class="bi bi-palette2"></i>色彩演示
+    </a>
+    <hr />
+    <a href="~/_session/signOut" class="menu-item" data-ajax="true" data-ajax-begin="signOut_OnBegin" data-ajax-complete="signOut_OnComplete" data-ajax-confirm="确定退出？">
+        <i class="bi bi-box-arrow-right"></i><span id="userMenuLink">退出登录</span>
+    </a>
+    <hr />
+    <div class="theme-menu-buttons">
+        <button class="theme-menu-btn" data-theme="light" title="亮色模式">
+            <i class="bi bi-sun"></i>
+        </button>
+        <button class="theme-menu-btn" data-theme="dark" title="暗色模式">
+            <i class="bi bi-moon"></i>
+        </button>
+        <button class="theme-menu-btn" data-theme="auto" title="自动模式">
+            <i class="bi bi-circle-half"></i>
+        </button>
+    </div>
+</div>
+
+<div class="content-main">
+    @RenderBody()
+</div>

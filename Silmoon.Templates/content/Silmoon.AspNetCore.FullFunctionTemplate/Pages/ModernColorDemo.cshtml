@@ -1,0 +1,148 @@
+@page
+@{
+    Layout = "_ModernColorLayoutDemo";
+    ViewData["Title"] = "现代色彩功能布局文档";
+}
+
+<div class="content-header">
+    <h1>现代色彩功能布局文档</h1>
+    <p class="text-secondary mt-2">Simple Modern Layout System - 现代色彩功能布局</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6 pb-3">
+        <div class="card p-3" style="--animation-order: 1;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mb-3 b text-gradient">布局层次结构</div>
+                <div>
+                    <i class="bi bi-layers text-primary"></i>
+                </div>
+            </div>
+            <div>
+                <p class="text-secondary">新的布局系统采用三层结构：</p>
+                <ol class="text-secondary">
+                    <li><strong>_BlankLayout.cshtml</strong> - 基础布局（HTML结构、Bootstrap、jQuery）</li>
+                    <li><strong>_ModernColorLayout.cshtml</strong> - 现代色彩布局（主题切换、响应式容器）</li>
+                    <li><strong>具体布局文件</strong> - 业务布局（菜单、内容区域）</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 pb-3">
+        <div class="card p-3" style="--animation-order: 2;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mb-3 b text-gradient">CSS文件结构</div>
+                <div>
+                    <i class="bi bi-filetype-css text-primary"></i>
+                </div>
+            </div>
+            <div>
+                <p class="text-secondary">CSS文件已重构为通用布局：</p>
+                <ul class="text-secondary">
+                    <li><strong>modern-layout.css</strong> - 通用现代布局样式</li>
+                    <li>支持亮色、暗色、自动三种主题</li>
+                    <li>响应式设计，支持PC和移动端</li>
+                    <li>可重用于任何页面</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 pb-3">
+        <div class="card p-3" style="--animation-order: 3;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mb-3 b text-gradient">使用方法</div>
+                <div>
+                    <i class="bi bi-code-slash text-primary"></i>
+                </div>
+            </div>
+            <div>
+                <p class="text-secondary">在页面中使用布局：</p>
+                <pre><code>@@{
+    Layout = "_ModernColorLayoutDemo";  // 现代色彩布局
+    ViewData["Title"] = "页面标题";
+}</code></pre>
+                <p class="text-secondary small mt-2">选择适合的布局文件即可获得完整的主题切换和响应式支持。</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 pb-3">
+        <div class="card p-3" style="--animation-order: 4;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mb-3 b text-gradient">布局文件说明</div>
+                <div>
+                    <i class="bi bi-file-earmark-text text-primary"></i>
+                </div>
+            </div>
+            <div>
+                <p class="text-secondary">可用的布局文件：</p>
+                <ul class="text-secondary">
+                    <li><strong>_ModernColorLayout.cshtml</strong> - 基础现代色彩布局，无菜单</li>
+                    <li><strong>_ModernColorLayoutDemo.cshtml</strong> - 现代色彩布局演示，包含侧边菜单</li>
+                    <li><strong>_AccountLayout.cshtml</strong> - 账户页面布局，包含侧边菜单</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pb-3">
+    <div class="card p-3" style="--animation-order: 5;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="mb-3 b text-gradient">主题切换功能</div>
+            <div>
+                <i class="bi bi-palette text-primary"></i>
+            </div>
+        </div>
+        <div>
+            <p class="text-secondary">所有使用现代布局的页面都自动获得：</p>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="text-center p-3 border rounded">
+                        <i class="bi bi-sun text-warning" style="font-size: 1.5rem;"></i>
+                        <h6 class="mt-2">亮色模式</h6>
+                        <p class="text-secondary small">适合白天使用</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-3 border rounded">
+                        <i class="bi bi-moon text-info" style="font-size: 1.5rem;"></i>
+                        <h6 class="mt-2">暗色模式</h6>
+                        <p class="text-secondary small">适合夜间使用</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-3 border rounded">
+                        <i class="bi bi-circle-half text-success" style="font-size: 1.5rem;"></i>
+                        <h6 class="mt-2">自动模式</h6>
+                        <p class="text-secondary small">跟随系统设置</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pb-3">
+    <div class="card p-3 glass-effect" style="--animation-order: 6;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="mb-3 b text-gradient">响应式特性</div>
+            <div></div>
+        </div>
+        <div>
+            <p class="text-secondary">现代布局系统具有完整的响应式支持：</p>
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                <strong>响应式特性：</strong>
+                <ul class="mb-0 mt-2">
+                    <li>PC端：侧边栏菜单 + 内容区域</li>
+                    <li>移动端：汉堡菜单 + 弹出式菜单</li>
+                    <li>主题切换：PC端右上角按钮组，移动端菜单内按钮</li>
+                    <li>自适应：内容区域根据屏幕尺寸自动调整</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 
