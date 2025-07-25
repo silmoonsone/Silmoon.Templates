@@ -10,7 +10,6 @@
     --border-radius: 10px;
     --card-border-radius: 12px;
     --menu-width: 220px;
-    
     /* 亮色主题变量（默认） */
     --bg-primary: #ffffff;
     --bg-secondary: #f8f9fa;
@@ -330,23 +329,23 @@ body {
     opacity: 0.8;
 }
 
-.theme-btn:hover {
-    background: var(--bg-primary);
-    opacity: 1;
-    transform: translateY(-1px);
-}
+    .theme-btn:hover {
+        background: var(--bg-primary);
+        opacity: 1;
+        transform: translateY(-1px);
+    }
 
-.theme-btn.active {
-    background: linear-gradient(135deg, var(--primary-color), #0056b3);
-    color: white;
-    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
-    transform: translateY(-1px);
-    opacity: 1;
-}
+    .theme-btn.active {
+        background: linear-gradient(135deg, var(--primary-color), #0056b3);
+        color: white;
+        box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+        transform: translateY(-1px);
+        opacity: 1;
+    }
 
-.theme-btn.clicked {
-    transform: scale(0.95);
-}
+    .theme-btn.clicked {
+        transform: scale(0.95);
+    }
 
 /* 确保主题切换按钮在所有主题下都有足够的对比度 */
 /* 亮色主题下的未激活按钮 */
@@ -357,11 +356,11 @@ body {
     border: 1px solid #ddd;
 }
 
-[data-theme="light"] .theme-btn:not(.active):hover,
-:root:not([data-theme]) .theme-btn:not(.active):hover {
-    background: #e0e0e0;
-    border-color: #ccc;
-}
+    [data-theme="light"] .theme-btn:not(.active):hover,
+    :root:not([data-theme]) .theme-btn:not(.active):hover {
+        background: #e0e0e0;
+        border-color: #ccc;
+    }
 
 /* 暗色主题下的未激活按钮 */
 [data-theme="dark"] .theme-btn:not(.active) {
@@ -370,10 +369,10 @@ body {
     border: 1px solid #555;
 }
 
-[data-theme="dark"] .theme-btn:not(.active):hover {
-    background: #4a4a4a;
-    border-color: #666;
-}
+    [data-theme="dark"] .theme-btn:not(.active):hover {
+        background: #4a4a4a;
+        border-color: #666;
+    }
 
 /* 高优先级激活样式 - 确保激活状态始终可见 */
 .theme-btn.active,
@@ -411,16 +410,16 @@ body {
     opacity: 0.8;
 }
 
-.theme-menu-btn:hover {
-    background: var(--bg-primary);
-    opacity: 1;
-}
+    .theme-menu-btn:hover {
+        background: var(--bg-primary);
+        opacity: 1;
+    }
 
-.theme-menu-btn.active {
-    background: linear-gradient(135deg, var(--primary-color), #0056b3);
-    color: white;
-    opacity: 1;
-}
+    .theme-menu-btn.active {
+        background: linear-gradient(135deg, var(--primary-color), #0056b3);
+        color: white;
+        opacity: 1;
+    }
 
 /* 确保移动端主题切换按钮在所有主题下都有足够的对比度 */
 /* 亮色主题下的未激活按钮 */
@@ -431,11 +430,11 @@ body {
     border: 1px solid #ddd;
 }
 
-[data-theme="light"] .theme-menu-btn:not(.active):hover,
-:root:not([data-theme]) .theme-menu-btn:not(.active):hover {
-    background: #e0e0e0;
-    border-color: #ccc;
-}
+    [data-theme="light"] .theme-menu-btn:not(.active):hover,
+    :root:not([data-theme]) .theme-menu-btn:not(.active):hover {
+        background: #e0e0e0;
+        border-color: #ccc;
+    }
 
 /* 暗色主题下的未激活按钮 */
 [data-theme="dark"] .theme-menu-btn:not(.active) {
@@ -444,10 +443,10 @@ body {
     border: 1px solid #555;
 }
 
-[data-theme="dark"] .theme-menu-btn:not(.active):hover {
-    background: #4a4a4a;
-    border-color: #666;
-}
+    [data-theme="dark"] .theme-menu-btn:not(.active):hover {
+        background: #4a4a4a;
+        border-color: #666;
+    }
 
 /* 高优先级激活样式 - 确保移动端激活状态始终可见 */
 .theme-menu-btn.active,
@@ -464,7 +463,7 @@ body {
     .theme-toggle-group {
         display: none;
     }
-    
+
     #toggle-menu {
         right: 20px;
     }
@@ -513,17 +512,17 @@ body {
     transform: none !important;
 }
 
-.btn:disabled:hover,
-.col.card:disabled:hover,
-.card:disabled:hover {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: var(--bg-secondary) !important;
-    color: var(--text-secondary) !important;
-    border-color: var(--border-color) !important;
-    box-shadow: none !important;
-    transform: none !important;
-}
+    .btn:disabled:hover,
+    .col.card:disabled:hover,
+    .card:disabled:hover {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: var(--bg-secondary) !important;
+        color: var(--text-secondary) !important;
+        border-color: var(--border-color) !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
 
 /* 卡片按钮样式 */
 .col.card {
@@ -539,24 +538,24 @@ body {
     color: var(--text-primary);
 }
 
-.col.card:not(:disabled):hover {
-    box-shadow: 0 8px 25px var(--shadow-hover);
-    transform: translateY(-2px);
-    text-decoration: none;
-    color: var(--text-primary);
-}
+    .col.card:not(:disabled):hover {
+        box-shadow: 0 8px 25px var(--shadow-hover);
+        transform: translateY(-2px);
+        text-decoration: none;
+        color: var(--text-primary);
+    }
 
-.col.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(135deg, var(--primary-color), #0056b3);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
+    .col.card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(135deg, var(--primary-color), #0056b3);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
 
 .form-control {
     border: 1px solid var(--border-color);
@@ -570,11 +569,257 @@ body {
         border-color: var(--primary-color);
         box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
         background: var(--bg-primary);
+        color: var(--text-primary);
     }
 
     .form-control::placeholder {
         color: var(--text-secondary);
     }
+
+/* 确保在暗色模式下输入框有足够的对比度 */
+[data-theme="dark"] .form-control:focus,
+:root:not([data-theme]) .form-control:focus {
+    background: #2a2a2a !important;
+    color: #e9ecef !important;
+    border-color: var(--primary-color);
+}
+
+/* 确保在亮色模式下输入框有足够的对比度 */
+[data-theme="light"] .form-control:focus {
+    background: #ffffff !important;
+    color: #212529 !important;
+    border-color: var(--primary-color);
+}
+
+/* 下拉列表样式优化 */
+.form-select {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+    .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    .form-select option {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+/* 确保在暗色模式下下拉框有足够的对比度 */
+[data-theme="dark"] .form-select:focus,
+:root:not([data-theme]) .form-select:focus {
+    background: #2a2a2a !important;
+    color: #e9ecef !important;
+    border-color: var(--primary-color);
+}
+
+/* 确保在亮色模式下下拉框有足够的对比度 */
+[data-theme="light"] .form-select:focus {
+    background: #ffffff !important;
+    color: #212529 !important;
+    border-color: var(--primary-color);
+}
+
+/* 下拉选项的暗色模式适配 */
+[data-theme="dark"] .form-select option,
+:root:not([data-theme]) .form-select option {
+    background: #2a2a2a !important;
+    color: #e9ecef !important;
+}
+
+/* 下拉选项的亮色模式适配 */
+[data-theme="light"] .form-select option {
+    background: #ffffff !important;
+    color: #212529 !important;
+}
+
+/* 输入组样式优化 */
+.input-group-text {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+/* 确保在暗色模式下输入组文本有足够的对比度 */
+[data-theme="dark"] .input-group-text,
+:root:not([data-theme]) .input-group-text {
+    background: #3a3a3a !important;
+    color: #e9ecef !important;
+    border-color: var(--border-color);
+}
+
+/* 确保在亮色模式下输入组文本有足够的对比度 */
+[data-theme="light"] .input-group-text {
+    background: #f8f9fa !important;
+    color: #495057 !important;
+    border-color: var(--border-color);
+}
+
+/* Tab样式优化 */
+.nav-tabs .nav-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    font-weight: 500;
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+}
+
+    .nav-tabs .nav-link:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background: transparent;
+    }
+
+    .nav-tabs .nav-link.active {
+        border-bottom-color: var(--primary-color);
+        color: var(--primary-color);
+        background: transparent;
+    }
+
+    /* 禁用Tab视觉样式（亮色模式） */
+    .nav-tabs .nav-link[disabled] {
+        color: #6c757d !important;
+        background-color: #f8f9fa !important;
+        border-color: #dee2e6 !important;
+        cursor: not-allowed !important;
+        opacity: 0.6;
+    }
+
+/* 暗色模式下的禁用Tab样式 */
+[data-theme="dark"] .nav-tabs .nav-link[disabled] {
+    color: #adb5bd !important;
+    background-color: #343a40 !important;
+    border-color: #495057 !important;
+    opacity: 0.5;
+}
+
+/* 自动暗色模式下的禁用Tab样式 */
+:root:not([data-theme]) .nav-tabs .nav-link[disabled] {
+    color: #adb5bd !important;
+    background-color: #343a40 !important;
+    border-color: #495057 !important;
+    opacity: 0.5;
+}
+
+/* 数字输入框样式优化 - 隐藏上下箭头 */
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* 数字输入框焦点状态优化 */
+    input[type="number"]:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+/* 确保数字输入框在所有主题下都有正确的样式 */
+[data-theme="dark"] input[type="number"]:focus,
+:root:not([data-theme]) input[type="number"]:focus {
+    background: #2a2a2a !important;
+    color: #e9ecef !important;
+    border-color: var(--primary-color);
+}
+
+[data-theme="light"] input[type="number"]:focus {
+    background: #ffffff !important;
+    color: #212529 !important;
+    border-color: var(--primary-color);
+}
+
+/* 表格样式优化 */
+.table {
+    color: var(--text-primary);
+}
+
+.table-light {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.table-hover tbody tr:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* 表头样式优化 */
+.table thead th {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    font-weight: 600;
+}
+
+.table tbody td {
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* 表格悬停效果优化 */
+.table-hover tbody tr:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+    .table-hover tbody tr:hover td {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+/* 标签样式优化 */
+.badge {
+    color: white !important;
+}
+
+.bg-info {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.bg-success {
+    background-color: var(--success-color) !important;
+    color: white !important;
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.bg-secondary {
+    background-color: var(--secondary-color) !important;
+    color: white !important;
+}
+
+.bg-light {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
 
 /* 响应式设计 */
 @media (max-width: 1400px) {
@@ -684,21 +929,20 @@ body {
         display: block;
         z-index: 1003;
     }
-    
+
     /* 移动端触摸手势支持 */
     #menu {
         touch-action: pan-y pinch-zoom;
     }
-    
+
     /* 确保菜单容器不会限制菜单显示 */
     #content {
         overflow: visible !important;
     }
-    
+
     .content-wrapper {
         overflow: visible !important;
     }
-    
 }
 
 @keyframes slideInDown {
@@ -706,6 +950,7 @@ body {
         opacity: 0;
         transform: translateY(-10px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -744,15 +989,16 @@ body {
     border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--text-secondary);
-}
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-secondary);
+    }
 
 /* 添加动画效果 */
 @keyframes fadeIn {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -763,6 +1009,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -785,8 +1032,8 @@ body {
 
 /* 代码块在所有主题下都高对比度显示 */
 pre, pre code, code {
-    background: #23272e !important;   /* 深色背景，适合暗色主题 */
-    color: #f8f8f2 !important;        /* 亮色文字 */
+    background: #23272e !important; /* 深色背景，适合暗色主题 */
+    color: #f8f8f2 !important; /* 亮色文字 */
     border-radius: 6px !important;
     border: 1px solid var(--border-color, #444) !important;
     font-size: 1em;
@@ -794,38 +1041,21 @@ pre, pre code, code {
     overflow-x: auto;
 }
 
-/* 移除 Bootstrap 的 bg-light 对代码块的影响 */
-pre.bg-light, code.bg-light {
-    background: #23272e !important;
-    color: #f8f8f2 !important;
-}
+    /* 移除 Bootstrap 的 bg-light 对代码块的影响 */
+    pre.bg-light, code.bg-light {
+        background: #23272e !important;
+        color: #f8f8f2 !important;
+    }
 
-/* 确保所有文本元素在暗色主题下都有正确的颜色 */
-.text-secondary {
-    color: var(--text-secondary) !important;
-}
-
-.text-primary {
-    color: var(--primary-color) !important;
-}
-
-/* 确保卡片内容在暗色主题下正确显示 */
-.card p {
-    color: var(--text-primary);
-}
-
-.card ul, .card ol {
-    color: var(--text-primary);
-}
-
-.card li {
+/* 合并卡片内容颜色设置 */
+.card p, .card ul, .card ol, .card li {
     color: var(--text-primary);
 }
 
 /* 确保边框在暗色主题下正确显示 */
 .border {
     border-color: var(--border-color) !important;
-} 
+}
 
 /* 暗色模式下的 alert/bg 适配 */
 [data-theme="dark"] .alert-info,
@@ -834,45 +1064,68 @@ pre.bg-light, code.bg-light {
     color: #e9ecef !important;
     border-color: #3a4a5a !important;
 }
+
 [data-theme="dark"] .alert-success,
 [data-theme="dark"] .bg-success {
     background-color: #1e3a2a !important;
     color: #e9ecef !important;
     border-color: #2e5a3a !important;
 }
+
 [data-theme="dark"] .alert-warning,
 [data-theme="dark"] .bg-warning {
     background-color: #4a3a1e !important;
     color: #fffbe6 !important;
     border-color: #6a5a2e !important;
 }
+
 [data-theme="dark"] .alert-danger,
 [data-theme="dark"] .bg-danger {
     background-color: #3a1e2a !important;
     color: #ffe9ec !important;
     border-color: #5a2e3a !important;
 }
+
 [data-theme="dark"] .alert-primary,
 [data-theme="dark"] .bg-primary {
     background-color: #1e2a3a !important;
     color: #e9ecef !important;
     border-color: #2e3a5a !important;
 }
+
 [data-theme="dark"] .alert-secondary,
 [data-theme="dark"] .bg-secondary {
     background-color: #2d2d2d !important;
     color: #e9ecef !important;
     border-color: #444 !important;
 }
+
 [data-theme="dark"] .alert-light,
 [data-theme="dark"] .bg-light {
     background-color: #222 !important;
     color: #e9ecef !important;
     border-color: #444 !important;
 }
+
 [data-theme="dark"] .alert-dark,
 [data-theme="dark"] .bg-dark {
     background-color: #111 !important;
     color: #e9ecef !important;
     border-color: #333 !important;
-} 
+}
+
+/* 暗色模式下表单标签可读性增强 */
+[data-theme="dark"] label,
+[data-theme="dark"] .form-label,
+[data-theme="dark"] .form-check-label,
+[data-theme="dark"] .input-group-text {
+    color: #e9ecef !important;
+}
+
+/* 自动暗色模式下也适配 */
+:root:not([data-theme]) label,
+:root:not([data-theme]) .form-label,
+:root:not([data-theme]) .form-check-label,
+:root:not([data-theme]) .input-group-text {
+    color: #e9ecef !important;
+}

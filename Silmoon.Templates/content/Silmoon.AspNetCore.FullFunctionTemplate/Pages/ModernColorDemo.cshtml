@@ -88,8 +88,376 @@
     </div>
 </div>
 
+<!-- 表单控件演示区域 -->
 <div class="pb-3">
     <div class="card p-3" style="--animation-order: 5;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="mb-3 b text-gradient">表单控件演示</div>
+            <div>
+                <i class="bi bi-input-cursor text-primary"></i>
+            </div>
+        </div>
+        <div>
+            <p class="text-secondary">现代布局系统支持各种表单控件，自动适配主题：</p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="textInput" class="form-label">文本输入框</label>
+                        <input type="text" class="form-control" id="textInput" placeholder="请输入文本内容">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="emailInput" class="form-label">邮箱输入框</label>
+                        <input type="email" class="form-control" id="emailInput" placeholder="example@domain.com">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="passwordInput" class="form-label">密码输入框</label>
+                        <input type="password" class="form-control" id="passwordInput" placeholder="请输入密码">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="numberInput" class="form-label">数字输入框</label>
+                        <input type="number" class="form-control" id="numberInput" placeholder="请输入数字" min="0" max="100">
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="textareaInput" class="form-label">多行文本</label>
+                        <textarea class="form-control" id="textareaInput" rows="3" placeholder="请输入多行文本内容"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="selectInput" class="form-label">下拉选择框</label>
+                        <select class="form-select" id="selectInput">
+                            <option value="">请选择选项</option>
+                            <option value="1">选项一</option>
+                            <option value="2">选项二</option>
+                            <option value="3">选项三</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="dateInput" class="form-label">日期选择器</label>
+                        <input type="date" class="form-control" id="dateInput">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="timeInput" class="form-label">时间选择器</label>
+                        <input type="time" class="form-control" id="timeInput">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 复选框和单选框演示 -->
+<div class="pb-3">
+    <div class="card p-3" style="--animation-order: 6;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="mb-3 b text-gradient">选择控件演示</div>
+            <div>
+                <i class="bi bi-check2-square text-primary"></i>
+            </div>
+        </div>
+        <div>
+            <p class="text-secondary">支持复选框、单选框和开关控件：</p>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <h6 class="text-primary mb-3">复选框</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="checkbox1">
+                        <label class="form-check-label" for="checkbox1">
+                            选项一
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="checkbox2" checked>
+                        <label class="form-check-label" for="checkbox2">
+                            选项二（默认选中）
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="checkbox3">
+                        <label class="form-check-label" for="checkbox3">
+                            选项三
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <h6 class="text-primary mb-3">单选框</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="radioGroup" id="radio1">
+                        <label class="form-check-label" for="radio1">
+                            选项A
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="radioGroup" id="radio2" checked>
+                        <label class="form-check-label" for="radio2">
+                            选项B（默认选中）
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="radioGroup" id="radio3">
+                        <label class="form-check-label" for="radio3">
+                            选项C
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <h6 class="text-primary mb-3">开关控件</h6>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="switch1">
+                        <label class="form-check-label" for="switch1">
+                            功能开关一
+                        </label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="switch2" checked>
+                        <label class="form-check-label" for="switch2">
+                            功能开关二（默认开启）
+                        </label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="switch3" disabled>
+                        <label class="form-check-label" for="switch3">
+                            禁用开关
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 标签页演示 -->
+<div class="pb-3">
+    <div class="card p-3" style="--animation-order: 7;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="mb-3 b text-gradient">标签页演示</div>
+            <div>
+                <i class="bi bi-collection text-primary"></i>
+            </div>
+        </div>
+        <div>
+            <p class="text-secondary">支持多标签页切换，自动适配主题色彩：</p>
+            
+            <ul class="nav nav-tabs" id="demoTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
+                        <i class="bi bi-house-door me-2"></i>首页
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
+                        <i class="bi bi-gear me-2"></i>设置
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">
+                        <i class="bi bi-info-circle me-2"></i>关于
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab" disabled>
+                        <i class="bi bi-lock me-2"></i>禁用标签
+                    </button>
+                </li>
+            </ul>
+            
+            <div class="tab-content mt-3" id="demoTabsContent">
+                <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+                    <div class="p-3">
+                        <h5 class="text-primary">首页内容</h5>
+                        <p class="text-secondary">这是第一个标签页的内容。您可以在这里放置主要的功能和信息。</p>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            这是一个信息提示框，在暗色主题下会自动调整颜色。
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="tab2" role="tabpanel">
+                    <div class="p-3">
+                        <h5 class="text-primary">设置页面</h5>
+                        <p class="text-secondary">这是设置标签页的内容。您可以在这里放置各种配置选项。</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="setting1" checked>
+                                    <label class="form-check-label" for="setting1">启用通知</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="setting2">
+                                    <label class="form-check-label" for="setting2">自动保存</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="setting3" checked>
+                                    <label class="form-check-label" for="setting3">显示帮助</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="setting4">
+                                    <label class="form-check-label" for="setting4">调试模式</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="tab3" role="tabpanel">
+                    <div class="p-3">
+                        <h5 class="text-primary">关于页面</h5>
+                        <p class="text-secondary">这是关于标签页的内容。您可以在这里放置版本信息和帮助文档。</p>
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle me-2"></i>
+                            这是一个成功提示框，同样支持主题切换。
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>版本信息：</strong>
+                                <ul class="text-secondary">
+                                    <li>当前版本：v1.0.0</li>
+                                    <li>构建日期：2024-01-01</li>
+                                    <li>支持主题：亮色/暗色/自动</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>技术栈：</strong>
+                                <ul class="text-secondary">
+                                    <li>ASP.NET Core</li>
+                                    <li>Bootstrap 5</li>
+                                    <li>现代CSS变量</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="tab4" role="tabpanel">
+                    <div class="p-3">
+                        <h5 class="text-primary">禁用标签</h5>
+                        <p class="text-secondary">这个标签页被禁用了，无法访问。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 按钮演示 -->
+<div class="pb-3">
+    <div class="card p-3" style="--animation-order: 8;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="mb-3 b text-gradient">按钮控件演示</div>
+            <div>
+                <i class="bi bi-buttons text-primary"></i>
+            </div>
+        </div>
+        <div>
+            <p class="text-secondary">支持多种按钮样式，自动适配主题：</p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-primary mb-3">主要按钮</h6>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-primary me-2">主要按钮</button>
+                        <button type="button" class="btn btn-outline-primary me-2">轮廓按钮</button>
+                        <button type="button" class="btn btn-primary" disabled>禁用按钮</button>
+                    </div>
+                    
+                    <h6 class="text-primary mb-3">其他颜色</h6>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-success me-2">成功按钮</button>
+                        <button type="button" class="btn btn-warning me-2">警告按钮</button>
+                        <button type="button" class="btn btn-danger me-2">危险按钮</button>
+                        <button type="button" class="btn btn-info me-2">信息按钮</button>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h6 class="text-primary mb-3">按钮尺寸</h6>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-primary btn-lg me-2">大按钮</button>
+                        <button type="button" class="btn btn-primary me-2">默认按钮</button>
+                        <button type="button" class="btn btn-primary btn-sm me-2">小按钮</button>
+                    </div>
+                    
+                    <h6 class="text-primary mb-3">按钮组</h6>
+                    <div class="btn-group mb-3" role="group">
+                        <button type="button" class="btn btn-outline-primary">左</button>
+                        <button type="button" class="btn btn-outline-primary">中</button>
+                        <button type="button" class="btn btn-outline-primary">右</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 输入组演示 -->
+<div class="pb-3">
+    <div class="card p-3" style="--animation-order: 9;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="mb-3 b text-gradient">输入组演示</div>
+            <div>
+                <i class="bi bi-input-cursor-text text-primary"></i>
+            </div>
+        </div>
+        <div>
+            <p class="text-secondary">支持输入组，可以组合输入框和按钮：</p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">搜索框</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="搜索内容...">
+                            <button class="btn btn-primary" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">邮箱输入</label>
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="邮箱地址">
+                            <span class="input-group-text">@@domain.com</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">金额输入</label>
+                        <div class="input-group">
+                            <span class="input-group-text">¥</span>
+                            <input type="number" class="form-control" placeholder="0.00">
+                            <span class="input-group-text">元</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">文件上传</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control">
+                            <button class="btn btn-outline-primary" type="button">上传</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pb-3">
+    <div class="card p-3" style="--animation-order: 10;">
         <div class="d-flex justify-content-between align-items-center">
             <div class="mb-3 b text-gradient">主题切换功能</div>
             <div>
@@ -126,7 +494,7 @@
 </div>
 
 <div class="pb-3">
-    <div class="card p-3 glass-effect" style="--animation-order: 6;">
+    <div class="card p-3 glass-effect" style="--animation-order: 11;">
         <div class="d-flex justify-content-between align-items-center">
             <div class="mb-3 b text-gradient">响应式特性</div>
             <div></div>

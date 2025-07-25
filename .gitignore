@@ -7,8 +7,7 @@ DataProtection/
 Migrations/
 .idea/
 .DS_Store
-config.local.*.json
-config.local.json
+*local*.json
 *.local.cs
 *.local.db
 *.local-log.db
