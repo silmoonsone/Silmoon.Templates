@@ -1,12 +1,18 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Silmoon.Extension;
+using Silmoon.Data.MongoDB.Extensions;
 using Silmoon.AspNetCore.Binders;
 using Silmoon.AspNetCore.Extension.Binders;
 using Silmoon.AspNetCore.Extensions;
 using Silmoon.AspNetCore.FullFunctionTemplate.Services;
 using Silmoon.AspNetCore.FullFunctionTemplate;
 using System.Reflection;
+using Silmoon.AspNetCore.Blazor.Extensions;
+using Silmoon.AspNetCore.FullFunctionTemplate.Components;
 
 string ProjectName = Assembly.GetExecutingAssembly().GetName().Name;
 Configure.InitialTypeRegister();
@@ -49,17 +55,23 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 //builder.Services.AddSignalR();
 
 // ** Required NuGet package for Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson
-//builder.Services.AddSignalR().AddNewtonsoftJsonProtocol();
+//builder.Services.AddSignalR().AddNewtonsoftJsonProtocol(options =>
+//{
+//    options.PayloadSerializerSettings.AddAllCommonConverters();
+//    options.PayloadSerializerSettings.AddAllBsonConverters();
+//    options.PayloadSerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+//    options.PayloadSerializerSettings.TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple;
+//});
 
 // ** Add Blazor service
-//builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 builder.Services.AddSingleton<Core>();
 builder.Services.AddSilmoonAuth<SilmoonAuthServiceImpl>();
 
 // ** Required NuGet package for Silmoon.AspNetCore.Blazor
-//builder.Services.AddJsComponentInterop();
-//builder.Services.AddJsSilmoonAuthInterop();
+builder.Services.AddJsComponentInterop();
+builder.Services.AddJsSilmoonAuthInterop();
 
 // ** Required NuGet package for Silmoon.AspNetCore.Encryption
 //builder.Services.AddWebAuthnJsInterop();
@@ -142,7 +154,7 @@ app.MapControllerRoute(name: "default", pattern: "{area:exists?}/{controller=Hom
 //app.MapHub<ChatServiceHub>("/hubs/ChatServiceHub");
 
 // ** Enable Blazor server components
-//app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 
 Configure.Output(logger, "Server app run.", LogLevel.Information);

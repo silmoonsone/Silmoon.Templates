@@ -17,13 +17,13 @@
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/signin">
-                <span class="bi" aria-hidden="true"></span> SignIn
+                <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> SignIn
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/signup">
-                <span class="bi" aria-hidden="true"></span> SignUp
+                <i class="bi bi-person-plus-fill" aria-hidden="true"></i> SignUp
             </NavLink>
         </div>
 
@@ -31,13 +31,13 @@
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/dashboard">
-                <span class="bi" aria-hidden="true"></span> Dashboard
+                <i class="bi bi-speedometer2" aria-hidden="true"></i> Dashboard
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/upload">
-                <span class="bi" aria-hidden="true"></span> Upload
+                <i class="bi bi-cloud-upload-fill" aria-hidden="true"></i> Upload
             </NavLink>
         </div>
 
@@ -45,28 +45,75 @@
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <i class="bi bi-house-door-fill" aria-hidden="true"></i> Home
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+                <i class="bi bi-plus-square-fill" aria-hidden="true"></i> Counter
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+                <i class="bi bi-list-nested" aria-hidden="true"></i> Weather
             </NavLink>
         </div>
+
+        <!-- 示例二级菜单 -->
+        <div class="nav-item px-3">
+            <div class="nav-link submenu-toggle" @onclick="() => ToggleSubmenu(0)">
+                <i class="bi bi-folder-fill" aria-hidden="true"></i>
+                <span>系统管理</span>
+                <i class="bi bi-chevron-down submenu-arrow @(expandedMenus.Contains(0) ? "expanded" : "")" aria-hidden="true"></i>
+            </div>
+            <div class="submenu @(expandedMenus.Contains(0) ? "expanded" : "")">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link submenu-link" href="/users">
+                        <i class="bi bi-people-fill" aria-hidden="true"></i> 用户管理
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link submenu-link" href="/roles">
+                        <i class="bi bi-shield-fill" aria-hidden="true"></i> 角色管理
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link submenu-link" href="/permissions">
+                        <i class="bi bi-key-fill" aria-hidden="true"></i> 权限管理
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-item px-3">
+            <div class="nav-link submenu-toggle" @onclick="() => ToggleSubmenu(1)">
+                <i class="bi bi-gear-fill" aria-hidden="true"></i>
+                <span>设置</span>
+                <i class="bi bi-chevron-down submenu-arrow @(expandedMenus.Contains(1) ? "expanded" : "")" aria-hidden="true"></i>
+            </div>
+            <div class="submenu @(expandedMenus.Contains(1) ? "expanded" : "")">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link submenu-link" href="/settings/general">
+                        <i class="bi bi-sliders" aria-hidden="true"></i> 基本设置
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link submenu-link" href="/settings/security">
+                        <i class="bi bi-lock-fill" aria-hidden="true"></i> 安全设置
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
         @if (IsSignedIn)
         {
             <hr style="background-color: white;" />
 
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="javascript: void(0);" @onclick="doSignOut">
-                    <span class="bi" aria-hidden="true"></span> SignOut
+                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i> SignOut
                 </NavLink>
             </div>
         }
@@ -80,6 +127,21 @@
 @code {
     bool IsSignedIn { get; set; } = false;
     User User { get; set; }
+    HashSet<int> expandedMenus = new HashSet<int>();
+
+    void ToggleSubmenu(int menuId)
+    {
+        if (expandedMenus.Contains(menuId))
+        {
+            expandedMenus.Remove(menuId);
+        }
+        else
+        {
+            expandedMenus.Add(menuId);
+        }
+        StateHasChanged();
+    }
+
     async void doSignOut()
     {
         await Jsc.MetroUIConfirm("确认", "确认退出登录？", true, async yes =>
@@ -91,10 +153,60 @@
             }
         });
     }
+
     protected override async Task OnInitializedAsync()
     {
         IsSignedIn = await SilmoonAuthService.IsSignIn();
         if (IsSignedIn) User = await SilmoonAuthService.GetUser<User>();
         await base.OnInitializedAsync();
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // 执行JavaScript来检查并展开当前激活菜单
+            await Js.InvokeVoidAsync("autoExpandActiveMenu");
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
 }
+
+<script>
+    function autoExpandActiveMenu() {
+        // 查找所有的一级菜单容器
+        const menuContainers = document.querySelectorAll('.nav-item');
+
+        menuContainers.forEach((container, index) => {
+            // 查找当前容器下的子菜单
+            const submenu = container.querySelector('.submenu');
+            if (submenu) {
+                // 查找子菜单中的NavLink
+                const navLinks = submenu.querySelectorAll('.nav-link');
+                let hasActiveChild = false;
+
+                // 检查是否有激活的子菜单
+                navLinks.forEach(link => {
+                    if (link.classList.contains('active')) {
+                        hasActiveChild = true;
+                    }
+                });
+
+                // 如果有激活的子菜单，展开父级菜单
+                if (hasActiveChild) {
+                    const submenuToggle = container.querySelector('.submenu-toggle');
+                    if (submenuToggle) {
+                        // 添加expanded类到submenu
+                        submenu.classList.add('expanded');
+
+                        // 添加expanded类到箭头图标
+                        const arrow = submenuToggle.querySelector('.submenu-arrow');
+                        if (arrow) {
+                            arrow.classList.add('expanded');
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>

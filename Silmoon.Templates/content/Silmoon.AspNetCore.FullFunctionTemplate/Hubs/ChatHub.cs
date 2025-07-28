@@ -8,11 +8,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
 {
     public class ChatHub : Hub
     {
-        // 用于存储用户连接ID与用户名的映射
-        private static readonly ConcurrentDictionary<string, string> _connections = new ConcurrentDictionary<string, string>();
-
-        // 用于存储用户名与连接ID的映射
-        private static readonly ConcurrentDictionary<string, string> _users = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentBiDictionary<string, string> _connections = [];
 
         public async Task SendToMe(string message)
         {
@@ -65,7 +61,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
                 await Clients.Caller.SendAsync("ErrorMessage", "Message cannot be empty.");
                 return;
             }
-            var connectionId = _users.FirstOrDefault(x => x.Key == username).Value;
+            var connectionId = _connections.GetKeyByValue(username);
             if (!string.IsNullOrEmpty(connectionId))
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[Context.ConnectionId], message, true);
@@ -83,13 +79,12 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
                 await Clients.Caller.SendAsync("ErrorMessage", "Username cannot be empty.");
                 return;
             }
-            if (_users.ContainsKey(username))
+            if (_connections.ContainsValue(username))
             {
                 await Clients.Caller.SendAsync("ErrorMessage", "Username already exists.");
                 return;
             }
             _connections[Context.ConnectionId] = username;
-            _users[username] = Context.ConnectionId;
             await Clients.All.SendAsync("UserSignedIn", username);
         }
 
@@ -100,20 +95,14 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
                 await Clients.Caller.SendAsync("ErrorMessage", "Username cannot be empty.");
                 return;
             }
-            var connectionId = _users.FirstOrDefault(x => x.Key == username).Value;
-            if (!string.IsNullOrEmpty(connectionId))
-            {
-                _connections.TryRemove(connectionId, out _);
-                _users.TryRemove(username, out _);
-                await Clients.All.SendAsync("UserSignedOut", username);
-            }
+            _connections.TryRemoveByKey(Context.ConnectionId, out _);
+            await Clients.All.SendAsync("UserSignedOut", username);
         }
 
         public override Task OnDisconnectedAsync(Exception? exception)
         {
-            if (_connections.TryRemove(Context.ConnectionId, out var username))
+            if (_connections.TryRemoveByKey(Context.ConnectionId, out var username))
             {
-                _users.TryRemove(username, out _);
                 Clients.All.SendAsync("UserSignedOut", username);
             }
             return base.OnDisconnectedAsync(exception);

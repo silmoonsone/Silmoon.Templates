@@ -10,121 +10,113 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
     public class ChatService
     {
         private readonly IHubContext<ChatServiceHub> chatServiceHub;
-
-        // 用于存储用户连接ID与用户名的映射
-        private static readonly ConcurrentDictionary<string, string> _connections = [];
-
-        // 用于存储用户名与连接ID的映射
-        private static readonly ConcurrentDictionary<string, string> _users = [];
-
+        private static readonly ConcurrentBiDictionary<string, string> _connections = [];
         public ChatService(IHubContext<ChatServiceHub> hubContext)
         {
             chatServiceHub = hubContext;
         }
 
-        public async Task SendToMe(string connectionId, string message)
+        public async Task SendToMe(HubCallerContext context, string message)
         {
-            if (!_connections.ContainsKey(connectionId))
+            if (!_connections.ContainsKey(context.ConnectionId))
             {
-                await chatServiceHub.Clients.Client(connectionId).SendAsync("ErrorMessage", "You must be signed in to send messages.");
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "You must be signed in to send messages.");
                 return;
             }
 
             if (string.IsNullOrEmpty(message))
             {
-                await chatServiceHub.Clients.Client(connectionId).SendAsync("ErrorMessage", "Message cannot be empty.");
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "Message cannot be empty.");
                 return;
             }
 
-            await chatServiceHub.Clients.Client(connectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[connectionId], message, false);
+            await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[context.ConnectionId], message, false);
         }
 
-        public async Task SendToAll(string connectionId, string message)
+        public async Task SendToAll(HubCallerContext context, string message)
         {
-            if (!_connections.ContainsKey(connectionId))
+            if (!_connections.ContainsKey(context.ConnectionId))
             {
-                await chatServiceHub.Clients.Client(connectionId).SendAsync("ErrorMessage", "You must be signed in to send messages.");
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "You must be signed in to send messages.");
                 return;
             }
 
             if (string.IsNullOrEmpty(message))
             {
-                await chatServiceHub.Clients.Client(connectionId).SendAsync("ErrorMessage", "Message cannot be empty.");
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "Message cannot be empty.");
                 return;
             }
 
-            await chatServiceHub.Clients.All.SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[connectionId], message, false);
+            await chatServiceHub.Clients.All.SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[context.ConnectionId], message, false);
         }
 
-        public async Task SendToUser(string connectionId, string username, string message)
+        public async Task SendToUser(HubCallerContext context, string username, string message)
         {
-            if (!_connections.ContainsKey(connectionId))
+            if (!_connections.ContainsKey(context.ConnectionId))
             {
-                await chatServiceHub.Clients.Client(connectionId).SendAsync("ErrorMessage", "You must be signed in to send messages.");
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "You must be signed in to send messages.");
                 return;
             }
 
             if (string.IsNullOrEmpty(username))
             {
-                await chatServiceHub.Clients.Client(connectionId).SendAsync("ErrorMessage", "Username cannot be empty.");
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "Username cannot be empty.");
                 return;
             }
 
             if (string.IsNullOrEmpty(message))
             {
-                await chatServiceHub.Clients.Client(connectionId).SendAsync("ErrorMessage", "Message cannot be empty.");
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "Message cannot be empty.");
                 return;
             }
 
-            if (_users.TryGetValue(username, out var userConnectionId))
+            if (_connections.TryGetKeyByValue(username, out var userConnectionId))
             {
-                await chatServiceHub.Clients.Client(userConnectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[connectionId], message, true);
+                await chatServiceHub.Clients.Client(userConnectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[context.ConnectionId], message, true);
             }
             else
             {
-                await chatServiceHub.Clients.Client(connectionId).SendAsync("ErrorMessage", $"User '{username}' does not exist.");
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", $"User '{username}' does not exist.");
             }
         }
 
-        public async Task UserSignIn(string connectionId, string username)
+        public async Task UserSignIn(HubCallerContext context, string username)
         {
             if (string.IsNullOrEmpty(username))
             {
-                await chatServiceHub.Clients.Client(connectionId).SendAsync("ErrorMessage", "Username cannot be empty.");
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "Username cannot be empty.");
                 return;
             }
 
-            if (_users.ContainsKey(username))
+            if (_connections.ContainsKey(username))
             {
-                await chatServiceHub.Clients.Client(connectionId).SendAsync("ErrorMessage", "Username already exists.");
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "Username already exists.");
                 return;
             }
 
-            _connections[connectionId] = username;
-            _users[username] = connectionId;
-
+            _connections[context.ConnectionId] = username;
             await chatServiceHub.Clients.All.SendAsync("UserSignedIn", username);
         }
 
-        public async Task UserSignOut(string username)
+        public async Task UserSignOut(HubCallerContext context, string username)
         {
             if (string.IsNullOrEmpty(username))
             {
+                await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "Username cannot be empty.");
                 return;
             }
 
-            if (_users.TryRemove(username, out var connectionId))
+            if (_connections.TryRemoveByValue(username, out var connectionId))
             {
-                _connections.TryRemove(connectionId, out _);
+                _connections.TryRemoveByKey(connectionId, out _);
                 await chatServiceHub.Clients.All.SendAsync("UserSignedOut", username);
             }
         }
 
-        public async Task HandleDisconnect(string connectionId)
+        public async Task HandleDisconnect(HubCallerContext context)
         {
-            if (_connections.TryRemove(connectionId, out var username))
+            if (_connections.TryRemoveByKey(context.ConnectionId, out var username))
             {
-                _users.TryRemove(username, out _);
                 await chatServiceHub.Clients.All.SendAsync("UserSignedOut", username);
             }
         }

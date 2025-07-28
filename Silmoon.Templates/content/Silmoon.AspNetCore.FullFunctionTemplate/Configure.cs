@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Silmoon.Extension;
 using System.ComponentModel;
@@ -25,10 +26,10 @@ public class Configure
         // ** Enable HexBigInteger type support for MongoDB
         //BsonSerializer.RegisterSerializer(typeof(HexBigInteger), new HexBigIntegerConvertSerializer());
 
-        BsonSerializer.RegisterSerializer(typeof(decimal), new DecimalSerializer(BsonType.Decimal128));
-        BsonSerializer.RegisterSerializer(typeof(BigInteger), new BigIntegerConvertSerializer());
-        BsonSerializer.RegisterSerializer(typeof(JObject), new JObjectBsonDocumentConvertSerializer());
-        BsonSerializer.RegisterSerializer(typeof(JArray), new JArrayBsonDocumentConvertSerializer());
+        BsonSerializer.RegisterSerializer(new DecimalSerializer(BsonType.Decimal128));
+        BsonSerializer.RegisterSerializer(new BigIntegerConvertSerializer());
+        BsonSerializer.RegisterSerializer(new JObjectBsonDocumentConvertSerializer());
+        BsonSerializer.RegisterSerializer(new JArrayBsonDocumentConvertSerializer());
 
         // ** Set default MongoDB DateTime to local time
         //BsonSerializer.RegisterSerializer(typeof(DateTime), new DateTimeSerializer(DateTimeKind.Local));
@@ -41,12 +42,13 @@ public class Configure
 
 
         // ## Newtonsoft json type convert for MongoDB
-        Newtonsoft.Json.JsonConvert.DefaultSettings = new Func<Newtonsoft.Json.JsonSerializerSettings>(() =>
+        JsonConvert.DefaultSettings = new Func<JsonSerializerSettings>(() =>
         {
-            var settings = new Newtonsoft.Json.JsonSerializerSettings();
+            var settings = new JsonSerializerSettings();
             settings.AddAllCommonConverters();
             settings.AddAllBsonConverters();
-            settings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+            settings.TypeNameHandling = TypeNameHandling.Auto;
+            settings.TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple;
             return settings;
         });
     }

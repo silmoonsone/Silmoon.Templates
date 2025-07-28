@@ -41,26 +41,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Pages\Shared\_BlankLayout.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    <Content Update="config.local.debug.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
-    <Content Update="Pages\Shared\_Layout.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Pages\Shared\_ValidationScriptsPartial.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    <Content Update="config.local.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="DataProtection\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Services\SilmoonDevAppServiceImpl.cs" />
   </ItemGroup>
 
   <!--<ItemGroup>
