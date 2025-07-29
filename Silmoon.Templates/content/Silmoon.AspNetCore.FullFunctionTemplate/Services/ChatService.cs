@@ -10,7 +10,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
     public class ChatService
     {
         private readonly IHubContext<ChatServiceHub> chatServiceHub;
-        private static readonly ConcurrentBiDictionary<string, string> _connections = [];
+        private static readonly ConcurrentOneToManyMap<string, string> _connections = [];
         public ChatService(IHubContext<ChatServiceHub> hubContext)
         {
             chatServiceHub = hubContext;
@@ -18,7 +18,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
 
         public async Task SendToMe(HubCallerContext context, string message)
         {
-            if (!_connections.ContainsKey(context.ConnectionId))
+            if (!_connections.ContainsValue(context.ConnectionId))
             {
                 await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "You must be signed in to send messages.");
                 return;
@@ -30,12 +30,12 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
                 return;
             }
 
-            await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[context.ConnectionId], message, false);
+            await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections.GetKeysOrDefault(context.ConnectionId).FirstOrDefault(), message, false);
         }
 
         public async Task SendToAll(HubCallerContext context, string message)
         {
-            if (!_connections.ContainsKey(context.ConnectionId))
+            if (!_connections.ContainsValue(context.ConnectionId))
             {
                 await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "You must be signed in to send messages.");
                 return;
@@ -47,12 +47,12 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
                 return;
             }
 
-            await chatServiceHub.Clients.All.SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[context.ConnectionId], message, false);
+            await chatServiceHub.Clients.All.SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections.GetKeysOrDefault(context.ConnectionId).FirstOrDefault(), message, false);
         }
 
         public async Task SendToUser(HubCallerContext context, string username, string message)
         {
-            if (!_connections.ContainsKey(context.ConnectionId))
+            if (!_connections.ContainsValue(context.ConnectionId))
             {
                 await chatServiceHub.Clients.Client(context.ConnectionId).SendAsync("ErrorMessage", "You must be signed in to send messages.");
                 return;
@@ -70,9 +70,12 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
                 return;
             }
 
-            if (_connections.TryGetKeyByValue(username, out var userConnectionId))
+            if (_connections.TryGetValues(username, out var connectionIds))
             {
-                await chatServiceHub.Clients.Client(userConnectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[context.ConnectionId], message, true);
+                foreach (var connectionId in connectionIds)
+                {
+                    await chatServiceHub.Clients.Client(connectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections.GetKeysOrDefault(context.ConnectionId).FirstOrDefault(), message, true);
+                }
             }
             else
             {
@@ -94,7 +97,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
                 return;
             }
 
-            _connections[context.ConnectionId] = username;
+            _connections.Add(username, context.ConnectionId);
             await chatServiceHub.Clients.All.SendAsync("UserSignedIn", username);
         }
 
@@ -106,17 +109,17 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
                 return;
             }
 
-            if (_connections.TryRemoveByValue(username, out var connectionId))
+            if (_connections.Remove(username, context.ConnectionId))
             {
-                _connections.TryRemoveByKey(connectionId, out _);
                 await chatServiceHub.Clients.All.SendAsync("UserSignedOut", username);
             }
         }
 
         public async Task HandleDisconnect(HubCallerContext context)
         {
-            if (_connections.TryRemoveByKey(context.ConnectionId, out var username))
+            if (_connections.GetKeysOrDefault(context.ConnectionId).FirstOrDefault() is string username)
             {
+                _connections.Remove(username, context.ConnectionId);
                 await chatServiceHub.Clients.All.SendAsync("UserSignedOut", username);
             }
         }

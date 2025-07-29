@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using SkiaSharp;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -8,11 +9,11 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
 {
     public class ChatHub : Hub
     {
-        private static readonly ConcurrentBiDictionary<string, string> _connections = [];
+        public ConcurrentOneToManyMap<string, string> _connections { get; init; } = [];
 
         public async Task SendToMe(string message)
         {
-            if (!_connections.ContainsKey(Context.ConnectionId))
+            if (!_connections.ContainsValue(Context.ConnectionId))
             {
                 await Clients.Caller.SendAsync("ErrorMessage", "You must be signed in to send messages.");
                 return;
@@ -24,12 +25,12 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
                 return;
             }
             var client = Clients.Caller;
-            await client.SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[Context.ConnectionId], message, false);
+            await client.SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections.GetKeysOrDefault(Context.ConnectionId).FirstOrDefault(), message, false);
         }
 
         public async Task SendToAll(string message)
         {
-            if (!_connections.ContainsKey(Context.ConnectionId))
+            if (!_connections.ContainsValue(Context.ConnectionId))
             {
                 await Clients.Caller.SendAsync("ErrorMessage", "You must be signed in to send messages.");
                 return;
@@ -40,12 +41,12 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
                 await Clients.Caller.SendAsync("ErrorMessage", "Message cannot be empty.");
                 return;
             }
-            await Clients.All.SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[Context.ConnectionId], message, false);
+            await Clients.All.SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections.GetKeysOrDefault(Context.ConnectionId).FirstOrDefault(), message, false);
         }
 
         public async Task SendToUser(string username, string message)
         {
-            if (!_connections.ContainsKey(Context.ConnectionId))
+            if (!_connections.ContainsValue(Context.ConnectionId))
             {
                 await Clients.Caller.SendAsync("ErrorMessage", "You must be signed in to send messages.");
                 return;
@@ -56,15 +57,19 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
                 await Clients.Caller.SendAsync("ErrorMessage", "Username cannot be empty.");
                 return;
             }
+
             if (string.IsNullOrEmpty(message))
             {
                 await Clients.Caller.SendAsync("ErrorMessage", "Message cannot be empty.");
                 return;
             }
-            var connectionId = _connections.GetKeyByValue(username);
-            if (!string.IsNullOrEmpty(connectionId))
+
+            if (_connections.TryGetValues(username, out var connectionIds))
             {
-                await Clients.Client(connectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections[Context.ConnectionId], message, true);
+                foreach (var connectionId in connectionIds)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceiveMessage", $"{DateTime.Now}", _connections.GetKeysOrDefault(Context.ConnectionId).FirstOrDefault(), message, true);
+                }
             }
             else
             {
@@ -79,12 +84,14 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
                 await Clients.Caller.SendAsync("ErrorMessage", "Username cannot be empty.");
                 return;
             }
+
             if (_connections.ContainsValue(username))
             {
                 await Clients.Caller.SendAsync("ErrorMessage", "Username already exists.");
                 return;
             }
-            _connections[Context.ConnectionId] = username;
+
+            _connections.Add(username, Context.ConnectionId);
             await Clients.All.SendAsync("UserSignedIn", username);
         }
 
@@ -92,20 +99,24 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
         {
             if (string.IsNullOrEmpty(username))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Username cannot be empty.");
+                await Clients.Client(Context.ConnectionId).SendAsync("ErrorMessage", "Username cannot be empty.");
                 return;
             }
-            _connections.TryRemoveByKey(Context.ConnectionId, out _);
-            await Clients.All.SendAsync("UserSignedOut", username);
+
+            if (_connections.Remove(username, Context.ConnectionId))
+            {
+                await Clients.All.SendAsync("UserSignedOut", username);
+            }
         }
 
-        public override Task OnDisconnectedAsync(Exception? exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            if (_connections.TryRemoveByKey(Context.ConnectionId, out var username))
+            if (_connections.GetKeysOrDefault(Context.ConnectionId).FirstOrDefault() is string username)
             {
-                Clients.All.SendAsync("UserSignedOut", username);
+                _connections.Remove(username, Context.ConnectionId);
+                await Clients.All.SendAsync("UserSignedOut", username);
             }
-            return base.OnDisconnectedAsync(exception);
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }
