@@ -29,45 +29,45 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
 
         public IActionResult CreateUser(string Username, string Password, string Retypepassword)
         {
-            if (Username.IsNullOrEmpty() || Password.IsNullOrEmpty()) return (false, "用户名或密码为空").GetStateFlagResult();
-            if (Password != Retypepassword) return (false, "两次密码不一致").GetStateFlagResult();
+            if (Username.IsNullOrEmpty() || Password.IsNullOrEmpty()) return (false, "用户名或密码为空").GetStateStateJsonResult();
+            if (Password != Retypepassword) return (false, "两次密码不一致").GetStateStateJsonResult();
             var existUser = Core.GetUser(Username);
-            if (existUser is null) return (false, "用户名已存在").GetStateFlagResult();
+            if (existUser is null) return (false, "用户名已存在").GetStateStateJsonResult();
             User user = new User()
             {
                 Username = Username,
                 Password = EncryptHelper.RsaEncrypt(Password),
             };
-            return this.JsonStateFlag(true, user);
+            return this.JsonStateResult(true, user);
         }
         public async Task<IActionResult> CreateSession(string Username, string Password, string Url)
         {
-            if (Username.IsNullOrEmpty() || Password.IsNullOrEmpty()) return (false, "用户名或密码为空").GetStateFlagResult();
+            if (Username.IsNullOrEmpty() || Password.IsNullOrEmpty()) return (false, "用户名或密码为空").GetStateStateJsonResult();
             var user = Core.GetUser(Username);
-            if (user is null) return (false, "用户名不存在或者密码错误").GetStateFlagResult();
+            if (user is null) return (false, "用户名不存在或者密码错误").GetStateStateJsonResult();
             //user.Password = EncryptHelper.RsaDecrypt(user.Password);
             if (Username == user.Username && Password == user.Password)
             {
                 await SilmoonAuthService.SignIn(user);
                 if (Url.IsNullOrEmpty()) Url = "../dashboard";
-                return true.GetStateFlagResult<string>(Url);
+                return true.GetStateStateJsonResult<string>(Url, null);
             }
             else
             {
-                return (false, "用户名不存在或者密码错误").GetStateFlagResult();
+                return (false, "用户名不存在或者密码错误").GetStateStateJsonResult();
             }
         }
         public async Task<IActionResult> ClearSession()
         {
             var result = await SilmoonAuthService.SignOut();
-            return result.GetStateFlagResult();
+            return result.GetStateStateJsonResult();
         }
 
         [Authorize]
         public IActionResult DashboardApi()
         {
             var result = User.Identity.IsAuthenticated;
-            return this.JsonStateFlag(true, $"You IsAuthenticated is {result}.", data: result);
+            return this.JsonStateResult(true, $"You IsAuthenticated is {result}.", data: result);
         }
 
         public async Task<IActionResult> UploadTempImage(string UserId, string fileName)
@@ -89,17 +89,17 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
             else
                 GlobalCaching<string, NameObjectCollection<byte[]>>.Set(UserId + ":temp_images", new NameObjectCollection<byte[]>() { { fileName, compressedImageData } });
 
-            return this.JsonStateFlag(true);
+            return this.JsonStateResult(true);
         }
         public IActionResult GetTempImageNames(string UserId)
         {
             var files = GlobalCaching<string, NameObjectCollection<byte[]>>.Get(UserId + ":temp_images");
             if (files.Matched)
             {
-                return this.JsonStateFlag(true, data: files.Value.GetAllKeys());
+                return this.JsonStateResult(true, data: files.Value.GetAllKeys());
             }
             else
-                return this.JsonStateFlag(true, data: 0);
+                return this.JsonStateResult(true, data: 0);
         }
         public IActionResult DeleteTempImage(string UserId, string fileName)
         {
@@ -107,10 +107,10 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
             if (files.Matched)
             {
                 files.Value.Remove(fileName);
-                return this.JsonStateFlag(true);
+                return this.JsonStateResult(true);
             }
             else
-                return this.JsonStateFlag(false);
+                return this.JsonStateResult(false);
         }
         //[OutputCache(Duration = 3600)]
         public IActionResult ShowTempImage(string UserId, string fileName)
@@ -136,17 +136,17 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
             else
                 GlobalCaching<string, NameObjectCollection<byte[]>>.Set(UserId + ":temp_files", new NameObjectCollection<byte[]>() { { fileName.IsNullOrEmpty() ? Request.Form.Files[0].FileName : fileName, data } });
 
-            return this.JsonStateFlag(true);
+            return this.JsonStateResult(true);
         }
         public IActionResult GetTempFileNames(string UserId)
         {
             var files = GlobalCaching<string, NameObjectCollection<byte[]>>.Get(UserId + ":temp_files");
             if (files.Matched)
             {
-                return this.JsonStateFlag(true, data: files.Value.GetAllKeys());
+                return this.JsonStateResult(true, data: files.Value.GetAllKeys());
             }
             else
-                return this.JsonStateFlag(true, data: 0);
+                return this.JsonStateResult(true, data: 0);
         }
         public IActionResult DeleteTempFile(string UserId, string fileName)
         {
@@ -154,10 +154,10 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
             if (files.Matched)
             {
                 files.Value.Remove(fileName);
-                return this.JsonStateFlag(true);
+                return this.JsonStateResult(true);
             }
             else
-                return this.JsonStateFlag(false);
+                return this.JsonStateResult(false);
         }
         public IActionResult ShowTempFile(string UserId, string fileName)
         {
@@ -169,6 +169,5 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
             else
                 return new EmptyResult();
         }
-
     }
 }
