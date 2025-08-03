@@ -48,10 +48,10 @@
         $.ajax({
             url: "../WebApi/SendMobilePhoneVerificationCode?Username=" + userName + "&g-recaptcha-response=" + g_recaptcha_response,
             success: function (e) {
-                if (e.Success) {
+                if (e.success) {
                     toast("验证码发送成功，注意查收。", 3000);
                 } else {
-                    toast("发送错误：" + e.Message, 3000)
+                    toast("发送错误：" + e.message, 3000)
                 }
             },
             error: function () {

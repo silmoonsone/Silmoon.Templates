@@ -60,17 +60,6 @@
     </div>
 </div>
 <script>
-    function on_completed(sender, e) {
-        if (e.Data.Success) {
-            MetroUIConfirm("结果", e.Data.Message, false, function(e) {
-                location.reload();
-            })
-        } else {
-            MetroUIConfirm("结果", "失败：" + e.Data.Message, false, function() {
-                cancel();
-            })
-        }
-    }
     function totalAmount_OnChange() {
         var offer = 1;
         var price = parseInt($("#TotalAmount").val());
