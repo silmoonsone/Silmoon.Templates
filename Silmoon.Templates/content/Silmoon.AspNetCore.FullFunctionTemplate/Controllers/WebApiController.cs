@@ -29,10 +29,10 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
 
         public IActionResult CreateUser(string Username, string Password, string Retypepassword)
         {
-            if (Username.IsNullOrEmpty() || Password.IsNullOrEmpty()) return (false, "用户名或密码为空").GetStateStateJsonResult();
-            if (Password != Retypepassword) return (false, "两次密码不一致").GetStateStateJsonResult();
+            if (Username.IsNullOrEmpty() || Password.IsNullOrEmpty()) return (false, "用户名或密码为空").GetStateResultJson();
+            if (Password != Retypepassword) return (false, "两次密码不一致").GetStateResultJson();
             var existUser = Core.GetUser(Username);
-            if (existUser is null) return (false, "用户名已存在").GetStateStateJsonResult();
+            if (existUser is null) return (false, "用户名已存在").GetStateResultJson();
             User user = new User()
             {
                 Username = Username,
@@ -42,25 +42,25 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers
         }
         public async Task<IActionResult> CreateSession(string Username, string Password, string Url)
         {
-            if (Username.IsNullOrEmpty() || Password.IsNullOrEmpty()) return (false, "用户名或密码为空").GetStateStateJsonResult();
+            if (Username.IsNullOrEmpty() || Password.IsNullOrEmpty()) return (false, "用户名或密码为空").GetStateResultJson();
             var user = Core.GetUser(Username);
-            if (user is null) return (false, "用户名不存在或者密码错误").GetStateStateJsonResult();
+            if (user is null) return (false, "用户名不存在或者密码错误").GetStateResultJson();
             //user.Password = EncryptHelper.RsaDecrypt(user.Password);
             if (Username == user.Username && Password == user.Password)
             {
                 await SilmoonAuthService.SignIn(user);
                 if (Url.IsNullOrEmpty()) Url = "../dashboard";
-                return true.GetStateStateJsonResult<string>(Url, null);
+                return true.GetStateResultJson<string>(Url, null);
             }
             else
             {
-                return (false, "用户名不存在或者密码错误").GetStateStateJsonResult();
+                return (false, "用户名不存在或者密码错误").GetStateResultJson();
             }
         }
         public async Task<IActionResult> ClearSession()
         {
             var result = await SilmoonAuthService.SignOut();
-            return result.GetStateStateJsonResult();
+            return result.GetStateResultJson();
         }
 
         [Authorize]
