@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.8" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="3.4.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -35,18 +35,35 @@
     <PackageReference Include="Silmoon.AspNetCore.Extension" Version="1.5.2" />
     <PackageReference Include="Silmoon.AspNetCore.Blazor" Version="1.1.1" />
     <PackageReference Include="Silmoon.Data.MongoDB" Version="1.8.1" />
-    <PackageReference Include="Silmoon.Extension" Version="1.7.6" />
+    <PackageReference Include="Silmoon.Extension" Version="1.7.7" />
     <PackageReference Include="Silmoon.Graphics" Version="0.0.2" />
     <PackageReference Include="Silmoon.Net" Version="1.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="config.local.debug.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    <Content Update="config.local*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </Content>
-    <Content Update="config.local.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    <None Update="config.local*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="config.debug.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Update="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Update="config.debug.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
