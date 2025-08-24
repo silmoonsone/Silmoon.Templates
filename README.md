@@ -9,12 +9,13 @@ sone@silmoon.com
 
 ## Usage:
 
-### Install
-```cmd
-dotnet new install Silmoon.Templates
-```
-
-### Create a new project
-```cmd
-dotnet new smwebfull -C "MyProjectNameSpace"
-```
+> To install:
+> ```cmd
+> dotnet new install Silmoon.Templates
+> dotnet new ffweb -n [ProjectName]
+> ```
+> **注意：创建项目后，必须运行以下命令以还原前端依赖：**
+> ```cmd
+> dotnet tool install --global Microsoft.Web.LibraryManager.Cli
+> libman restore
+> ```
