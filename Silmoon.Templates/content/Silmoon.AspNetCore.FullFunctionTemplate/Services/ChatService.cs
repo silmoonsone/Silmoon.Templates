@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Silmoon.AspNetCore.FullFunctionTemplate.Hubs;
+using Silmoon.Collections;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
     public class ChatService
     {
         private readonly IHubContext<ChatServiceHub> chatServiceHub;
-        private static readonly ConcurrentOneToManyMap<string, string> _connections = [];
+        private static readonly ConcurrentTwoWayDictionary<string, string> _connections = [];
         public ChatService(IHubContext<ChatServiceHub> hubContext)
         {
             chatServiceHub = hubContext;

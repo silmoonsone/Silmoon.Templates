@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Silmoon.Collections;
 using SkiaSharp;
 using System;
 using System.Collections.Concurrent;
@@ -9,7 +10,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Hubs
 {
     public class ChatHub : Hub
     {
-        public ConcurrentOneToManyMap<string, string> _connections { get; init; } = [];
+        public ConcurrentTwoWayDictionary<string, string> _connections { get; init; } = [];
 
         public async Task SendToMe(string message)
         {
