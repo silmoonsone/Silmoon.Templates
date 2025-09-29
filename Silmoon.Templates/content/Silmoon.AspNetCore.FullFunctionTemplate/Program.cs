@@ -19,10 +19,10 @@ Configure.InitialTypeRegister();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ** Enable Razor pages
+//// ** Enable Razor pages
 builder.Services.AddRazorPages();
 
-// ** Enable Mvc
+//// ** Enable Mvc
 builder.Services.AddMvc(config =>
 {
     config.ModelBinderProviders.Insert(0, new BigIntegerBinderProvider());
@@ -42,19 +42,19 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 });
 
 
-// ** Required NuGet package for Swashbuckle.AspNetCore
+//// ** Required NuGet package for Swashbuckle.AspNetCore
 //builder.Services.AddSwaggerGen(c => c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{ProjectName}.xml"), true)).AddSwaggerGenNewtonsoftSupport();
 
-// ** Required NuGet package for Swashbuckle.AspNetCore.Newtonsoft
+//// ** Required NuGet package for Swashbuckle.AspNetCore.Newtonsoft
 //builder.Services.AddSwaggerGen().AddSwaggerGenNewtonsoftSupport();
 
-// ** SignalR service mode for ChatServiceHub, require AddSignalR()
+//// ** SignalR service mode for ChatServiceHub, require AddSignalR()
 //builder.Services.AddSingleton<ChatService>();
 
-// ** SignalR support
+//// ** SignalR support
 //builder.Services.AddSignalR();
 
-// ** Required NuGet package for Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson
+//// ** Required NuGet package for Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson
 //builder.Services.AddSignalR().AddNewtonsoftJsonProtocol(options =>
 //{
 //    options.PayloadSerializerSettings.AddAllCommonConverters();
@@ -63,7 +63,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 //    options.PayloadSerializerSettings.TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple;
 //});
 
-// ** Add Blazor service
+//// ** Add Blazor service
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 builder.Services.AddSingleton<Core>();
@@ -73,7 +73,7 @@ builder.Services.AddSilmoonAuth<SilmoonAuthServiceImpl>();
 builder.Services.AddJsComponentInterop();
 builder.Services.AddJsSilmoonAuthInterop();
 
-// ** Required NuGet package for Silmoon.AspNetCore.Encryption
+//// ** Required NuGet package for Silmoon.AspNetCore.Encryption
 //builder.Services.AddWebAuthnJsInterop();
 //builder.Services.AddWebAuthn<WebAuthnServiceXXX>(o =>
 //{
@@ -85,9 +85,18 @@ builder.Services.AddJsSilmoonAuthInterop();
 //    //o.Host = "localhost";
 //#endif//});
 
+
+//// ** To enable Turnstile challenge
+//builder.Services.AddSilmoonTurnstile(o =>
+//{
+//    o.CookieEncryptionKey = "PibTXpdfWdqiKkMOmrjLyujBAsnTdOBM";
+//    o.SiteKey = "3x00000000000000000000FF";
+//    o.SecretKey = "1x0000000000000000000000000000000AA";
+//    o.IgnorePathSuffixs.AddRange(["/Silmoon.AspNetCore.FullFunctionTemplate.styles.css"]);
+//});
 //builder.Services.AddSilmoonDevApp<SilmoonDevAppServiceImpl>();
 
-// ## custom a IHostedService for MainHostService
+//// ## custom a IHostedService for MainHostService
 //builder.Services.AddSingleton<MainHostService>();
 //builder.Services.AddHostedService(provider => provider.GetRequiredService<MainHostService>());
 
@@ -116,6 +125,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+//// ** Enable Turnstile challenge middleware
+//app.UseSilmoonTurnstile();
 app.UseAntiforgery();
 //app.MapStaticAssets();
 app.UseStaticFiles();
@@ -136,24 +147,24 @@ app.UseSilmoonAuth();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ** Required NuGet package for Silmoon.AspNetCore.Encryption
+//// ** Required NuGet package for Silmoon.AspNetCore.Encryption
 //app.UseWebAuthn();
 
-// ** Enable razor pages support
+//// ** Enable razor pages support
 app.MapRazorPages();
 
-// ** Enable Mvc
+//// ** Enable Mvc
 app.UseCors(builder => builder.WithHosts("localhost"));
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}");
 app.MapControllerRoute(name: "default", pattern: "{area:exists?}/{controller=Home}/{action=Index}");
 
-// ** Add a SignalR Hub
+//// ** Add a SignalR Hub
 //app.MapHub<ChatHub>("/hubs/ChatHub");
 
-// ** Use service mode for SignalR Hub
+//// ** Use service mode for SignalR Hub
 //app.MapHub<ChatServiceHub>("/hubs/ChatServiceHub");
 
-// ** Enable Blazor server components
+//// ** Enable Blazor server components
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 
