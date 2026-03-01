@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Silmoon.AspNetCore.Extensions;
 using Silmoon.AspNetCore.Interfaces;
-using Silmoon.Extension;
+using Silmoon.Extensions;
 using Silmoon.Runtime.Cache;
 using Silmoon.Collections;
 using Silmoon.Secure;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using Silmoon.Graphics.Extension;
+using Silmoon.Graphics.Extensions;
 using Silmoon.AspNetCore.FullFunctionTemplate.Models;
 
 namespace Silmoon.AspNetCore.FullFunctionTemplate.Controllers

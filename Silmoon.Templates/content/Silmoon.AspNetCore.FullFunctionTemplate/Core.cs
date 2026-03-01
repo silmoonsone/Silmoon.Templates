@@ -4,7 +4,7 @@ using Silmoon.AspNetCore.FullFunctionTemplate.Models;
 using Silmoon.AspNetCore.FullFunctionTemplate.Services;
 using Silmoon.AspNetCore.Interfaces;
 using Silmoon.Data.MongoDB;
-using Silmoon.Extension;
+using Silmoon.Extensions;
 using Silmoon.Models;
 using Silmoon.Secure;
 using System.Linq.Expressions;

@@ -1,5 +1,5 @@
-﻿using Silmoon.Extension.Interfaces;
-using Silmoon.Extension.Enums;
+﻿using Silmoon.Extensions.Interfaces;
+using Silmoon.Extensions.Enums;
 
 namespace Silmoon.AspNetCore.FullFunctionTemplate.Models
 {
