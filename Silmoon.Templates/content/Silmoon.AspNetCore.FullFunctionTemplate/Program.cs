@@ -83,7 +83,8 @@ builder.Services.AddJsSilmoonAuthInterop();
 //    o.AppName = ProjectName;
 //    // Optional, used to specify a fixed host name.
 //    //o.Host = "localhost";
-//#endif//});
+//#endif
+//});
 
 
 //// ** To enable Turnstile challenge
