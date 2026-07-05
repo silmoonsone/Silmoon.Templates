@@ -2,16 +2,28 @@
     Layout = "_ModernColorLayout";
 }
 
-<div id="menu">
+<nav id="menu" aria-label="主菜单">
     <div class="menu-header">
         <h3>实例页面</h3>
         <div class="text-secondary">现代色彩功能布局</div>
     </div>
-    <a href="~/Index" class="menu-item @(Context.Request.Path.ToString().StartsWith("/Index", StringComparison.OrdinalIgnoreCase) ? "active" : "")">
-        <i class="bi bi-house-door"></i>账户首页
+    <a href="#overview" class="menu-item active">
+        <i class="bi bi-house-door"></i>布局概览
     </a>
-    <a href="~/ModernColorDemo" class="menu-item @(Context.Request.Path.ToString().StartsWith("/ModernColorDemo", StringComparison.OrdinalIgnoreCase) ? "active" : "")">
-        <i class="bi bi-palette2"></i>色彩演示
+    <a href="#forms" class="menu-item">
+        <i class="bi bi-input-cursor"></i>表单控件
+    </a>
+    <a href="#tabs" class="menu-item">
+        <i class="bi bi-collection"></i>标签页
+    </a>
+    <a href="#buttons" class="menu-item">
+        <i class="bi bi-ui-checks-grid"></i>按钮控件
+    </a>
+    <a href="#components" class="menu-item">
+        <i class="bi bi-grid-3x3-gap"></i>组件状态
+    </a>
+    <a href="#data" class="menu-item">
+        <i class="bi bi-table"></i>数据展示
     </a>
     <hr />
     <a href="~/_session/signOut" class="menu-item" data-ajax="true" data-ajax-begin="signOut_OnBegin" data-ajax-complete="signOut_OnComplete" data-ajax-confirm="确定退出？">
@@ -19,17 +31,17 @@
     </a>
     <hr />
     <div class="theme-menu-buttons">
-        <button class="theme-menu-btn" data-theme="light" title="亮色模式">
+        <button class="theme-menu-btn" data-theme="light" title="亮色模式" type="button">
             <i class="bi bi-sun"></i>
         </button>
-        <button class="theme-menu-btn" data-theme="dark" title="暗色模式">
+        <button class="theme-menu-btn" data-theme="dark" title="暗色模式" type="button">
             <i class="bi bi-moon"></i>
         </button>
-        <button class="theme-menu-btn" data-theme="auto" title="自动模式">
+        <button class="theme-menu-btn" data-theme="auto" title="自动模式" type="button">
             <i class="bi bi-circle-half"></i>
         </button>
     </div>
-</div>
+</nav>
 
 <div class="content-main">
     @RenderBody()
