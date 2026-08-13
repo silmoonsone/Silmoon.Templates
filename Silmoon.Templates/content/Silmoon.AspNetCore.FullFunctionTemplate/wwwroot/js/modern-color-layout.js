@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Modern Color Layout
  * Extracted from Silmoon.AspNetCore.FullFunctionTemplate for standalone HTML use.
  * Requires only standard browser APIs. Bootstrap JS is optional and only needed
@@ -68,14 +68,35 @@
 
         if (!menu || !toggleMenu) return;
 
+        const desktopParent = menu.parentElement;
+        const desktopNextSibling = menu.nextSibling;
+        const mobileQuery = window.matchMedia("(max-width: 768px)");
+
+        function placeMenuForViewport() {
+            if (mobileQuery.matches) {
+                if (menu.parentElement !== document.body) {
+                    document.body.appendChild(menu);
+                }
+            } else if (menu.parentElement !== desktopParent) {
+                desktopParent.insertBefore(menu, desktopNextSibling);
+            }
+        }
+
         function closeMenu() {
             menu.classList.remove("open");
             toggleMenu.setAttribute("aria-expanded", "false");
         }
 
         function openOrCloseMenu() {
+            placeMenuForViewport();
             const isOpen = menu.classList.toggle("open");
             toggleMenu.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            if (isOpen) {
+                menu.scrollTop = 0;
+                window.setTimeout(function () {
+                    menu.scrollTop = 0;
+                }, 0);
+            }
         }
 
         toggleMenu.setAttribute("aria-expanded", "false");
@@ -106,6 +127,12 @@
                 closeMenu();
             }
         });
+
+        mobileQuery.addEventListener("change", function () {
+            closeMenu();
+            placeMenuForViewport();
+        });
+        placeMenuForViewport();
     }
 
     function initThemeButtons() {
@@ -120,10 +147,51 @@
         });
     }
 
+    function initLayoutPlacement() {
+        const wrapper = document.querySelector(".content-wrapper");
+        const themeToggleGroup = document.querySelector(".theme-toggle-group");
+
+        if (wrapper && themeToggleGroup && themeToggleGroup.parentElement !== wrapper) {
+            wrapper.appendChild(themeToggleGroup);
+        }
+    }
+
+    function initBackToTop() {
+        let button = document.querySelector(".back-to-top");
+
+        if (!button) {
+            button = document.createElement("button");
+            button.className = "back-to-top";
+            button.type = "button";
+            button.title = "回到顶部";
+            button.setAttribute("aria-label", "回到顶部");
+            button.innerHTML = '<i class="bi bi-arrow-up"></i>';
+            document.body.appendChild(button);
+        }
+
+        function updateButtonState() {
+            const threshold = Math.max(window.innerHeight, 480);
+            button.classList.toggle("visible", window.scrollY > threshold);
+        }
+
+        button.addEventListener("click", function () {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+            });
+        });
+
+        window.addEventListener("scroll", updateButtonState, { passive: true });
+        window.addEventListener("resize", updateButtonState);
+        updateButtonState();
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
+        initLayoutPlacement();
         initTheme();
         initMenu();
         initThemeButtons();
+        initBackToTop();
         document.body.classList.add("modern-color-ready");
     });
 })();

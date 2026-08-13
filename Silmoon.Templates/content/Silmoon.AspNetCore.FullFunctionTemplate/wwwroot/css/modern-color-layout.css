@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Modern Color Layout
  * Standalone extraction from:
  * Silmoon.AspNetCore.FullFunctionTemplate / Pages / ModernColorDemo.cshtml
@@ -15,6 +15,8 @@
     --border-radius: 10px;
     --card-border-radius: 12px;
     --menu-width: 220px;
+    --mobile-menu-top: 78px;
+    --mobile-edge-offset: 20px;
     /* 亮色主题变量（默认） */
     --bg-primary: #ffffff;
     --bg-secondary: #f8f9fa;
@@ -50,6 +52,11 @@
     --success-soft-border: rgba(25, 135, 84, 0.5);
     --danger-soft-bg: rgba(220, 53, 69, 0.13);
     --danger-soft-border: rgba(220, 53, 69, 0.5);
+    --table-head-bg: rgba(248, 249, 250, 0.92);
+    --table-row-bg: rgba(255, 255, 255, 0.76);
+    --table-row-alt-bg: rgba(13, 110, 253, 0.04);
+    --table-row-hover-bg: rgba(13, 110, 253, 0.08);
+    --table-border-color: rgba(0, 0, 0, 0.08);
     --table-stripe-bg: rgba(13, 110, 253, 0.04);
 }
 
@@ -88,6 +95,11 @@
         --success-soft-border: rgba(75, 190, 135, 0.55);
         --danger-soft-bg: rgba(220, 53, 69, 0.16);
         --danger-soft-border: rgba(255, 112, 128, 0.55);
+        --table-head-bg: rgba(255, 255, 255, 0.055);
+        --table-row-bg: rgba(255, 255, 255, 0.035);
+        --table-row-alt-bg: rgba(255, 255, 255, 0.055);
+        --table-row-hover-bg: rgba(13, 110, 253, 0.12);
+        --table-border-color: rgba(255, 255, 255, 0.09);
         --table-stripe-bg: rgba(255, 255, 255, 0.035);
     }
 }
@@ -125,6 +137,11 @@
     --success-soft-border: rgba(75, 190, 135, 0.55);
     --danger-soft-bg: rgba(220, 53, 69, 0.16);
     --danger-soft-border: rgba(255, 112, 128, 0.55);
+    --table-head-bg: rgba(255, 255, 255, 0.055);
+    --table-row-bg: rgba(255, 255, 255, 0.035);
+    --table-row-alt-bg: rgba(255, 255, 255, 0.055);
+    --table-row-hover-bg: rgba(13, 110, 253, 0.12);
+    --table-border-color: rgba(255, 255, 255, 0.09);
     --table-stripe-bg: rgba(255, 255, 255, 0.035);
 }
 
@@ -151,9 +168,16 @@ body {
     color: var(--text-primary);
     padding: 20px 0;
     border-radius: var(--card-border-radius) 0 0 var(--card-border-radius);
-    height: 100%;
+    min-height: calc(100vh - 40px);
+    max-height: calc(100vh - 40px);
     display: flex;
     flex-direction: column;
+    align-self: flex-start;
+    position: sticky;
+    top: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 20;
 }
 
 .menu-header {
@@ -226,7 +250,8 @@ body {
     animation: fadeIn 0.6s ease-out;
     display: flex;
     min-height: fit-content;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
 }
 
 .content-main {
@@ -279,6 +304,39 @@ body {
     #toggle-menu:active {
         transform: translateY(0);
     }
+
+.back-to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1000;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--border-radius);
+    background: var(--active-bg);
+    color: #fff;
+    box-shadow: 0 4px 15px var(--active-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.back-to-top.visible:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--active-shadow);
+}
 
 .card {
     border: none;
@@ -334,7 +392,7 @@ body {
 
 /* 主题切换按钮组 */
 .theme-toggle-group {
-    position: fixed;
+    position: absolute;
     top: 20px;
     right: 20px;
     z-index: 1000;
@@ -418,7 +476,7 @@ body {
     }
 
     #toggle-menu {
-        right: 20px;
+        right: var(--mobile-edge-offset);
     }
 }
 
@@ -488,11 +546,13 @@ input[type="number"] {
     #menu {
         display: none;
         position: fixed;
-        top: 70px;
-        right: 20px;
+        top: var(--mobile-menu-top);
+        right: var(--mobile-edge-offset);
+        left: auto;
         width: 200px;
         height: auto;
-        max-height: calc(100vh - 90px);
+        min-height: 0;
+        max-height: none;
         background: var(--menu-bg-hover);
         backdrop-filter: blur(10px);
         border-radius: var(--border-radius);
@@ -501,7 +561,9 @@ input[type="number"] {
         padding: 8px 0;
         border: 1px solid var(--border-light);
         animation: slideInDown 0.2s ease-out;
-        overflow-y: auto;
+        overflow-y: visible;
+        overscroll-behavior: contain;
+        touch-action: manipulation;
         transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         transform-origin: top right;
     }
@@ -575,8 +637,9 @@ input[type="number"] {
         z-index: 1003;
     }
 
-    #menu {
-        touch-action: pan-y pinch-zoom;
+    .back-to-top {
+        right: var(--mobile-edge-offset);
+        bottom: var(--mobile-edge-offset);
     }
 
     #content {
@@ -585,6 +648,14 @@ input[type="number"] {
 
     .content-wrapper {
         overflow: visible !important;
+    }
+}
+
+@media (max-width: 768px) and (max-height: 560px) {
+    #menu {
+        max-height: calc(100vh - 90px);
+        overflow-y: auto;
+        touch-action: pan-y pinch-zoom;
     }
 }
 
@@ -1092,27 +1163,55 @@ fieldset:disabled .btn {
     border-color: rgba(220, 53, 69, 0.28) !important;
 }
 
-.table,
-.table > :not(caption) > * > * {
-    background-color: transparent;
-    border-color: var(--border-color);
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-primary);
+    --bs-table-border-color: var(--table-border-color);
+    --bs-table-striped-bg: var(--table-row-alt-bg);
+    --bs-table-striped-color: var(--text-primary);
+    --bs-table-hover-bg: var(--table-row-hover-bg);
+    --bs-table-hover-color: var(--text-primary);
+    border-color: var(--table-border-color);
     color: var(--text-primary);
 }
 
-.table thead th,
-.table thead td {
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
+.table > :not(caption) > * > * {
+    background-color: var(--table-row-bg) !important;
+    border-color: var(--table-border-color) !important;
+    border-style: solid !important;
+    border-width: 0 0 1px 0 !important;
+    color: var(--text-primary) !important;
+    padding: 0.8rem 0.9rem;
+}
+
+.table > thead > tr > th,
+.table > thead > tr > td {
+    background-color: var(--table-head-bg) !important;
+    border-bottom-width: 1px !important;
+    color: var(--text-primary) !important;
+    font-weight: 600;
+}
+
+.table > tbody > tr {
+    background-color: transparent !important;
+    border-top: 0 !important;
+}
+
+.table > tbody > tr.bg-light,
+.table > tbody > tr.table-light {
+    background-color: transparent !important;
 }
 
 .table-striped > tbody > tr:nth-of-type(odd) > * {
-    background-color: var(--table-stripe-bg);
-    color: var(--text-primary);
+    background-color: var(--table-row-alt-bg) !important;
 }
 
 .table-hover > tbody > tr:hover > * {
-    background-color: var(--panel-bg-hover);
-    color: var(--text-primary);
+    background-color: var(--table-row-hover-bg) !important;
+}
+
+.table .btn {
+    box-shadow: none;
 }
 
 .badge.text-bg-light,
