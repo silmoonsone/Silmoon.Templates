@@ -144,14 +144,12 @@
 
     async void doSignOut()
     {
-        await Jsc.MetroUIConfirm("确认", "确认退出登录？", true, async yes =>
+        var confirm = await Jsc.MetroUIConfirm("确认", "确认退出登录？", true);
+        if (confirm)
         {
-            if (yes)
-            {
-                var result = await Jsa.SignOut();
-                NavigationManager.Refresh(true);
-            }
-        });
+            var result = await Jsa.SignOut();
+            NavigationManager.Refresh(true);
+        }
     }
 
     protected override async Task OnInitializedAsync()

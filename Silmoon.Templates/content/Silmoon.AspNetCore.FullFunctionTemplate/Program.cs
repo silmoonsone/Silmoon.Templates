@@ -18,6 +18,10 @@ string ProjectName = Assembly.GetExecutingAssembly().GetName().Name;
 Configure.InitialTypeRegister();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.ConfigureHostOptions(options =>
+{
+    options.ShutdownTimeout = TimeSpan.FromSeconds(3);
+});
 
 //// ** Enable Razor pages
 builder.Services.AddRazorPages();

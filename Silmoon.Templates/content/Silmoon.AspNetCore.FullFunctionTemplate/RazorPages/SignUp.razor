@@ -39,10 +39,10 @@
     void SubmitSignUp()
     {
         var user = new User()
-            {
-                Username = Username,
-                Password = Password,
-            };
+        {
+            Username = Username,
+            Password = Password,
+        };
         var result = Core.NewUser(user);
 
         if (result.State)
