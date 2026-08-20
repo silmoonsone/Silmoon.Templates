@@ -1,161 +1,314 @@
-﻿# 现代颜色布局静态使用说明（Agent）
+﻿# FullFunctionTemplate 现代颜色布局 cshtml 使用说明（Agent）
 
-本文给 Codex 或其他 AI Agent 使用，说明如何在静态 HTML、Razor Pages 或 MVC 视图中使用现代颜色布局框架。
+本文给 Codex 或其他 AI Agent 使用，说明如何在当前模板项目的 Razor Pages cshtml 页面中使用现代颜色布局。
 
-`HtmlColorScheme` 不是 ASP.NET 项目，它的 `.markdown` 目录只保留这份静态说明。`Silmoon.AspNetCore.Id` 和 `Silmoon.AspNetCore.FullFunctionTemplate` 是 ASP.NET 项目，它们除静态说明外还应保留 Blazor 说明。
+本说明只针对当前模板项目的 cshtml/Razor Pages 结构，不说明 Blazor 用法。Blazor 页面请阅读同目录的 `modern-color-layout-blazor-agent-guide.md`。
 
-## 1. 目标和边界
+## 1. 项目定位
 
-现代颜色布局框架的核心只包含：
+当前模板项目内置一套现代颜色布局，可用于 Razor Pages 或 MVC View 的后台页面、管理页面、功能演示页面。
 
-- `modern-color-layout.css`：颜色变量、布局、菜单、控件状态和响应式样式。
-- `modern-color-layout.js`：主题切换、移动端菜单、菜单激活、子菜单交互。
+这套 cshtml 布局的目标：
 
-共享 CSS 和 JS 必须保持三处一致：
+- 提供统一的现代颜色变量、菜单、主题切换和控件状态。
+- 让模板创建出的项目可以直接复用后台页面外壳。
+- 提供 `Pages/ModernColorDemo.cshtml` 作为控件和状态回归样板。
+- 允许业务项目在保留结构的基础上替换菜单、文案和认证行为。
 
-- `D:\Git\GitHub\silmoonsone\HtmlColorScheme\css\modern-color-layout.css`
-- `D:\Git\GitHub\silmoonsone\HtmlColorScheme\js\modern-color-layout.js`
-- `D:\Git\GitHub\silmoonsone\Silmoon.AspNetCore.Id\Silmoon.AspNetCore.Id\wwwroot\css\modern-color-layout.css`
-- `D:\Git\GitHub\silmoonsone\Silmoon.AspNetCore.Id\Silmoon.AspNetCore.Id\wwwroot\js\modern-color-layout.js`
-- `D:\Git\GitHub\silmoonsone\Silmoon.Templates\Silmoon.Templates\content\Silmoon.AspNetCore.FullFunctionTemplate\wwwroot\css\modern-color-layout.css`
-- `D:\Git\GitHub\silmoonsone\Silmoon.Templates\Silmoon.Templates\content\Silmoon.AspNetCore.FullFunctionTemplate\wwwroot\js\modern-color-layout.js`
+## 2. 相关文件
 
-修改共享行为时，优先在 `HtmlColorScheme` 中调整和验证，再同步到两个 ASP.NET 项目。项目私有行为不能写入共享 CSS/JS。
+cshtml 现代颜色布局相关文件：
 
-## 2. 依赖
+- `Pages/Shared/_ModernColorLayout.cshtml`：现代颜色布局外壳，负责引用 CSS/JS、主题按钮、移动端菜单按钮和 `.content-wrapper`。
+- `Pages/Shared/_ModernColorLayoutDemo.cshtml`：演示用二级布局，负责输出 `nav#menu`、菜单项、子菜单、退出登录入口、菜单内主题按钮和 `.content-main`。
+- `Pages/ModernColorDemo.cshtml`：演示页面，覆盖表单、按钮、标签页、表格、提示框、菜单、子菜单和多种控件状态。
+- `wwwroot/css/modern-color-layout.css`：现代颜色布局核心样式。
+- `wwwroot/js/modern-color-layout.js`：现代颜色布局核心脚本。
+- `Pages/Shared/_BlankLayout.cshtml`：底层空白布局，提供 HTML head、Bootstrap、Bootstrap Icons 和基础脚本。
 
-静态页面需要 Bootstrap 5 和 Bootstrap Icons。`modern-color-layout.js` 只使用标准浏览器 API。
+项目私有样式和脚本应放在当前项目自己的 CSS/JS 文件中，不要混入 `modern-color-layout.css` 或 `modern-color-layout.js`。
 
-```html
-<link href="bootstrap.min.css" rel="stylesheet">
-<link href="bootstrap-icons.css" rel="stylesheet">
-<link href="css/modern-color-layout.css" rel="stylesheet">
-<script src="bootstrap.bundle.min.js"></script>
-<script src="js/modern-color-layout.js"></script>
+## 3. 布局关系
+
+`_ModernColorLayout.cshtml` 使用 `_BlankLayout`：
+
+```cshtml
+@{
+    Layout = "_BlankLayout";
+}
+<link rel="stylesheet" href="~/css/modern-color-layout.css" asp-append-version="true" />
+<script src="~/js/modern-color-layout.js" asp-append-version="true"></script>
 ```
 
-Bootstrap JS 只负责 Bootstrap 自己的 tabs、dropdown、modal 等组件。现代颜色布局的主题、菜单和子菜单行为由 `modern-color-layout.js` 负责。
+它提供基础外壳：
 
-## 3. 必需布局外壳
+- `#content`
+- `.theme-toggle-group`
+- `#toggle-menu`
+- `.content-wrapper`
 
-静态页必须保留这些结构和类名：
+`_ModernColorLayoutDemo.cshtml` 再使用 `_ModernColorLayout`：
 
-```html
-<div id="content">
-    <div class="theme-toggle-group">
-        <button class="theme-btn" data-theme="light" title="亮色模式" type="button"><i class="bi bi-sun"></i></button>
-        <button class="theme-btn" data-theme="dark" title="暗色模式" type="button"><i class="bi bi-moon"></i></button>
-        <button class="theme-btn" data-theme="auto" title="自动模式" type="button"><i class="bi bi-circle-half"></i></button>
-    </div>
-    <button id="toggle-menu" class="btn btn-primary" type="button" aria-label="打开菜单"><i class="bi bi-list"></i></button>
-    <div class="content-wrapper">
-        <nav id="menu" aria-label="主菜单">
-            <div class="menu-header">
-                <h3>实例页面</h3>
-                <div class="text-secondary">现代色彩功能布局</div>
-            </div>
-            <a href="#overview" class="menu-item active"><i class="bi bi-house-door"></i>布局概览</a>
-        </nav>
-        <main class="content-main">
-            <!-- 页面内容 -->
-        </main>
+```cshtml
+@{
+    Layout = "_ModernColorLayout";
+}
+```
+
+它提供：
+
+- `nav#menu`
+- `.menu-header`
+- `.menu-item`
+- `.menu-group`
+- `.menu-submenu`
+- `.theme-menu-buttons`
+- `.content-main`
+
+页面最终可以这样使用：
+
+```cshtml
+@page
+@{
+    Layout = "_ModernColorLayoutDemo";
+}
+
+<header id="overview" class="content-header">
+    <h1>页面标题</h1>
+    <p class="text-secondary mt-2">页面说明</p>
+</header>
+```
+
+## 4. 自定义业务布局
+
+`_ModernColorLayoutDemo.cshtml` 是示例布局，不要求业务项目原样保留。实际项目可以复制它并新建自己的后台布局，例如：
+
+- `Pages/Shared/_AdminModernLayout.cshtml`
+- `Pages/Shared/_AccountModernLayout.cshtml`
+- `Pages/Shared/_DeveloperModernLayout.cshtml`
+
+自定义布局时应保留：
+
+- `nav id="menu"`
+- `.menu-item`
+- `.menu-group`
+- `.menu-submenu-toggle`
+- `.menu-submenu`
+- `.content-main`
+- `.theme-menu-btn`
+
+可以替换：
+
+- 菜单标题和副标题。
+- 菜单项文案、图标和链接。
+- 退出登录入口。
+- 权限判断和显示条件。
+- 页面主体内容。
+
+不要改变 `#content`、`#toggle-menu`、`.content-wrapper` 的层级关系，除非同时确认 CSS 和 JS 仍然能处理桌面端与移动端菜单。
+
+## 5. 菜单和激活状态
+
+同页锚点菜单使用 hash：
+
+```cshtml
+<a href="#forms" class="menu-item">
+    <i class="bi bi-input-cursor"></i>表单控件
+</a>
+```
+
+普通页面菜单应由 cshtml 根据当前页面输出 `active` 或 `aria-current="page"`：
+
+```cshtml
+<a asp-page="/Users/Index" class="menu-item active" aria-current="page">
+    <i class="bi bi-people"></i>用户管理
+</a>
+```
+
+实际项目不要把所有菜单项都硬写为 `active`。应根据当前页面条件输出：
+
+```cshtml
+@{
+    var isUsersPage = ViewContext.RouteData.Values["page"]?.ToString()?.StartsWith("/Users") == true;
+}
+
+<a asp-page="/Users/Index"
+   class="menu-item @(isUsersPage ? "active" : null)"
+   aria-current="@(isUsersPage ? "page" : null)">
+    <i class="bi bi-people"></i>用户管理
+</a>
+```
+
+如果菜单来自模型或权限服务，也应在服务端渲染时决定当前项。`modern-color-layout.js` 会识别 `.active` 和 `aria-current="page"`。
+
+常见菜单模式：
+
+1. 只有主菜单，没有子菜单。
+
+```cshtml
+<a asp-page="/Dashboard" class="menu-item active" aria-current="page">
+    <i class="bi bi-speedometer2"></i>Dashboard
+</a>
+```
+
+这种菜单项本身就是页面入口。当前页面必须由服务端输出 `active` 或 `aria-current="page"`。
+
+2. 主菜单本身是页面入口，同时下面还有子菜单。
+
+```cshtml
+<div class="menu-group">
+    <a asp-page="/Users/Index" class="menu-item active" aria-current="page">
+        <i class="bi bi-people"></i>用户总览
+    </a>
+    <button class="menu-item menu-submenu-toggle" type="button">
+        <span><i class="bi bi-list"></i>用户功能</span>
+        <i class="bi bi-chevron-down menu-submenu-arrow"></i>
+    </button>
+    <div class="menu-submenu">
+        <a asp-page="/Users/Create" class="menu-item">创建用户</a>
+        <a asp-page="/Users/Roles" class="menu-item">角色权限</a>
     </div>
 </div>
 ```
 
-除非同时修改共享 CSS 和 JS，否则不要重命名 `#content`、`.theme-toggle-group`、`#toggle-menu`、`.content-wrapper`、`#menu`、`.menu-item`、`.content-main`。
+这种场景下，主页面入口使用普通 `<a class="menu-item">`，展开按钮单独使用 `button.menu-submenu-toggle`。不要让同一个元素既负责导航又负责展开。
 
-当前项目里的静态入口分别是：
+3. 父级只负责展开，没有自己的页面行为。
 
-- `HtmlColorScheme`：`index.html`。
-- `Silmoon.AspNetCore.Id`：`Pages\Shared\_ModernColorLayout.cshtml`、`Pages\Shared\_ModernAccountLayout.cshtml`。
-- `Silmoon.AspNetCore.FullFunctionTemplate`：`Pages\Shared\_ModernColorLayout.cshtml`、`Pages\Shared\_ModernColorLayoutDemo.cshtml`、`Pages\ModernColorDemo.cshtml`。
-
-## 4. 菜单激活规则
-
-锚点页面使用 hash 链接：
-
-```html
-<a href="#forms" class="menu-item"><i class="bi bi-input-cursor"></i>表单控件</a>
-```
-
-脚本会在点击菜单项时激活对应链接，也会在打开 `index.html#forms` 或 `SomePage#forms` 时激活匹配项。
-
-普通页面导航由服务端或页面模板输出当前项：
-
-```html
-<a href="/users" class="menu-item active"><i class="bi bi-people"></i>用户管理</a>
-```
-
-也可以使用 `aria-current="page"` 标记当前项。共享 JS 会把它当作激活状态。
-
-## 5. 子菜单规则
-
-子菜单必须使用统一结构：
-
-```html
+```cshtml
 <div class="menu-group">
     <button class="menu-item menu-submenu-toggle" type="button">
         <span><i class="bi bi-folder"></i>系统管理</span>
         <i class="bi bi-chevron-down menu-submenu-arrow"></i>
     </button>
     <div class="menu-submenu">
-        <a href="/users" class="menu-item"><i class="bi bi-people"></i>用户管理</a>
-        <a href="/roles" class="menu-item"><i class="bi bi-shield"></i>角色管理</a>
+        <a asp-page="/Users/Index" class="menu-item active" aria-current="page">用户管理</a>
+        <a asp-page="/Roles/Index" class="menu-item">角色管理</a>
     </div>
 </div>
 ```
 
-激活子菜单时，只标记子项 `active` 或 `aria-current="page"`，不要把父级按钮标记为当前页。共享 JS 会处理 `aria-controls`、`aria-expanded`、`.menu-submenu.open`、`.child-active` 和父级自动展开。
+这种场景下，父级按钮永远不要输出 `active` 或 `aria-current="page"`。只标记真正命中的子项，脚本会给父级追加 `.child-active` 并自动展开。
 
-不要再写第二套子菜单脚本。
+4. 权限隐藏后没有可见子项。
 
-## 6. 主题规则
+如果某个父级下的子项全部因为权限隐藏，则不要渲染这个 `.menu-group`。不要输出一个没有子菜单项的空父级按钮。
+
+## 6. 子菜单
+
+子菜单使用统一结构：
+
+```cshtml
+<div class="menu-group">
+    <button class="menu-item menu-submenu-toggle" type="button">
+        <span><i class="bi bi-folder"></i>系统管理</span>
+        <i class="bi bi-chevron-down menu-submenu-arrow"></i>
+    </button>
+    <div class="menu-submenu">
+        <a asp-page="/Users/Index" class="menu-item">
+            <i class="bi bi-people"></i>用户管理
+        </a>
+        <a asp-page="/Roles/Index" class="menu-item">
+            <i class="bi bi-shield"></i>角色管理
+        </a>
+    </div>
+</div>
+```
+
+只标记子项 `active` 或 `aria-current="page"`。脚本会自动展开父级子菜单，并维护 `aria-expanded`、`.menu-submenu.open` 和 `.child-active`。
+
+子菜单激活规则：
+
+- 子项命中当前页面时，子项输出 `active` 或 `aria-current="page"`。
+- 父级只负责展开时，父级按钮不输出 `active`。
+- 父级也有页面入口时，把父级页面入口写成独立 `<a class="menu-item">`，不要和展开按钮合并。
+- 同一个 `.menu-group` 可以同时包含一个主入口 `<a>` 和一个展开按钮，但两者必须是两个元素。
+
+不要在页面里再写一套子菜单展开脚本。
+
+## 7. 权限菜单和认证入口
+
+菜单权限属于项目私有行为，应在 cshtml、PageModel、ViewModel 或服务端菜单模型中处理。
+
+示例：
+
+```cshtml
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <a asp-page="/Profile/Index" class="menu-item">
+        <i class="bi bi-person"></i>个人资料
+    </a>
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <a asp-page="/Admin/Index" class="menu-item">
+        <i class="bi bi-shield-lock"></i>管理员
+    </a>
+}
+```
+
+退出登录可以保留模板中的 ajax 行为，也可以按项目认证方式替换。替换时不要把认证逻辑写进 `modern-color-layout.js`。
+
+## 8. 主题和移动端
 
 主题按钮使用：
 
+- `.theme-btn`：桌面浮动按钮。
+- `.theme-menu-btn`：菜单内按钮。
 - `data-theme="light"`：亮色。
 - `data-theme="dark"`：暗色。
 - `data-theme="auto"`：跟随系统。
 
-当前选择保存在 `localStorage` 的 `modern-color-layout-theme`。桌面浮动按钮使用 `.theme-btn`，菜单内按钮使用 `.theme-menu-btn`，脚本会自动同步两组按钮状态。
+主题值保存在 `localStorage` 的 `modern-color-layout-theme`。
 
-## 7. 移动端规则
-
-移动端打开菜单时，脚本会把 `#menu` 移动到 `document.body`，让菜单在页面滚动后仍固定显示在 `#toggle-menu` 下方。回到桌面布局时，脚本会把菜单移回 `.content-wrapper`。
+移动端打开菜单时，脚本会把 `#menu` 移动到 `document.body`，让菜单在页面滚动后仍显示在 `#toggle-menu` 下方。切回桌面宽度后，脚本会把菜单移回 `.content-wrapper`。
 
 不要写依赖 `#menu.parentElement` 永远等于 `.content-wrapper` 的代码。
 
-移动端菜单和按钮的间距由变量控制：
+## 9. 样式修改边界
 
-```css
-:root {
-    --mobile-menu-gap: 10px;
-}
-```
+可以放入 `modern-color-layout.css` 的内容：
 
-## 8. 项目私有规则
+- 颜色变量。
+- 现代布局外壳。
+- 菜单和子菜单。
+- Bootstrap 常见控件适配。
+- 表单控件各种状态。
+- 移动端菜单和返回顶部按钮。
 
-共享 CSS/JS 只能放框架通用行为。以下内容属于项目私有行为：
+不要放入 `modern-color-layout.css` 的内容：
 
-- 登录、注册、退出登录。
-- 账号系统专属视觉样式，例如 Id 项目的 `modern-color-layout-id.css`。
-- 项目接口调用、业务状态、权限判断。
-- 只在某个项目中存在的菜单项和文案。
+- 具体业务页面的特殊布局。
+- 某个账号系统、交易系统、开发者后台的专属品牌样式。
+- 只服务某个页面一次性展示的颜色。
 
-项目私有行为应放在项目自己的布局、组件、`site.js` 或私有 CSS 文件中。
+可以放入 `modern-color-layout.js` 的内容：
 
-## 9. 回归检查
+- 主题切换。
+- 菜单打开关闭。
+- 子菜单展开。
+- 菜单激活。
+- 移动端菜单定位。
+- 重复初始化保护。
+
+不要放入 `modern-color-layout.js` 的内容：
+
+- 认证、退出登录、权限判断。
+- 业务接口调用。
+- 某个页面专属事件。
+
+## 10. 回归检查
 
 修改完成前至少检查：
 
-- 三处 `modern-color-layout.css` hash 一致。
-- 三处 `modern-color-layout.js` hash 一致。
-- `node --check js/modern-color-layout.js` 或对应项目下的 `wwwroot\js\modern-color-layout.js` 通过。
-- 亮色、暗色、自动模式按钮状态同步。
+- `Pages/ModernColorDemo.cshtml` 在亮色、暗色、自动模式下可读。
 - 菜单项点击后能正确激活。
-- hash 导航能激活对应静态菜单项。
+- hash 导航能激活对应菜单项。
 - 子菜单子项激活时父级自动展开。
-- 移动端滚动后菜单仍显示在按钮下方。
+- 移动端滚动后菜单仍显示在菜单按钮下方。
 - `button.menu-item` 不显示成浏览器原生白色按钮。
-- 常用控件在亮色和暗色模式下都可读。
+- 表单控件的正常、焦点、禁用、只读、校验状态都可读。
+- 日期和时间控件在暗色模式下图标可见。
+- `dotnet build --no-restore` 通过。
+- 文档和代码保持 UTF-8 BOM 与 CRLF。
