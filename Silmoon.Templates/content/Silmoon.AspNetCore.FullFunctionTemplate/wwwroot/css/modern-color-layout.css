@@ -16,6 +16,7 @@
     --card-border-radius: 12px;
     --menu-width: 220px;
     --mobile-menu-top: 78px;
+    --mobile-menu-gap: 10px;
     --mobile-edge-offset: 20px;
     /* 亮色主题变量（默认） */
     --bg-primary: #ffffff;
@@ -57,7 +58,6 @@
     --table-row-alt-bg: rgba(13, 110, 253, 0.04);
     --table-row-hover-bg: rgba(13, 110, 253, 0.08);
     --table-border-color: rgba(0, 0, 0, 0.08);
-    --table-stripe-bg: rgba(13, 110, 253, 0.04);
 }
 
 /* 暗色主题 - 系统偏好暗色或手动设置暗色 */
@@ -100,7 +100,6 @@
         --table-row-alt-bg: rgba(255, 255, 255, 0.055);
         --table-row-hover-bg: rgba(13, 110, 253, 0.12);
         --table-border-color: rgba(255, 255, 255, 0.09);
-        --table-stripe-bg: rgba(255, 255, 255, 0.035);
     }
 }
 
@@ -142,7 +141,6 @@
     --table-row-alt-bg: rgba(255, 255, 255, 0.055);
     --table-row-hover-bg: rgba(13, 110, 253, 0.12);
     --table-border-color: rgba(255, 255, 255, 0.09);
-    --table-stripe-bg: rgba(255, 255, 255, 0.035);
 }
 
 /* 主题切换动画 */
@@ -157,7 +155,6 @@ body {
     background: var(--bg-primary);
     color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    justify-content: center;
     padding: 20px;
 }
 
@@ -193,7 +190,7 @@ body {
         font-weight: 600;
     }
 
-#menu a {
+#menu .menu-item {
     color: var(--text-primary);
     text-decoration: none;
     display: flex;
@@ -202,36 +199,97 @@ body {
     font-size: 0.95rem;
     transition: all 0.3s ease;
     border-left: 3px solid transparent;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0;
     position: relative;
     overflow: hidden;
     margin: 2px 10px 2px 7px;
     border-radius: var(--border-radius);
+    width: calc(100% - 17px);
+    background: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
 }
 
-    #menu a i {
+#menu button.menu-item {
+    background-color: transparent;
+    box-shadow: none;
+}
+
+    #menu .menu-item i {
         margin-right: 10px;
         font-size: 1rem;
         transition: transform 0.3s ease;
         opacity: 0.7;
     }
 
-#menu a:hover,
-#menu a.active {
+#menu .menu-item:hover,
+#menu .menu-item.active {
     background: var(--active-bg);
     border-left: 3px solid var(--primary-color);
     color: white;
     transform: translateX(3px);
 }
 
-        #menu a:hover i, #menu a.active i {
+        #menu .menu-item:hover i, #menu .menu-item.active i {
             transform: scale(1.05);
             color: white;
             opacity: 1;
         }
 
-    #menu a.active {
+    #menu .menu-item.active {
         font-weight: 500;
     }
+
+.menu-submenu-toggle {
+    justify-content: space-between;
+}
+
+    .menu-submenu-toggle .menu-submenu-arrow {
+        margin-right: 0 !important;
+        margin-left: auto;
+        font-size: 0.85rem !important;
+    }
+
+    .menu-submenu-toggle[aria-expanded="true"] .menu-submenu-arrow {
+        transform: rotate(180deg);
+        opacity: 1;
+    }
+
+    .menu-submenu-toggle.child-active {
+        color: var(--link-color);
+        background-color: var(--panel-bg);
+    }
+
+.menu-submenu {
+    max-height: 0;
+    overflow: hidden;
+    margin: 0 10px 0 7px;
+    padding-left: 14px;
+    border-left: 1px solid var(--border-color);
+    transition: max-height 0.25s ease, margin 0.25s ease;
+}
+
+    .menu-submenu.open {
+        max-height: 260px;
+        margin-top: 2px;
+        margin-bottom: 4px;
+    }
+
+    .menu-submenu .menu-item {
+        width: calc(100% - 4px);
+        margin: 1px 0;
+        padding: 9px 12px;
+        font-size: 0.88rem;
+    }
+
+        .menu-submenu .menu-item i {
+            font-size: 0.9rem;
+        }
 
 #content {
     width: 100%;
@@ -601,15 +659,28 @@ input[type="number"] {
             font-size: 0.8rem;
         }
 
-    #menu a {
+    #menu .menu-item {
         padding: 10px 16px;
         margin: 2px 8px;
         font-size: 0.9rem;
         border-radius: var(--border-radius);
+        width: calc(100% - 16px);
     }
 
-        #menu a i {
+        #menu .menu-item i {
             font-size: 0.9rem;
+        }
+
+    .menu-submenu {
+        margin-right: 8px;
+        margin-left: 8px;
+        padding-left: 10px;
+    }
+
+        .menu-submenu .menu-item {
+            width: calc(100% - 4px);
+            padding: 8px 12px;
+            font-size: 0.85rem;
         }
 
     #menu hr {

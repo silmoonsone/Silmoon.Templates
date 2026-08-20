@@ -1,0 +1,43 @@
+﻿@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject ISilmoonAuthService SilmoonAuthService
+@inject JsSilmoonAuthInterop Jsa
+@inject JsComponentInterop Jsc
+
+@if (isSignedIn)
+{
+    <a class="menu-item" href="javascript: void(0);" @onclick="DoSignOut">
+        <i class="bi bi-box-arrow-right"></i><span>@signOutText</span>
+    </a>
+}
+else
+{
+    <NavLink class="menu-item" href="/signin">
+        <i class="bi bi-box-arrow-in-right"></i>登录
+    </NavLink>
+    <NavLink class="menu-item" href="/signup">
+        <i class="bi bi-person-plus"></i>注册
+    </NavLink>
+}
+
+@code {
+    bool isSignedIn;
+    string signOutText = "退出登录";
+
+    protected override async Task OnInitializedAsync()
+    {
+        isSignedIn = await SilmoonAuthService.IsSignIn();
+        await base.OnInitializedAsync();
+    }
+
+    async Task DoSignOut()
+    {
+        var confirm = await Jsc.MetroUIConfirm("确认", "确认退出登录？", true);
+        if (!confirm) return;
+
+        signOutText = "退出中";
+        var result = await Jsa.SignOut();
+        signOutText = result.Success ? "已退出" : "退出登录";
+        if (result.Success) NavigationManager.Refresh(true);
+    }
+}

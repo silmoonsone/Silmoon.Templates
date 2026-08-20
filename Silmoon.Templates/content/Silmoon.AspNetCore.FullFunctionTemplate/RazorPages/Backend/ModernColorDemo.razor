@@ -1,0 +1,154 @@
+﻿@page "/backend/modern-color-demo"
+
+<PageTitle>现代色彩后台布局</PageTitle>
+
+<header id="overview" class="content-header">
+    <h1>现代色彩后台布局</h1>
+    <p class="text-secondary mt-2">Blazor Backend Layout - 现代颜色框架 Razor 版本</p>
+</header>
+
+<section class="row">
+    <div class="col-md-6 pb-3">
+        <div class="card p-3" style="--animation-order: 1;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mb-3 b text-gradient">Blazor 后台布局</div>
+                <i class="bi bi-window-sidebar text-primary"></i>
+            </div>
+            <p class="text-secondary">`/backend` 目录下的 Razor 组件通过目录级 `_Imports.razor` 默认使用现代颜色布局。</p>
+            <ol class="text-secondary">
+                <li><strong>ModernColorLayout.razor</strong> - Blazor 后台布局外壳</li>
+                <li><strong>RazorPages/Backend/_Imports.razor</strong> - 目录级布局声明</li>
+                <li><strong>wwwroot/css/modern-color-layout.css</strong> - 统一颜色和控件样式</li>
+                <li><strong>wwwroot/js/modern-color-layout.js</strong> - 主题切换和移动菜单交互</li>
+            </ol>
+        </div>
+    </div>
+    <div class="col-md-6 pb-3">
+        <div class="card p-3" style="--animation-order: 2;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mb-3 b text-gradient">主题能力</div>
+                <i class="bi bi-palette2 text-primary"></i>
+            </div>
+            <p class="text-secondary">亮色、暗色和自动模式直接复用同一套 CSS 变量，适用于 Blazor 与 Razor Pages。</p>
+            <div class="row g-3">
+                <div class="col-4">
+                    <div class="text-center p-3 border rounded">
+                        <i class="bi bi-sun text-warning" style="font-size: 1.5rem;"></i>
+                        <h6 class="mt-2">亮色</h6>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="text-center p-3 border rounded">
+                        <i class="bi bi-moon text-info" style="font-size: 1.5rem;"></i>
+                        <h6 class="mt-2">暗色</h6>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="text-center p-3 border rounded">
+                        <i class="bi bi-circle-half text-success" style="font-size: 1.5rem;"></i>
+                        <h6 class="mt-2">自动</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="forms" class="pb-3">
+    <div class="card p-3" style="--animation-order: 3;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="mb-3 b text-gradient">表单控件状态</div>
+            <i class="bi bi-input-cursor text-primary"></i>
+        </div>
+        <p class="text-secondary">这里放置 Blazor 后台常见输入控件，用来确认主题变量在组件页面中同样生效。</p>
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <label for="backendName" class="form-label">文本输入框</label>
+                <input id="backendName" class="form-control mb-3" placeholder="请输入文本内容" />
+                <label for="backendEmail" class="form-label">邮箱输入框</label>
+                <input id="backendEmail" class="form-control mb-3" placeholder="example&#64;domain.com" />
+                <label for="backendReadonly" class="form-label">只读输入框</label>
+                <input id="backendReadonly" class="form-control mb-3" value="只读内容仍需清晰可读" readonly />
+                <label for="backendDisabled" class="form-label">禁用输入框</label>
+                <input id="backendDisabled" class="form-control" value="当前不可编辑" disabled />
+            </div>
+            <div class="col-lg-6">
+                <label for="backendSelect" class="form-label">下拉选择框</label>
+                <select id="backendSelect" class="form-select mb-3">
+                    <option value="">请选择选项</option>
+                    <option value="1">选项一</option>
+                    <option value="2">选项二</option>
+                </select>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label for="backendDate" class="form-label">日期</label>
+                        <input id="backendDate" type="date" class="form-control" value="2026-08-21" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="backendTime" class="form-label">时间</label>
+                        <input id="backendTime" type="time" class="form-control" value="09:30" />
+                    </div>
+                </div>
+                <div class="form-check form-switch mt-3">
+                    <input id="backendSwitch" class="form-check-input" type="checkbox" checked />
+                    <label class="form-check-label" for="backendSwitch">启用后台开关</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="components" class="pb-3">
+    <div class="card p-3" style="--animation-order: 4;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="mb-3 b text-gradient">按钮和状态组件</div>
+            <i class="bi bi-ui-checks-grid text-primary"></i>
+        </div>
+        <div class="control-row mb-3">
+            <button type="button" class="btn btn-primary">主要按钮</button>
+            <button type="button" class="btn btn-outline-primary">轮廓按钮</button>
+            <button type="button" class="btn btn-secondary">次要按钮</button>
+            <button type="button" class="btn btn-primary" disabled>禁用按钮</button>
+        </div>
+        <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>这个 Blazor 页面使用与 cshtml 现代布局相同的 CSS/JS 框架。
+        </div>
+    </div>
+</section>
+
+<section id="data" class="pb-3">
+    <div class="card p-3" style="--animation-order: 5;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="mb-3 b text-gradient">表格状态演示</div>
+            <i class="bi bi-table text-primary"></i>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>区域</th>
+                        <th>状态</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>布局</td>
+                        <td><span class="badge bg-success">已应用</span></td>
+                        <td class="text-secondary">Backend 目录级布局已生效。</td>
+                    </tr>
+                    <tr>
+                        <td>主题</td>
+                        <td><span class="badge bg-primary">可切换</span></td>
+                        <td class="text-secondary">主题按钮状态由 modern-color-layout.js 同步。</td>
+                    </tr>
+                    <tr>
+                        <td>移动端菜单</td>
+                        <td><span class="badge text-bg-light">响应式</span></td>
+                        <td class="text-secondary">滚动页面后仍会固定显示在菜单按钮下方。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

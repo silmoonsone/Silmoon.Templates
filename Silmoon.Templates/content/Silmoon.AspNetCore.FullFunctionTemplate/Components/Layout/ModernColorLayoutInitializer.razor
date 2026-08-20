@@ -1,0 +1,20 @@
+﻿@rendermode InteractiveServer
+@inject IJSRuntime Js
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await Js.InvokeVoidAsync("ModernColorLayoutLoader.ensureLoaded", "/js/modern-color-layout.js");
+            }
+            catch (JSException ex)
+            {
+                await Js.InvokeVoidAsync("console.error", "ModernColorLayout 初始化失败。", ex.Message);
+            }
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}

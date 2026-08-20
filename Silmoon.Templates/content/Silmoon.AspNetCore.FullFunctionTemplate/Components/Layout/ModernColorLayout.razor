@@ -1,0 +1,78 @@
+﻿@inherits LayoutComponentBase
+
+<HeadContent>
+    <link rel="stylesheet" href="/css/modern-color-layout.css?v=16" />
+</HeadContent>
+
+<div id="content">
+    <div class="theme-toggle-group">
+        <button class="theme-btn" data-theme="light" title="亮色模式" type="button">
+            <i class="bi bi-sun"></i>
+        </button>
+        <button class="theme-btn" data-theme="dark" title="暗色模式" type="button">
+            <i class="bi bi-moon"></i>
+        </button>
+        <button class="theme-btn" data-theme="auto" title="自动模式" type="button">
+            <i class="bi bi-circle-half"></i>
+        </button>
+    </div>
+
+    <button id="toggle-menu" class="btn btn-primary" type="button" aria-label="打开菜单">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div class="content-wrapper">
+        <nav id="menu" aria-label="后台主菜单">
+            <div class="menu-header">
+                <h3>SILMOON 后台</h3>
+                <div class="text-secondary">现代色彩功能布局</div>
+            </div>
+            <NavLink class="menu-item" href="/backend/modern-color-demo" Match="NavLinkMatch.All">
+                <i class="bi bi-palette2"></i>现代色彩Demo
+            </NavLink>
+            <div class="menu-group">
+                <button class="menu-item menu-submenu-toggle" type="button">
+                    <span><i class="bi bi-folder"></i>后台页面</span>
+                    <i class="bi bi-chevron-down menu-submenu-arrow"></i>
+                </button>
+                <div class="menu-submenu">
+                    <NavLink class="menu-item" href="/dashboard">
+                        <i class="bi bi-speedometer2"></i>Dashboard
+                    </NavLink>
+                    <NavLink class="menu-item" href="/upload">
+                        <i class="bi bi-cloud-upload"></i>Upload
+                    </NavLink>
+                </div>
+            </div>
+            <hr />
+            <a class="menu-item" href="/">
+                <i class="bi bi-house-door"></i>返回首页
+            </a>
+            <ModernColorLayoutAuthMenu />
+            <hr />
+            <div class="theme-menu-buttons">
+                <button class="theme-menu-btn" data-theme="light" title="亮色模式" type="button">
+                    <i class="bi bi-sun"></i>
+                </button>
+                <button class="theme-menu-btn" data-theme="dark" title="暗色模式" type="button">
+                    <i class="bi bi-moon"></i>
+                </button>
+                <button class="theme-menu-btn" data-theme="auto" title="自动模式" type="button">
+                    <i class="bi bi-circle-half"></i>
+                </button>
+            </div>
+        </nav>
+
+        <main class="content-main">
+            @Body
+        </main>
+    </div>
+</div>
+
+<div id="blazor-error-ui" style="display: none;">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+<ModernColorLayoutInitializer />

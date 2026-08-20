@@ -1,4 +1,4 @@
-@{
+﻿@{
     Layout = "_ModernColorLayout";
 }
 
@@ -10,21 +10,37 @@
     <a href="#overview" class="menu-item active">
         <i class="bi bi-house-door"></i>布局概览
     </a>
-    <a href="#forms" class="menu-item">
-        <i class="bi bi-input-cursor"></i>表单控件
-    </a>
-    <a href="#tabs" class="menu-item">
-        <i class="bi bi-collection"></i>标签页
-    </a>
-    <a href="#buttons" class="menu-item">
-        <i class="bi bi-ui-checks-grid"></i>按钮控件
-    </a>
-    <a href="#components" class="menu-item">
-        <i class="bi bi-grid-3x3-gap"></i>组件状态
-    </a>
-    <a href="#data" class="menu-item">
-        <i class="bi bi-table"></i>数据展示
-    </a>
+    <div class="menu-group">
+        <button class="menu-item menu-submenu-toggle" type="button">
+            <span><i class="bi bi-ui-checks"></i>控件示例</span>
+            <i class="bi bi-chevron-down menu-submenu-arrow"></i>
+        </button>
+        <div class="menu-submenu">
+            <a href="#forms" class="menu-item">
+                <i class="bi bi-input-cursor"></i>表单控件
+            </a>
+            <a href="#tabs" class="menu-item">
+                <i class="bi bi-collection"></i>标签页
+            </a>
+            <a href="#buttons" class="menu-item">
+                <i class="bi bi-ui-checks-grid"></i>按钮控件
+            </a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <button class="menu-item menu-submenu-toggle" type="button">
+            <span><i class="bi bi-grid"></i>展示示例</span>
+            <i class="bi bi-chevron-down menu-submenu-arrow"></i>
+        </button>
+        <div class="menu-submenu">
+            <a href="#components" class="menu-item">
+                <i class="bi bi-grid-3x3-gap"></i>组件状态
+            </a>
+            <a href="#data" class="menu-item">
+                <i class="bi bi-table"></i>数据展示
+            </a>
+        </div>
+    </div>
     <hr />
     <a href="~/_session/signOut" class="menu-item" data-ajax="true" data-ajax-begin="signOut_OnBegin" data-ajax-complete="signOut_OnComplete" data-ajax-confirm="确定退出？">
         <i class="bi bi-box-arrow-right"></i><span id="userMenuLink">退出登录</span>
