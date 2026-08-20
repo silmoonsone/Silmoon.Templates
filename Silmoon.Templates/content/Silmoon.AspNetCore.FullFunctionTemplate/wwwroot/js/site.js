@@ -4,28 +4,27 @@
 // Write your JavaScript code.
 
 (function () {
-    let modernColorLayoutPromise;
+    const scriptPromises = {};
 
-    window.ModernColorLayoutLoader = window.ModernColorLayoutLoader || {
+    window.ScriptLoader = window.ScriptLoader || {
         ensureLoaded: function (src) {
-            if (window.ModernColorLayout && window.ModernColorLayout.init) {
-                window.ModernColorLayout.init();
-                return Promise.resolve();
-            }
-            if (modernColorLayoutPromise) return modernColorLayoutPromise;
+            if (scriptPromises[src]) return scriptPromises[src];
 
-            modernColorLayoutPromise = new Promise(function (resolve, reject) {
+            scriptPromises[src] = new Promise(function (resolve, reject) {
                 const script = document.createElement("script");
-                script.dataset.modernColorLayout = "true";
+                script.dataset.scriptLoader = "true";
                 script.src = src;
                 script.onload = function () {
-                    window.ModernColorLayout.init();
-                    resolve();
+                    resolve(script);
                 };
-                script.onerror = reject;
+                script.onerror = function () {
+                    delete scriptPromises[src];
+                    reject(new Error("Script load failed: " + src));
+                };
                 document.body.appendChild(script);
             });
-            return modernColorLayoutPromise;
+
+            return scriptPromises[src];
         }
     };
 })();

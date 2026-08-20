@@ -29,7 +29,7 @@ Blazor 现代颜色布局相关文件：
 - `Components/App.razor`：Blazor 应用外壳，引用 Bootstrap、Bootstrap Icons、项目样式、`js/site.js` 和 Blazor 脚本。
 - `wwwroot/css/modern-color-layout.css`：现代颜色布局核心样式。
 - `wwwroot/js/modern-color-layout.js`：现代颜色布局核心脚本。
-- `wwwroot/js/site.js`：项目脚本，包含 `ModernColorLayoutLoader`。
+- `wwwroot/js/site.js`：项目脚本，包含通用 `ScriptLoader`。
 
 ## 3. 服务和路由
 
@@ -74,7 +74,7 @@ builder.Services.AddJsSilmoonAuthInterop();
 
 不要在 `Components/App.razor` 中直接引用 `modern-color-layout.css` 或 `modern-color-layout.js`。
 
-`Components/App.razor` 可以引用 Bootstrap、Bootstrap Icons、项目样式、公共脚本和 `js/site.js`。`site.js` 提供 `ModernColorLayoutLoader`，由 `ModernColorLayoutInitializer.razor` 动态加载 `/js/modern-color-layout.js`。
+`Components/App.razor` 可以引用 Bootstrap、Bootstrap Icons、项目样式、公共脚本和 `js/site.js`。`site.js` 提供通用 `ScriptLoader.ensureLoaded(src)`，由 `ModernColorLayoutInitializer.razor` 动态加载 `/js/modern-color-layout.js`。
 
 `ModernColorLayoutInitializer.razor` 必须是交互式子组件：
 
@@ -84,6 +84,13 @@ builder.Services.AddJsSilmoonAuthInterop();
 ```
 
 这样可以避免让包含 `RenderFragment Body` 的布局组件直接成为 interactive 组件。不要把初始化器合并回 `ModernColorLayout.razor`。
+
+初始化器应通过通用脚本加载器调用现代颜色布局：
+
+```csharp
+await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js");
+await Js.InvokeVoidAsync("ModernColorLayout.init");
+```
 
 ## 6. 布局结构
 
