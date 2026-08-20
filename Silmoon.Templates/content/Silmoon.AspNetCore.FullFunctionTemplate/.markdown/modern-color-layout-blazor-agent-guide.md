@@ -1,12 +1,12 @@
-﻿# FullFunctionTemplate 现代颜色布局 Blazor 使用说明（Agent）
+﻿# 现代颜色布局 Blazor 使用说明（Agent）
 
-本文给 Codex 或其他 AI Agent 使用，说明如何在当前模板项目的 Blazor Razor 组件中使用现代颜色布局。
+本文给 Codex 或其他 AI Agent 使用，说明如何在当前项目的 Blazor Razor 组件中使用现代颜色布局。
 
-本说明只针对当前模板项目的 Blazor 结构。Razor Pages cshtml 页面请阅读同目录的 `modern-color-layout-static-agent-guide.md`。
+本说明只针对当前项目的 Blazor 结构。Razor Pages cshtml 页面请阅读同目录的 `modern-color-layout-static-agent-guide.md`。
 
 ## 1. 项目定位
 
-当前模板项目同时包含 cshtml 页面和 Blazor Razor 组件。Blazor 现代颜色布局用于 `/backend` 这类组件页面，目标是让模板创建出的项目可以直接获得一套现代后台外壳。
+当前项目同时包含 cshtml 页面和 Blazor Razor 组件。Blazor 现代颜色布局用于 `/backend` 这类组件页面，目标是让项目可以直接获得一套现代后台外壳。
 
 这套 Blazor 布局提供：
 
@@ -21,9 +21,9 @@
 
 Blazor 现代颜色布局相关文件：
 
-- `Components/Layout/ModernColorLayout.razor`：Blazor 后台布局外壳，包含主题按钮、菜单按钮、菜单、正文区域、错误 UI 和初始化组件。
-- `Components/Layout/ModernColorLayoutInitializer.razor`：交互式初始化组件，负责通过 JS interop 确保现代颜色布局脚本已加载并调用初始化。
-- `Components/Layout/ModernColorLayoutAuthMenu.razor`：认证菜单示例组件，负责登录、注册、退出登录相关菜单项。
+- `Components/Layout/ModernColor/ModernColorLayout.razor`：Blazor 后台布局外壳，包含主题按钮、菜单按钮、菜单、正文区域、错误 UI 和初始化组件。
+- `Components/Layout/ModernColor/ModernColorLayoutInitializer.razor`：交互式初始化组件，负责通过 JS interop 确保现代颜色布局脚本已加载并调用初始化。
+- `Components/Layout/ModernColor/ModernColorLayoutAuthMenu.razor`：认证菜单示例组件，负责登录、注册、退出登录相关菜单项。
 - `RazorPages/Backend/_Imports.razor`：目录级布局声明，让 `RazorPages/Backend` 下的组件默认使用 `ModernColorLayout`。
 - `RazorPages/Backend/ModernColorDemo.razor`：Blazor 演示页面，用于验证布局和控件状态。
 - `Components/App.razor`：Blazor 应用外壳，引用 Bootstrap、Bootstrap Icons、项目样式、`js/site.js` 和 Blazor 脚本。
@@ -40,7 +40,7 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 ```
 
-如果模板项目使用 Silmoon 相关 JS interop 服务，也应按项目约定保留：
+如果当前项目使用 Silmoon 相关 JS interop 服务，也应按项目约定保留：
 
 ```csharp
 builder.Services.AddJsComponentInterop();
@@ -54,7 +54,7 @@ builder.Services.AddJsSilmoonAuthInterop();
 当前模板通过目录级 `_Imports.razor` 应用布局：
 
 ```razor
-@using Silmoon.AspNetCore.FullFunctionTemplate.Components.Layout
+@using {当前项目根命名空间}.Components.Layout.ModernColor
 @layout ModernColorLayout
 ```
 
