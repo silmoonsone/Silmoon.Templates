@@ -1,17 +1,17 @@
-﻿# FullFunctionTemplate 现代颜色布局 cshtml 使用说明（Agent）
+﻿# 现代颜色布局 cshtml 使用说明（Agent）
 
-本文给 Codex 或其他 AI Agent 使用，说明如何在当前模板项目的 Razor Pages cshtml 页面中使用现代颜色布局。
+本文给 Codex 或其他 AI Agent 使用，说明如何在当前项目的 Razor Pages cshtml 页面中使用现代颜色布局。
 
-本说明只针对当前模板项目的 cshtml/Razor Pages 结构，不说明 Blazor 用法。Blazor 页面请阅读同目录的 `modern-color-layout-blazor-agent-guide.md`。
+本说明只针对当前项目的 cshtml/Razor Pages 结构，不说明 Blazor 用法。Blazor 页面请阅读同目录的 `modern-color-layout-blazor-agent-guide.md`。
 
 ## 1. 项目定位
 
-当前模板项目内置一套现代颜色布局，可用于 Razor Pages 或 MVC View 的后台页面、管理页面、功能演示页面。
+当前项目内置一套现代颜色布局，可用于 Razor Pages 或 MVC View 的后台页面、管理页面、功能演示页面。
 
 这套 cshtml 布局的目标：
 
 - 提供统一的现代颜色变量、菜单、主题切换和控件状态。
-- 让模板创建出的项目可以直接复用后台页面外壳。
+- 让项目可以直接复用后台页面外壳。
 - 提供 `Pages/ModernColorDemo.cshtml` 作为控件和状态回归样板。
 - 允许业务项目在保留结构的基础上替换菜单、文案和认证行为。
 
