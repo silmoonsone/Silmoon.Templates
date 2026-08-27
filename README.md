@@ -1,4 +1,4 @@
-# Requires attention:
+ï»¿# Requires attention:
 
 Various functions need to be adjusted and turned on by looking at the comments in Program.cs.
 Pay attention to restoring the NuGet package and libman.json client package!
@@ -14,7 +14,7 @@ sone@silmoon.com
 > dotnet new install Silmoon.Templates
 > dotnet new ffweb -n [ProjectName]
 > ```
-> **×¢Òâ£º´´½¨ÏîÄ¿ºó£¬±ØÐëÔËÐÐÒÔÏÂÃüÁîÒÔ»¹Ô­Ç°¶ËÒÀÀµ£º**
+> **æ³¨æ„ï¼šåˆ›å»ºé¡¹ç›®åŽï¼Œå¿…é¡»è¿è¡Œä»¥ä¸‹å‘½ä»¤ä»¥è¿˜åŽŸå‰ç«¯ä¾èµ–ï¼š**
 > ```cmd
 > dotnet tool install --global Microsoft.Web.LibraryManager.Cli
 > libman restore

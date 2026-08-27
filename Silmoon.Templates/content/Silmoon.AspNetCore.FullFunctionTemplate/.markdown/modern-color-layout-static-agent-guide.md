@@ -23,7 +23,7 @@ cshtml 现代颜色布局相关文件：
 - `Pages/Shared/_ModernColorLayoutDemo.cshtml`：演示用二级布局，负责输出 `nav#menu`、菜单项、子菜单、退出登录入口、菜单内主题按钮和 `.content-main`。
 - `Pages/ModernColorDemo.cshtml`：演示页面，覆盖表单、按钮、标签页、表格、提示框、菜单、子菜单和多种控件状态。
 - `wwwroot/css/modern-color-layout.css`：现代颜色布局核心样式。
-- `wwwroot/js/modern-color-layout.js`：现代颜色布局核心脚本。
+- `wwwroot/js/modern-color-layout.js`：现代颜色布局核心脚本，公开可重复调用的 `ModernColorLayout.refresh()`。
 - `Pages/Shared/_BlankLayout.cshtml`：底层空白布局，提供 HTML head、Bootstrap、Bootstrap Icons 和基础脚本。
 
 项目私有样式和脚本应放在当前项目自己的 CSS/JS 文件中，不要混入 `modern-color-layout.css` 或 `modern-color-layout.js`。
@@ -266,6 +266,24 @@ cshtml 现代颜色布局相关文件：
 
 不要写依赖 `#menu.parentElement` 永远等于 `.content-wrapper` 的代码。
 
+### 8.1 局部导航和动态 DOM
+
+普通 Razor Pages 完整导航会重新加载脚本，不需要额外处理。如果项目使用局部导航、HTML 局部替换或其他不会触发整页刷新的机制，应在新 DOM 已经写入页面后调用：
+
+```javascript
+window.ModernColorLayout.refresh();
+```
+
+`refresh()` 可以重复调用，会扫描当前页面中新出现的菜单、子菜单和主题按钮，同时避免给已有元素重复绑定事件。框架自身的生命周期事件应在项目适配代码中订阅，再从适配代码调用 `refresh()`；不要把某个框架名称或对象直接写进 `modern-color-layout.js`。
+
+例如，项目已有统一的页面更新事件时可以这样接入：
+
+```javascript
+document.addEventListener("page:updated", function () {
+    window.ModernColorLayout.refresh();
+});
+```
+
 ## 9. 样式修改边界
 
 可以放入 `modern-color-layout.css` 的内容：
@@ -291,6 +309,7 @@ cshtml 现代颜色布局相关文件：
 - 菜单激活。
 - 移动端菜单定位。
 - 重复初始化保护。
+- 为局部导航或动态 DOM 提供可重复调用的 `ModernColorLayout.refresh()`。
 
 不要放入 `modern-color-layout.js` 的内容：
 
@@ -310,5 +329,6 @@ cshtml 现代颜色布局相关文件：
 - `button.menu-item` 不显示成浏览器原生白色按钮。
 - 表单控件的正常、焦点、禁用、只读、校验状态都可读。
 - 日期和时间控件在暗色模式下图标可见。
+- 局部替换菜单或正文 DOM 后调用 `ModernColorLayout.refresh()`，新元素交互有效且已有元素不会重复响应。
 - `dotnet build --no-restore` 通过。
 - 文档和代码保持 UTF-8 BOM 与 CRLF。

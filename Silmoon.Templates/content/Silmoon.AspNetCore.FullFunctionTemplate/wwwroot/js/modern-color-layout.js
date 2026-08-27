@@ -118,15 +118,16 @@
             openOrCloseMenu();
         });
 
-        queryAll("a", menu).forEach(function (link) {
-            link.addEventListener("click", function () {
-                queryAll("a", menu).forEach(function (item) {
-                    item.classList.remove("active");
-                });
-                link.classList.add("active");
-                syncActiveSubmenus(menu);
-                closeMenu();
+        menu.addEventListener("click", function (event) {
+            const link = event.target.closest("a");
+            if (!link || !menu.contains(link)) return;
+
+            queryAll("a", menu).forEach(function (item) {
+                item.classList.remove("active");
             });
+            link.classList.add("active");
+            syncActiveSubmenus(menu);
+            closeMenu();
         });
 
         document.addEventListener("click", function (event) {
@@ -286,7 +287,7 @@
         button.dataset.modernColorBackToTopInitialized = "true";
     }
 
-    function init() {
+    function refresh() {
         initLayoutPlacement();
         initTheme();
         initSubmenus();
@@ -297,8 +298,9 @@
     }
 
     window.ModernColorLayout = window.ModernColorLayout || {};
-    window.ModernColorLayout.init = init;
+    window.ModernColorLayout.init = refresh;
+    window.ModernColorLayout.refresh = refresh;
 
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
-    else init();
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", refresh, { once: true });
+    else refresh();
 })();

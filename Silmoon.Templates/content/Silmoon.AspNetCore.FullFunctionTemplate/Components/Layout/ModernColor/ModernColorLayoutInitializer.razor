@@ -8,8 +8,9 @@
         {
             try
             {
-                await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js");
-                await Js.InvokeVoidAsync("ModernColorLayout.init");
+                await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js?v=2");
+                await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout-blazor.js?v=1");
+                await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
             }
             catch (JSException ex)
             {
