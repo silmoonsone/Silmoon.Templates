@@ -195,7 +195,7 @@ builder.Services.AddJsSilmoonAuthInterop();
 初始化器应通过通用脚本加载器调用现代颜色布局：
 
 ```csharp
-await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js?v=3");
+await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js?v=5");
 await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout-blazor.js?v=1");
 await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
 ```
@@ -267,11 +267,11 @@ await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
 @if (CanManageUsers)
 {
     <div class="menu-group">
-        <button class="menu-item menu-submenu-toggle" type="button">
+        <button class="menu-item menu-submenu-toggle" type="button" aria-controls="permission-users-submenu">
             <span><i class="bi bi-people"></i>用户管理</span>
             <i class="bi bi-chevron-down menu-submenu-arrow"></i>
         </button>
-        <div class="menu-submenu">
+        <div id="permission-users-submenu" class="menu-submenu">
             <NavLink class="menu-item" href="/users">
                 <i class="bi bi-person-lines-fill"></i>用户列表
             </NavLink>
@@ -334,11 +334,11 @@ await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
     <NavLink class="menu-item" href="/users" Match="NavLinkMatch.All">
         <i class="bi bi-people"></i>用户总览
     </NavLink>
-    <button class="menu-item menu-submenu-toggle" type="button">
+    <button class="menu-item menu-submenu-toggle" type="button" aria-controls="users-features-submenu">
         <span><i class="bi bi-list"></i>用户功能</span>
         <i class="bi bi-chevron-down menu-submenu-arrow"></i>
     </button>
-    <div class="menu-submenu">
+    <div id="users-features-submenu" class="menu-submenu">
         <NavLink class="menu-item" href="/users/create">创建用户</NavLink>
         <NavLink class="menu-item" href="/users/roles">角色权限</NavLink>
     </div>
@@ -351,11 +351,11 @@ await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
 
 ```razor
 <div class="menu-group">
-    <button class="menu-item menu-submenu-toggle" type="button">
+    <button class="menu-item menu-submenu-toggle" type="button" aria-controls="system-management-submenu">
         <span><i class="bi bi-folder"></i>系统管理</span>
         <i class="bi bi-chevron-down menu-submenu-arrow"></i>
     </button>
-    <div class="menu-submenu">
+    <div id="system-management-submenu" class="menu-submenu">
         <NavLink class="menu-item" href="/users">用户管理</NavLink>
         <NavLink class="menu-item" href="/roles">角色管理</NavLink>
     </div>
@@ -370,6 +370,7 @@ await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
 
 ```razor
 @inject NavigationManager Navigation
+@implements IDisposable
 
 <a class="menu-item @(IsUsersSection ? "active" : null)"
    aria-current="@(IsUsersSection ? "page" : null)"
@@ -387,10 +388,16 @@ await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
                 || path.StartsWith("/users/", StringComparison.OrdinalIgnoreCase);
         }
     }
+
+    protected override void OnInitialized() => Navigation.LocationChanged += Navigation_LocationChanged;
+
+    private void Navigation_LocationChanged(object sender, LocationChangedEventArgs e) => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Navigation.LocationChanged -= Navigation_LocationChanged;
 }
 ```
 
-手动 active 时仍然只标记真正代表当前页面或当前栏目的一项。
+手动 active 时仍然只标记真正代表当前页面或当前栏目的一项。长期存在的布局菜单必须监听 `LocationChanged` 才能在增强导航后重新计算状态，并在 `Dispose` 中取消订阅；普通 `NavLink` 不需要自行实现这套监听。
 
 ## 9. 子菜单
 
@@ -398,11 +405,11 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 
 ```razor
 <div class="menu-group">
-    <button class="menu-item menu-submenu-toggle" type="button">
+    <button class="menu-item menu-submenu-toggle" type="button" aria-controls="backend-pages-submenu">
         <span><i class="bi bi-folder"></i>后台页面</span>
         <i class="bi bi-chevron-down menu-submenu-arrow"></i>
     </button>
-    <div class="menu-submenu">
+    <div id="backend-pages-submenu" class="menu-submenu">
         <NavLink class="menu-item" href="/dashboard">
             <i class="bi bi-speedometer2"></i>Dashboard
         </NavLink>
@@ -413,7 +420,7 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 </div>
 ```
 
-不要恢复旧的 C# `expandedMenus` 状态。脚本负责 `aria-controls`、`aria-expanded`、`.menu-submenu.open`、`.child-active` 和父级自动展开。
+每个可能被 Blazor 重渲染的子菜单都应显式提供应用内稳定且唯一的 `id`，展开按钮的 `aria-controls` 必须与之对应。不要由 Razor 或 C# 输出 `aria-expanded`、`.open`、`.child-active`，也不要恢复旧的 C# `expandedMenus` 状态。脚本负责这些交互状态，并按稳定 `id` 在组件重渲染或增强导航后恢复用户此前的展开选择；完整页面重新加载后状态会自然重置。
 
 子菜单激活规则：
 
@@ -422,6 +429,7 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 - 父级也有页面入口时，把父级页面入口写成独立 `NavLink` 或 `<a class="menu-item">`。
 - 同一个 `.menu-group` 可以同时包含一个主入口和一个展开按钮，但两者必须是两个元素。
 - 子项 active 后，脚本会自动展开父级，不需要 C# 状态保存展开状态。
+- 没有 active 子项时，脚本会按稳定子菜单 `id` 恢复用户此前的展开或收起状态。
 
 ## 10. 认证菜单
 

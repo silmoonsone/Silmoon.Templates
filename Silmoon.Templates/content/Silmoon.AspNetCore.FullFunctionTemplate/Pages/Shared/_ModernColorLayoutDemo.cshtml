@@ -11,11 +11,11 @@
         <i class="bi bi-house-door"></i>布局概览
     </a>
     <div class="menu-group">
-        <button class="menu-item menu-submenu-toggle" type="button">
+        <button class="menu-item menu-submenu-toggle" type="button" aria-controls="controls-submenu">
             <span><i class="bi bi-ui-checks"></i>控件示例</span>
             <i class="bi bi-chevron-down menu-submenu-arrow"></i>
         </button>
-        <div class="menu-submenu">
+        <div id="controls-submenu" class="menu-submenu">
             <a href="#forms" class="menu-item">
                 <i class="bi bi-input-cursor"></i>表单控件
             </a>
@@ -28,11 +28,11 @@
         </div>
     </div>
     <div class="menu-group">
-        <button class="menu-item menu-submenu-toggle" type="button">
+        <button class="menu-item menu-submenu-toggle" type="button" aria-controls="display-submenu">
             <span><i class="bi bi-grid"></i>展示示例</span>
             <i class="bi bi-chevron-down menu-submenu-arrow"></i>
         </button>
-        <div class="menu-submenu">
+        <div id="display-submenu" class="menu-submenu">
             <a href="#components" class="menu-item">
                 <i class="bi bi-grid-3x3-gap"></i>组件状态
             </a>

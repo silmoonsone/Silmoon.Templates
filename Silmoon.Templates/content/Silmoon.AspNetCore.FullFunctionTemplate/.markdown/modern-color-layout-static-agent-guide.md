@@ -160,11 +160,11 @@ cshtml 现代颜色布局相关文件：
     <a asp-page="/Users/Index" class="menu-item active" aria-current="page">
         <i class="bi bi-people"></i>用户总览
     </a>
-    <button class="menu-item menu-submenu-toggle" type="button">
+    <button class="menu-item menu-submenu-toggle" type="button" aria-controls="users-features-submenu">
         <span><i class="bi bi-list"></i>用户功能</span>
         <i class="bi bi-chevron-down menu-submenu-arrow"></i>
     </button>
-    <div class="menu-submenu">
+    <div id="users-features-submenu" class="menu-submenu">
         <a asp-page="/Users/Create" class="menu-item">创建用户</a>
         <a asp-page="/Users/Roles" class="menu-item">角色权限</a>
     </div>
@@ -177,11 +177,11 @@ cshtml 现代颜色布局相关文件：
 
 ```cshtml
 <div class="menu-group">
-    <button class="menu-item menu-submenu-toggle" type="button">
+    <button class="menu-item menu-submenu-toggle" type="button" aria-controls="system-management-submenu">
         <span><i class="bi bi-folder"></i>系统管理</span>
         <i class="bi bi-chevron-down menu-submenu-arrow"></i>
     </button>
-    <div class="menu-submenu">
+    <div id="system-management-submenu" class="menu-submenu">
         <a asp-page="/Users/Index" class="menu-item active" aria-current="page">用户管理</a>
         <a asp-page="/Roles/Index" class="menu-item">角色管理</a>
     </div>
@@ -200,11 +200,11 @@ cshtml 现代颜色布局相关文件：
 
 ```cshtml
 <div class="menu-group">
-    <button class="menu-item menu-submenu-toggle" type="button">
+    <button class="menu-item menu-submenu-toggle" type="button" aria-controls="settings-submenu">
         <span><i class="bi bi-folder"></i>系统管理</span>
         <i class="bi bi-chevron-down menu-submenu-arrow"></i>
     </button>
-    <div class="menu-submenu">
+    <div id="settings-submenu" class="menu-submenu">
         <a asp-page="/Users/Index" class="menu-item">
             <i class="bi bi-people"></i>用户管理
         </a>
@@ -216,6 +216,8 @@ cshtml 现代颜色布局相关文件：
 ```
 
 只标记子项 `active` 或 `aria-current="page"`。脚本会自动展开父级子菜单，并维护 `aria-expanded`、`.menu-submenu.open` 和 `.child-active`。
+
+如果菜单会被局部导航或 HTML 替换重建，应显式提供应用内稳定且唯一的子菜单 `id`，并让展开按钮的 `aria-controls` 与之对应。不要由 cshtml 动态输出 `aria-expanded`、`.open` 或 `.child-active`；这些交互状态由脚本维护并按稳定 `id` 恢复。完整页面重新加载后，内存中的展开状态会自然重置。
 
 子菜单激活规则：
 

@@ -7,6 +7,7 @@
 
 (function () {
     const themeStorageKey = "modern-color-layout-theme";
+    const submenuExpandedState = new Map();
     const themeButtonSelector = ".theme-btn, .theme-menu-btn";
     const darkSchemeQuery = "(prefers-color-scheme: dark)";
     let themeWatcherAttached = false;
@@ -206,6 +207,7 @@
 
         toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
         submenu.classList.toggle("open", expanded);
+        if (submenu.id) submenuExpandedState.set(submenu.id, expanded);
     }
 
     function syncHashActiveLink(menu) {
@@ -245,7 +247,8 @@
 
             toggle.setAttribute("aria-controls", submenu.id);
             if (!toggle.hasAttribute("aria-expanded")) {
-                toggle.setAttribute("aria-expanded", submenu.classList.contains("open") ? "true" : "false");
+                const storedState = submenuExpandedState.get(submenu.id);
+                setSubmenuExpanded(toggle, storedState === undefined ? submenu.classList.contains("open") : storedState);
             }
         });
 
