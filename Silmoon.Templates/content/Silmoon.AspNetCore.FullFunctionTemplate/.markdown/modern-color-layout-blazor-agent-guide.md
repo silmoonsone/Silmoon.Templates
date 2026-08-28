@@ -195,7 +195,7 @@ builder.Services.AddJsSilmoonAuthInterop();
 初始化器应通过通用脚本加载器调用现代颜色布局：
 
 ```csharp
-await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js?v=2");
+await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js?v=3");
 await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout-blazor.js?v=1");
 await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
 ```

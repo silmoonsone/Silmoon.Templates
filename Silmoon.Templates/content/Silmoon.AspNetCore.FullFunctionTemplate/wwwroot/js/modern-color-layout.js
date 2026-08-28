@@ -10,6 +10,7 @@
     const themeButtonSelector = ".theme-btn, .theme-menu-btn";
     const darkSchemeQuery = "(prefers-color-scheme: dark)";
     let themeWatcherAttached = false;
+    let menuBinding = null;
 
     function queryAll(selector, root) {
         return Array.from((root || document).querySelectorAll(selector));
@@ -68,12 +69,25 @@
         const menu = document.getElementById("menu");
         const toggleMenu = document.getElementById("toggle-menu");
 
-        if (!menu || !toggleMenu) return;
-        if (menu.dataset.modernColorMenuInitialized === "true") return;
+        if (!menu || !toggleMenu) {
+            if (menuBinding) menuBinding.dispose();
+            menuBinding = null;
+            return;
+        }
+        if (menuBinding && menuBinding.menu === menu && menuBinding.toggleMenu === toggleMenu) return;
+        if (menuBinding) menuBinding.dispose();
 
         const desktopParent = menu.parentElement;
         const desktopNextSibling = menu.nextSibling;
         const mobileQuery = window.matchMedia("(max-width: 768px)");
+        const cleanupCallbacks = [];
+
+        function listen(target, eventName, listener) {
+            target.addEventListener(eventName, listener);
+            cleanupCallbacks.push(function () {
+                target.removeEventListener(eventName, listener);
+            });
+        }
 
         function updateMobileMenuPosition() {
             const rootStyles = window.getComputedStyle(document.documentElement);
@@ -113,12 +127,20 @@
 
         toggleMenu.setAttribute("aria-expanded", "false");
 
-        toggleMenu.addEventListener("click", function (event) {
+        listen(toggleMenu, "click", function (event) {
             event.stopPropagation();
             openOrCloseMenu();
         });
 
-        menu.addEventListener("click", function (event) {
+        listen(menu, "click", function (event) {
+            const submenuToggle = event.target.closest(".menu-submenu-toggle");
+            if (submenuToggle && menu.contains(submenuToggle)) {
+                event.preventDefault();
+                event.stopPropagation();
+                setSubmenuExpanded(submenuToggle, submenuToggle.getAttribute("aria-expanded") !== "true");
+                return;
+            }
+
             const link = event.target.closest("a");
             if (!link || !menu.contains(link)) return;
 
@@ -130,30 +152,39 @@
             closeMenu();
         });
 
-        document.addEventListener("click", function (event) {
+        listen(document, "click", function (event) {
             if (!event.target.closest("#menu, #toggle-menu")) {
                 closeMenu();
             }
         });
 
-        document.addEventListener("keydown", function (event) {
+        listen(document, "keydown", function (event) {
             if (event.key === "Escape") {
                 closeMenu();
             }
         });
 
-        mobileQuery.addEventListener("change", function () {
+        listen(mobileQuery, "change", function () {
             closeMenu();
             placeMenuForViewport();
         });
-        window.addEventListener("hashchange", function () {
+        listen(window, "hashchange", function () {
             syncHashActiveLink(menu);
             syncActiveSubmenus(menu);
         });
-        window.addEventListener("resize", function () {
+        listen(window, "resize", function () {
             if (mobileQuery.matches) updateMobileMenuPosition();
         });
         placeMenuForViewport();
+        menuBinding = {
+            menu: menu,
+            toggleMenu: toggleMenu,
+            dispose: function () {
+                cleanupCallbacks.forEach(function (cleanup) {
+                    cleanup();
+                });
+            }
+        };
         menu.dataset.modernColorMenuInitialized = "true";
     }
 
@@ -205,8 +236,6 @@
         if (!menu) return;
 
         queryAll(".menu-submenu-toggle", menu).forEach(function (toggle) {
-            if (toggle.dataset.modernColorSubmenuInitialized === "true") return;
-
             const submenu = getSubmenu(toggle);
             if (!submenu) return;
 
@@ -218,14 +247,6 @@
             if (!toggle.hasAttribute("aria-expanded")) {
                 toggle.setAttribute("aria-expanded", submenu.classList.contains("open") ? "true" : "false");
             }
-
-            toggle.addEventListener("click", function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                setSubmenuExpanded(toggle, toggle.getAttribute("aria-expanded") !== "true");
-            });
-
-            toggle.dataset.modernColorSubmenuInitialized = "true";
         });
 
         syncHashActiveLink(menu);

@@ -160,6 +160,7 @@ body {
 
 #menu {
     width: var(--menu-width);
+    flex: 0 0 var(--menu-width);
     background: var(--menu-bg-color);
     backdrop-filter: blur(10px);
     color: var(--text-primary);
@@ -314,6 +315,7 @@ body {
 
 .content-main {
     flex: 1;
+    min-width: 0;
     padding: 40px;
     min-height: fit-content;
     background: var(--bg-tertiary);
