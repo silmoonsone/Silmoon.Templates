@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Silmoon ffweb Template"
+  short_description: "维护、裁剪和扩展 Silmoon ffweb 模板内置能力"
+  default_prompt: "使用 $silmoon-ffweb-template 在保留模板既有约定的前提下维护或扩展当前 ffweb 模板项目。"
