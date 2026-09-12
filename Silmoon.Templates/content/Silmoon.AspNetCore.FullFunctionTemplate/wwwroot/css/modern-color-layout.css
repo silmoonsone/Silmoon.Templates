@@ -1124,6 +1124,18 @@ label,
     border-color: var(--border-color);
 }
 
+/* Neutral buttons also support Bootstrap versions with hard-coded .btn colors. */
+.btn:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-danger, .btn-warning, .btn-info, .btn-light, .btn-dark, .btn-link, [class*="btn-outline-"])) {
+    color: var(--text-primary);
+    background-color: var(--interactive-bg);
+}
+
+:is(.btn:hover, .btn:focus, .btn:active, .btn.active, .btn.show, .btn-check:checked + .btn):where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-danger, .btn-warning, .btn-info, .btn-light, .btn-dark, .btn-link, [class*="btn-outline-"])) {
+    color: var(--text-primary);
+    background-color: var(--interactive-bg-hover);
+    border-color: var(--text-secondary);
+}
+
 .btn:focus,
 .btn:active:focus,
 .btn-link:focus,
@@ -1163,6 +1175,7 @@ label,
 
 .btn:disabled,
 .btn.disabled,
+.btn-check:disabled + .btn,
 fieldset:disabled .btn {
     background: var(--interactive-bg-disabled) !important;
     border-color: var(--border-color) !important;

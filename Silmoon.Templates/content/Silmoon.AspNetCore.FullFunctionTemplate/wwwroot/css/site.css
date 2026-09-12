@@ -1,4 +1,4 @@
-html {
+ï»¿html {
     font-size: 14px;
 }
 
@@ -83,11 +83,11 @@ a {
 }
 
     .clickable-outline:hover {
-        border: 1px solid #aaa; /* ĞŞ¸ÄÎªÄãËùĞèµÄĞüÍ£Ê±µÄ±ß¿òÑÕÉ« */
+        border: 1px solid #aaa; /* ä¿®æ”¹ä¸ºä½ æ‰€éœ€çš„æ‚¬åœæ—¶çš„è¾¹æ¡†é¢œè‰² */
     }
 
     .clickable-outline:active {
-        border: 1px solid #888; /* ĞŞ¸ÄÎªÄãËùĞèµÄµã»÷Ê±µÄ±ß¿òÑÕÉ« */
+        border: 1px solid #888; /* ä¿®æ”¹ä¸ºä½ æ‰€éœ€çš„ç‚¹å‡»æ—¶çš„è¾¹æ¡†é¢œè‰² */
     }
 
 .jsclickable {
@@ -107,9 +107,9 @@ a {
 }
 
 .jsclickable-outline-hover {
-    border: 1px solid #aaa; /* ĞŞ¸ÄÎªÄãËùĞèµÄĞüÍ£Ê±µÄ±ß¿òÑÕÉ« */
+    border: 1px solid #aaa; /* ä¿®æ”¹ä¸ºä½ æ‰€éœ€çš„æ‚¬åœæ—¶çš„è¾¹æ¡†é¢œè‰² */
 }
 
 .jsclickable-outline-active {
-    border: 1px solid #888; /* ĞŞ¸ÄÎªÄãËùĞèµÄµã»÷Ê±µÄ±ß¿òÑÕÉ« */
+    border: 1px solid #888; /* ä¿®æ”¹ä¸ºä½ æ‰€éœ€çš„ç‚¹å‡»æ—¶çš„è¾¹æ¡†é¢œè‰² */
 }

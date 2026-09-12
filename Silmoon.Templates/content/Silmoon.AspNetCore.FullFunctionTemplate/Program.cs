@@ -59,13 +59,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 //builder.Services.AddSignalR();
 
 //// ** Required NuGet package for Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson
-//builder.Services.AddSignalR().AddNewtonsoftJsonProtocol(options =>
-//{
-//    options.PayloadSerializerSettings.AddAllCommonConverters();
-//    options.PayloadSerializerSettings.AddAllBsonConverters();
-//    options.PayloadSerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-//    options.PayloadSerializerSettings.TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple;
-//});
+//builder.Services.AddSignalR().AddNewtonsoftJsonProtocol(options => Configure.InitJsonConverters(options.PayloadSerializerSettings));
 
 //// ** Add Blazor service
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();

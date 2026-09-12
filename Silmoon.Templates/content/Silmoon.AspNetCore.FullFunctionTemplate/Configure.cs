@@ -42,15 +42,15 @@ public class Configure
 
 
         // ## Newtonsoft json type convert for MongoDB
-        JsonConvert.DefaultSettings = new Func<JsonSerializerSettings>(() =>
-        {
-            var settings = new JsonSerializerSettings();
-            settings.AddAllCommonConverters();
-            settings.AddAllBsonConverters();
-            settings.TypeNameHandling = TypeNameHandling.Auto;
-            settings.TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple;
-            return settings;
-        });
+        JsonConvert.DefaultSettings = new Func<JsonSerializerSettings>(() => InitJsonConverters(new JsonSerializerSettings()));
+    }
+    public static JsonSerializerSettings InitJsonConverters(JsonSerializerSettings jsonSerializerSettings)
+    {
+        jsonSerializerSettings.AddAllCommonConverters();
+        jsonSerializerSettings.AddAllBsonConverters();
+        jsonSerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+        jsonSerializerSettings.TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple;
+        return jsonSerializerSettings;
     }
     public static void Output(ILogger logger, string s, LogLevel logLevel = LogLevel.Information)
     {

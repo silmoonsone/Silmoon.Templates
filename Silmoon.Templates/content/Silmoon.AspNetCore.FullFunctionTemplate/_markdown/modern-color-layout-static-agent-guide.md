@@ -288,6 +288,10 @@ document.addEventListener("page:updated", function () {
 
 ## 9. 样式修改边界
 
+默认不要直接修改框架自带的 `wwwroot/css/modern-color-layout.css` 和 `wwwroot/js/modern-color-layout.js`。项目或页面定制应优先新增独立 CSS/JS，并在核心资源之后加载，通过样式覆盖、事件订阅或公开 API 扩展；只有确认外部扩展无法合理实现，而且需求属于框架通用能力时，才修改核心文件，并完成本文要求的全部回归检查。
+
+普通按钮或按钮式链接只需使用 `class="btn"`，即可获得随主题变化的中性文字、背景和交互状态；`btn-sm`、`btn-lg` 可继续叠加。需要语义配色时添加 `btn-primary`、`btn-outline-primary` 等类。禁用按钮使用 `disabled`；禁用链接同时使用 `.disabled`、`aria-disabled="true"` 和 `tabindex="-1"`。
+
 可以放入 `modern-color-layout.css` 的内容：
 
 - 颜色变量。

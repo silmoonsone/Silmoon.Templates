@@ -118,7 +118,7 @@ namespace Silmoon.AspNetCore.FullFunctionTemplate.Services
 
         public async Task HandleDisconnect(HubCallerContext context)
         {
-            if (_connections.GetKeysOrDefault(context.ConnectionId).FirstOrDefault() is string username)
+            if (_connections.GetKeysOrDefault(context.ConnectionId)?.FirstOrDefault() is string username)
             {
                 _connections.Remove(username, context.ConnectionId);
                 await chatServiceHub.Clients.All.SendAsync("UserSignedOut", username);
