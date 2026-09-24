@@ -24,9 +24,12 @@ cshtml 现代颜色布局相关文件：
 - `Pages/ModernColorDemo.cshtml`：演示页面，覆盖表单、按钮、标签页、表格、提示框、菜单、子菜单和多种控件状态。
 - `wwwroot/css/modern-color-layout.css`：现代颜色布局核心样式。
 - `wwwroot/js/modern-color-layout.js`：现代颜色布局核心脚本，公开可重复调用的 `ModernColorLayout.refresh()`。
+- `wwwroot/css/site.css`：项目级全局样式，包含手机端触摸缩放策略，不属于现代颜色核心样式。
 - `Pages/Shared/_BlankLayout.cshtml`：底层空白布局，提供 HTML head、Bootstrap、Bootstrap Icons 和基础脚本。
 
 项目私有样式和脚本应放在当前项目自己的 CSS/JS 文件中，不要混入 `modern-color-layout.css` 或 `modern-color-layout.js`。
+
+cshtml 基础布局中的 viewport 使用 `minimum-scale=1.0`、`maximum-scale=1.0` 和 `user-scalable=no` 禁止页面缩放，`wwwroot/css/site.css` 再使用 `touch-action: pan-x pan-y` 保留单指滚动并抑制双指缩放和双击放大。应在基础布局和项目级样式中维护这项站点策略，不要为它修改现代颜色核心 CSS/JS 或添加重复的触摸事件脚本。
 
 ## 3. 布局关系
 

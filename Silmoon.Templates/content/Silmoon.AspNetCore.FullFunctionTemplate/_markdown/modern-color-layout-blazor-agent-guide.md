@@ -30,8 +30,9 @@ Blazor 现代颜色布局通常涉及以下文件。应根据项目复杂度选�
 - 区域目录下的 `_Imports.razor`：为该目录指定具体布局，例如让管理页面统一使用 `AdminLayout`。
 - `RazorPages/Backend/_Imports.razor`：演示后台目录级布局声明。单一布局模式下可以直接使用 `@layout ModernColorLayout`；多区域模式下必须使用 `BackendLayout`、`AdminLayout`、`UserLayout` 等真正继承 `LayoutComponentBase` 的具体 Layout，不能把只接收 `BodyContent` 的公共外壳组件写成 `@layout`。
 - `RazorPages/Backend/ModernColorDemo.razor`：Blazor 演示页面，对应 `/backend/modern-color-demo`，用于验证布局、主题、菜单、表单控件、按钮、表格和暗色模式可读性。除非项目明确不保留演示页，否则建议保留或改造成同等覆盖面的内部样例页。
-- `Components/App.razor`：Blazor 应用外壳，引用 Bootstrap、Bootstrap Icons、项目样式、`js/site.js` 和 Blazor 脚本。
+- `Components/App.razor`：Blazor 应用外壳，配置 viewport，并引用 Bootstrap、Bootstrap Icons、项目样式、`js/site.js` 和 Blazor 脚本。
 - `wwwroot/css/modern-color-layout.css`：现代颜色布局核心样式。
+- `wwwroot/css/site.css`：项目级全局样式，包含手机端触摸缩放策略，不属于现代颜色核心样式。
 - `wwwroot/js/modern-color-layout.js`：现代颜色布局核心脚本，公开可重复调用的 `ModernColorLayout.refresh()`，不依赖 Blazor。
 - `wwwroot/js/modern-color-layout-blazor.js`：Blazor 生命周期适配脚本，在增强导航完成后调用布局刷新。
 - `wwwroot/js/site.js`：项目脚本，包含通用 `ScriptLoader`。
@@ -182,6 +183,8 @@ builder.Services.AddJsSilmoonAuthInterop();
 不要在 `Components/App.razor` 中直接引用 `modern-color-layout.css` 或 `modern-color-layout.js`。
 
 `Components/App.razor` 可以引用 Bootstrap、Bootstrap Icons、项目样式、公共脚本和 `js/site.js`。`site.js` 提供通用 `ScriptLoader.ensureLoaded(src)`，由 `ModernColorLayoutInitializer.razor` 依次动态加载 `/js/modern-color-layout.js` 和 `/js/modern-color-layout-blazor.js`。
+
+`Components/App.razor` 中的 viewport 应包含 `minimum-scale=1.0`、`maximum-scale=1.0` 和 `user-scalable=no`，`wwwroot/css/site.css` 再使用 `touch-action: pan-x pan-y` 保留单指滚动并抑制双指缩放和双击放大。应在应用外壳和项目级样式中维护这项站点策略，不要为它修改现代颜色核心 CSS/JS 或添加重复的触摸事件脚本。
 
 `ModernColorLayoutInitializer.razor` 必须是交互式子组件：
 

@@ -12,6 +12,11 @@
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+/* 保留页面滚动，禁止浏览器双指缩放和双击放大；不覆盖图表自身的触摸设置。 */
+html, body {
+    touch-action: pan-x pan-y;
+}
+
 html {
     position: relative;
     min-height: 100%;
