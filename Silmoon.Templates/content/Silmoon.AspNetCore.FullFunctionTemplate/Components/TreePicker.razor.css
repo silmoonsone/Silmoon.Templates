@@ -1,0 +1,139 @@
+﻿.tree-picker {
+    position: relative;
+}
+
+.tree-picker-toggle {
+    width: 100%;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: .375rem .75rem;
+    color: var(--text-primary);
+    background: var(--interactive-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    text-align: left;
+}
+
+.tree-picker-toggle:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 .2rem var(--focus-ring-color);
+    outline: 0;
+}
+
+.tree-picker-value {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tree-picker-value span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tree-picker-chevron {
+    color: var(--text-secondary);
+}
+
+.tree-picker-panel {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    box-sizing: border-box;
+    overflow: auto;
+    padding: 12px;
+    color: var(--text-primary);
+    background: var(--interactive-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--card-border-radius);
+    box-shadow: 0 14px 34px var(--shadow-color);
+}
+
+.tree-picker-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tree-picker-tree {
+    max-height: 300px;
+    overflow: auto;
+    padding: 8px 0;
+}
+
+.tree-picker-row {
+    display: flex;
+    align-items: center;
+    padding-left: calc(var(--tree-depth) * 18px);
+    border-radius: 8px;
+}
+
+.tree-picker-row:hover {
+    background: var(--interactive-bg-hover);
+}
+
+.tree-picker-row.selected {
+    background: var(--success-soft-bg);
+}
+
+.tree-picker-expander {
+    width: 26px;
+    height: 30px;
+    flex: 0 0 26px;
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 0;
+}
+
+button.tree-picker-expander:hover {
+    color: var(--primary-color);
+}
+
+.tree-picker-node {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    text-align: left;
+}
+
+.tree-picker-node-name {
+    font-weight: 600;
+}
+
+.tree-picker-node-path {
+    min-width: 0;
+    margin-left: auto;
+    color: var(--text-secondary);
+    font-size: .78rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tree-picker-create {
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 575.98px) {
+    .tree-picker-node-path {
+        display: none;
+    }
+}

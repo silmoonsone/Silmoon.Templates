@@ -428,6 +428,12 @@ body {
         box-shadow: 0 12px 35px var(--shadow-hover);
     }
 
+    /* Let an open Bootstrap dropdown escape its card and cover adjacent cards. */
+    .card:has(.dropdown-menu.show) {
+        overflow: visible;
+        z-index: 1;
+    }
+
         .card:hover::before {
             opacity: 1;
         }
@@ -847,9 +853,7 @@ a:hover {
 .content-main,
 .card,
 .tab-content,
-.alert,
-.modal-content,
-.dropdown-menu {
+.alert {
     color: var(--text-primary);
 }
 
@@ -899,9 +903,6 @@ a:hover {
 
 .rounded,
 .list-group-item,
-.dropdown-menu,
-.modal-content,
-.popover,
 .tab-pane .p-3 {
     background-color: var(--panel-bg);
     color: var(--text-primary);
@@ -910,6 +911,73 @@ a:hover {
 .rounded:hover,
 .list-group-item:hover {
     background-color: var(--panel-bg-hover);
+}
+
+/* Floating surfaces must stay opaque in every theme, including Bootstrap 5.1. */
+.dropdown-menu,
+.modal-content,
+.popover,
+.popover-header {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.dropdown-menu .dropdown-header {
+    color: var(--text-secondary);
+}
+
+.dropdown-divider,
+.modal-header,
+.modal-footer,
+.popover-header {
+    border-color: var(--border-color);
+}
+
+.dropdown-divider {
+    background-color: transparent;
+    opacity: 1;
+}
+
+.modal-content .btn-close {
+    filter: var(--native-indicator-filter);
+}
+
+.popover-body,
+.dropdown-item-text {
+    color: var(--text-primary);
+}
+
+:is(.bs-popover-top, .bs-popover-auto[data-popper-placement^="top"]) > .popover-arrow::before {
+    border-top-color: var(--border-color);
+}
+
+:is(.bs-popover-top, .bs-popover-auto[data-popper-placement^="top"]) > .popover-arrow::after {
+    border-top-color: var(--bg-secondary);
+}
+
+:is(.bs-popover-end, .bs-popover-auto[data-popper-placement^="right"]) > .popover-arrow::before {
+    border-right-color: var(--border-color);
+}
+
+:is(.bs-popover-end, .bs-popover-auto[data-popper-placement^="right"]) > .popover-arrow::after {
+    border-right-color: var(--bg-secondary);
+}
+
+:is(.bs-popover-bottom, .bs-popover-auto[data-popper-placement^="bottom"]) > .popover-arrow::before {
+    border-bottom-color: var(--border-color);
+}
+
+:is(.bs-popover-bottom, .bs-popover-auto[data-popper-placement^="bottom"]) > .popover-arrow::after,
+:is(.bs-popover-bottom, .bs-popover-auto[data-popper-placement^="bottom"]) .popover-header::before {
+    border-bottom-color: var(--bg-secondary);
+}
+
+:is(.bs-popover-start, .bs-popover-auto[data-popper-placement^="left"]) > .popover-arrow::before {
+    border-left-color: var(--border-color);
+}
+
+:is(.bs-popover-start, .bs-popover-auto[data-popper-placement^="left"]) > .popover-arrow::after {
+    border-left-color: var(--bg-secondary);
 }
 
 .form-control,

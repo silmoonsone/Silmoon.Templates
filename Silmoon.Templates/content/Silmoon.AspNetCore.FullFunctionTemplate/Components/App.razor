@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/css/site.css?v=1" />
     <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="lib/bootstrap-icons/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="Silmoon.AspNetCore.FullFunctionTemplate.styles.css" />
+    <link rel="stylesheet" href="Silmoon.AspNetCore.FullFunctionTemplate.styles.css?v=2" />
     <link rel="stylesheet" href="_content/Silmoon.AspNetCore/css/metroui-confirm.css" />
     <script src="lib/jquery/jquery.min.js"></script>
     <script src="_content/Silmoon.AspNetCore/js/toast.js"></script>
@@ -25,6 +25,8 @@
 <body>
     @* <BlazorReconnect /> *@
     <Routes />
+    <ConfirmDialog Id="site-confirm-dialog-template" />
+    <script src="Components/ConfirmDialog.razor.js?v=4"></script>
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/Silmoon.AspNetCore/js/session.js"></script>
 </body>

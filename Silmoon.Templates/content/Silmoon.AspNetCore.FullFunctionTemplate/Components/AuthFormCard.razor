@@ -1,0 +1,29 @@
+﻿<div class="auth-page">
+    <section class="auth-card card" aria-labelledby="@TitleId">
+        <header class="auth-heading">
+            <span class="auth-icon" aria-hidden="true"><i class="bi @Icon"></i></span>
+            <div>
+                @if (!string.IsNullOrWhiteSpace(Brand))
+                {
+                    <div class="auth-brand">@Brand</div>
+                }
+                <h1 id="@TitleId">@Title</h1>
+            </div>
+        </header>
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <p class="auth-description text-secondary">@Description</p>
+        }
+        @ChildContent
+    </section>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Brand { get; set; }
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string Icon { get; set; } = "bi-person-circle";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    string TitleId { get; } = "auth-title-" + Guid.NewGuid().ToString("N");
+}

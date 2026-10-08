@@ -176,7 +176,7 @@ builder.Services.AddJsSilmoonAuthInterop();
 
 ```razor
 <HeadContent>
-    <link rel="stylesheet" href="/css/modern-color-layout.css?v=18" />
+    <link rel="stylesheet" href="/css/modern-color-layout.css?v=19" />
 </HeadContent>
 ```
 

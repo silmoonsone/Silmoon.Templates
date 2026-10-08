@@ -19,3 +19,9 @@ sone@silmoon.com
 > dotnet tool install --global Microsoft.Web.LibraryManager.Cli
 > libman restore
 > ```
+
+## Blazor 通用控件
+
+模板内置确认对话框、日期范围选择器、枚举选择、逻辑目录树、时间输入和可定制品牌的表单卡片。运行生成项目后访问 `/backend/components-demo` 查看交互示例。
+
+接入方式见 [Blazor 通用控件说明](Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。

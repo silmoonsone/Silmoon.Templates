@@ -1,0 +1,259 @@
+﻿@page "/backend/components-demo"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@implements IDisposable
+
+<PageTitle>通用控件</PageTitle>
+
+<header class="content-header">
+    <h1>通用控件</h1>
+    <p class="text-secondary mt-2">确认、范围选择和表单输入的独立示例。操作结果只保存在当前页面。</p>
+</header>
+
+@if (!string.IsNullOrWhiteSpace(ErrorMessage))
+{
+    <AlertComponent Message="@ErrorMessage" />
+}
+
+<section class="card p-4 mb-4" aria-labelledby="confirm-heading">
+    <h2 id="confirm-heading" class="h4">确认与选择</h2>
+    <p class="text-secondary">取消不会执行操作；标题可以拖动，重新打开后恢复居中。</p>
+    @if (ShowDialog)
+    {
+        <ConfirmDialog @ref="Dialog" />
+    }
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-primary" disabled="@(!ShowDialog || DialogBusy)" @onclick="AskConfirm">确认操作</button>
+        <button type="button" class="btn btn-outline-primary" disabled="@(!ShowDialog || DialogBusy)" @onclick="AskChoice">选择保存方式</button>
+    </div>
+    <output class="d-block mt-3" aria-live="polite">@DialogMessage</output>
+</section>
+
+<section class="card p-4 mb-4" aria-labelledby="range-heading">
+    <h2 id="range-heading" class="h4">日期与时间范围</h2>
+    <p class="text-secondary">按浏览器本地时区选择，下面显示已确认的 UTC 值；“全部”对应空值。</p>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span>仅日期</span>
+                <DateTimeRangePicker IncludeTime="false" @bind-Value="DateRange" />
+            </div>
+            <output class="small text-break" aria-live="polite">@FormatRange(DateRange)</output>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span>日期与时间</span>
+                <DateTimeRangePicker @bind-Value="TimeRange" />
+            </div>
+            <output class="small text-break" aria-live="polite">@FormatRange(TimeRange)</output>
+        </div>
+    </div>
+</section>
+
+<section class="card p-4 mb-4" aria-labelledby="input-heading">
+    <h2 id="input-heading" class="h4">枚举与时间输入</h2>
+    <EditForm Model="Form" OnValidSubmit="SaveForm" FormName="components-demo-form">
+        <DataAnnotationsValidator />
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label" for="demo-display-mode">显示方式</label>
+                <EnumSelect TEnum="DisplayMode" Id="demo-display-mode" @bind-Value="Form.Mode" />
+                <ValidationMessage For="() => Form.Mode" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="demo-start-time">开始时间</label>
+                <TimeInput id="demo-start-time" class="form-control" @bind-Value="Form.StartTime" />
+                <ValidationMessage For="() => Form.StartTime" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="demo-end-time">结束时间（允许 24:00）</label>
+                <TimeInput id="demo-end-time" class="form-control" AllowEndOfDay="true" @bind-Value="Form.EndTime" />
+                <ValidationMessage For="() => Form.EndTime" />
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">保存输入</button>
+    </EditForm>
+    <output class="d-block mt-3" aria-live="polite">@FormMessage</output>
+    <div class="text-secondary small mt-2">当前绑定值：@Form.Mode；开始 @Form.StartTime；结束 @Form.EndTime。无效输入不会覆盖最后一个有效值。</div>
+</section>
+
+<section class="card p-4 mb-4" aria-labelledby="folder-heading">
+    <h2 id="folder-heading" class="h4">逻辑目录</h2>
+    <p class="text-secondary">选择已有目录，或在当前目录下指定新名称。这里的目录是分类字符串，不会创建磁盘文件夹。</p>
+    <TreePicker Folders="Folders" @bind-Value="Folder" AllowCreate="true" />
+    <output class="d-block mt-3 text-break" aria-live="polite">当前目录：@Folder</output>
+</section>
+
+<section aria-label="表单卡片示例">
+    <AuthFormCard Title="完善个人资料" Brand="示例应用" Description="卡片只提供外观，字段和操作由当前页面定义。">
+        <div class="auth-form">
+            <div>
+                <label class="form-label" for="demo-display-name">显示名称</label>
+                <input id="demo-display-name" class="form-control" @bind="DisplayName" />
+            </div>
+            <div class="auth-actions">
+                <button type="button" class="btn btn-primary" @onclick="PreviewProfile">预览资料</button>
+            </div>
+            <p class="auth-note" aria-live="polite">@ProfileMessage</p>
+        </div>
+    </AuthFormCard>
+</section>
+
+<details class="card p-4 mb-4">
+    <summary class="h5 mb-0">更多交互示例</summary>
+    <div class="mt-4">
+        <h2 class="h5">确认框移除与第二实例</h2>
+        <p class="text-secondary">“打开后移除”会在两秒后移除第一个实例，尚未完成的确认应返回取消。然后可以重新挂载。</p>
+        <ConfirmDialog @ref="SecondDialog" Draggable="false" />
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary" disabled="@(!ShowDialog || DialogBusy)" @onclick="OpenThenRemoveDialog">打开后移除</button>
+            <button type="button" class="btn btn-outline-secondary" disabled="@DialogBusy" @onclick="ToggleDialog">@(ShowDialog ? "移除确认组件" : "重新挂载确认组件")</button>
+            <button type="button" class="btn btn-outline-secondary" disabled="@DialogBusy" @onclick="AskSecondConfirm">第二个确认实例</button>
+        </div>
+        <output class="d-block mt-2" aria-live="polite">@(ShowDialog ? "第一个实例已挂载。" : "第一个实例已移除。") @DialogMessage</output>
+
+        <hr class="my-4" />
+        <h2 class="h5">异步应用日期范围</h2>
+        <p class="text-secondary">每次确认等待片刻后生效。勾选模拟失败后提交一次，弹窗保留原值并显示错误，再次确定即可重试。</p>
+        <div class="form-check">
+            <input id="demo-fail-next-range" class="form-check-input" type="checkbox" @bind="FailNextApply" />
+            <label class="form-check-label" for="demo-fail-next-range">下一次应用模拟失败</label>
+        </div>
+        <div class="form-check mb-3">
+            <input id="demo-include-time" class="form-check-input" type="checkbox" @bind="AsyncIncludeTime" />
+            <label class="form-check-label" for="demo-include-time">包含时间（可切换）</label>
+        </div>
+        <EditForm Model="RangeForm" OnSubmit="SubmitRangeForm" FormName="components-demo-range-form">
+            <div class="d-flex align-items-center gap-2">
+                <DateTimeRangePicker IncludeTime="AsyncIncludeTime" Value="AsyncRange" ValueChanged="ApplyRangeAsync" />
+                <button type="submit" class="btn btn-outline-secondary">提交外层表单</button>
+            </div>
+        </EditForm>
+        <div class="text-secondary small mt-2">外层表单提交次数：@RangeFormSubmitCount。选择日期或在日期框内按 Enter 不应增加次数。</div>
+        <output class="d-block mt-2 small text-break" aria-live="polite">@AsyncRangeMessage @FormatRange(AsyncRange)</output>
+
+        <hr class="my-4" />
+        <h2 class="h5">第二张表单卡片</h2>
+        <p class="text-secondary">省略品牌与描述的卡片可与上方实例同时存在。</p>
+        <AuthFormCard Title="消息提醒" Icon="bi-bell">
+            <p class="auth-note">这张卡片使用自己的标题标识，不影响其他卡片。</p>
+        </AuthFormCard>
+    </div>
+</details>
+
+@code {
+    ConfirmDialog? Dialog { get; set; }
+    ConfirmDialog? SecondDialog { get; set; }
+    bool ShowDialog { get; set; } = true;
+    bool DialogBusy { get; set; }
+    string DialogMessage { get; set; } = "尚未选择。";
+    string? ErrorMessage { get; set; }
+    DateTimeRangeValue? DateRange { get; set; }
+    DateTimeRangeValue? TimeRange { get; set; }
+    DateTimeRangeValue? AsyncRange { get; set; }
+    bool FailNextApply { get; set; }
+    bool AsyncIncludeTime { get; set; } = true;
+    string AsyncRangeMessage { get; set; } = "尚未应用。";
+    DemoFormModel Form { get; } = new();
+    object RangeForm { get; } = new();
+    int RangeFormSubmitCount { get; set; }
+    string FormMessage { get; set; } = "尚未保存。";
+    string[] Folders { get; } = ["/文档/入门/", "/文档/示例/", "/素材/图片/", "/素材/图标/"];
+    string Folder { get; set; } = "/文档/";
+    string DisplayName { get; set; } = "访客";
+    string ProfileMessage { get; set; } = "尚未预览。";
+    CancellationTokenSource Lifetime { get; } = new();
+
+    Task AskConfirm() => RunDialog(async () =>
+    {
+        if (Dialog is null) return;
+        DialogMessage = await Dialog.ConfirmAsync("是否应用当前设置？") ? "已确认应用设置。" : "已取消，设置未改变。";
+    });
+
+    Task AskChoice() => RunDialog(async () =>
+    {
+        if (Dialog is null) return;
+        var result = await Dialog.ChooseAsync("请选择保存方式。", "另存副本", title: "保存内容", confirmText: "保存当前内容");
+        DialogMessage = result switch
+        {
+            ConfirmDialogResult.Confirmed => "选择了保存当前内容。",
+            ConfirmDialogResult.Alternative => "选择了另存副本。",
+            _ => "已取消保存。",
+        };
+    });
+
+    Task AskSecondConfirm() => RunDialog(async () =>
+    {
+        if (SecondDialog is null) return;
+        DialogMessage = await SecondDialog.ConfirmAsync("这是第二个实例，已关闭标题拖动。", title: "第二个确认实例") ? "第二个实例：已确认。" : "第二个实例：已取消。";
+    });
+
+    Task OpenThenRemoveDialog() => RunDialog(async () =>
+    {
+        if (Dialog is null) return;
+        var pending = Dialog.ConfirmAsync("此实例将在两秒后移除，等待中的确认会取消。", title: "移除示例");
+        await Task.Delay(2000, Lifetime.Token);
+        ShowDialog = false;
+        await InvokeAsync(StateHasChanged);
+        DialogMessage = await pending ? "移除前已确认。" : "实例已移除，确认返回取消。";
+    });
+
+    async Task RunDialog(Func<Task> action)
+    {
+        if (DialogBusy) return;
+        DialogBusy = true;
+        ErrorMessage = null;
+        try { await action(); }
+        catch (OperationCanceledException) when (Lifetime.IsCancellationRequested) { }
+        catch (JSDisconnectedException) { }
+        catch (JSException ex) { ErrorMessage = "确认框暂时不可用：" + ex.Message; }
+        finally { DialogBusy = false; }
+    }
+
+    void ToggleDialog() => ShowDialog = !ShowDialog;
+
+    async Task ApplyRangeAsync(DateTimeRangeValue? value)
+    {
+        AsyncRangeMessage = "正在应用…";
+        await Task.Delay(500, Lifetime.Token);
+        if (FailNextApply)
+        {
+            FailNextApply = false;
+            AsyncRangeMessage = "上次应用失败，已提交值保持不变。";
+            throw new InvalidOperationException("模拟失败，请再次点击确定重试。");
+        }
+        AsyncRange = value;
+        AsyncRangeMessage = "应用成功。";
+    }
+
+    void SaveForm() => FormMessage = $"已保存：{Form.Mode.GetDisplayName()}，{Form.StartTime:hh\\:mm} 至 {(Form.EndTime == TimeSpan.FromDays(1) ? "24:00" : Form.EndTime.ToString(@"hh\:mm"))}。";
+
+    void SubmitRangeForm(EditContext context) => RangeFormSubmitCount++;
+
+    void PreviewProfile() => ProfileMessage = string.IsNullOrWhiteSpace(DisplayName) ? "请填写显示名称。" : $"你好，{DisplayName.Trim()}。";
+
+    static string FormatRange(DateTimeRangeValue? value) => value is null ? "全部时段（null）" : $"{value.StartTime:O} 至 {value.EndTime:O}；{value.Label ?? "自定义"}";
+
+    public void Dispose()
+    {
+        Lifetime.Cancel();
+        Lifetime.Dispose();
+    }
+
+    public enum DisplayMode
+    {
+        [Display(Name = "列表", Description = "按行排列，便于快速浏览。")]
+        List,
+        [Display(Name = "卡片", Description = "以卡片展示各项内容。")]
+        Cards,
+        [Display(Name = "紧凑", Description = "减少间距，显示更多内容。")]
+        Compact,
+    }
+
+    sealed class DemoFormModel
+    {
+        public DisplayMode Mode { get; set; } = DisplayMode.List;
+        public TimeSpan StartTime { get; set; } = TimeSpan.FromHours(9);
+        public TimeSpan EndTime { get; set; } = TimeSpan.FromDays(1);
+    }
+}

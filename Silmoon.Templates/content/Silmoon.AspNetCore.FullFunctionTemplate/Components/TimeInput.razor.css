@@ -1,0 +1,11 @@
+﻿input.valid.modified {
+    outline: none;
+}
+
+input.invalid,
+input.invalid:focus {
+    background-color: var(--danger-soft-bg) !important;
+    border-color: var(--danger-soft-border) !important;
+    box-shadow: 0 0 0 .2rem var(--danger-soft-bg) !important;
+    outline: none !important;
+}

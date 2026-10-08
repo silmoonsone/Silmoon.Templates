@@ -14,3 +14,7 @@ Consider previewing the README before uploading (https://learn.microsoft.com/en-
 > dotnet tool install --global Microsoft.Web.LibraryManager.Cli
 > libman restore
 > ```
+
+### Blazor 通用控件
+
+包含确认对话框、日期范围选择器、枚举选择、逻辑目录树、时间输入和可定制品牌的表单卡片。生成项目启动后访问 `/backend/components-demo`，接入方式见项目内 `_markdown/blazor-components-guide.md`。
