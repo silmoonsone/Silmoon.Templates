@@ -149,7 +149,7 @@
                 item.classList.remove("active");
             });
             link.classList.add("active");
-            syncActiveSubmenus(menu);
+            syncActiveSubmenus(menu, link);
             closeMenu();
         });
 
@@ -170,8 +170,7 @@
             placeMenuForViewport();
         });
         listen(window, "hashchange", function () {
-            syncHashActiveLink(menu);
-            syncActiveSubmenus(menu);
+            syncActiveSubmenus(menu, syncHashActiveLink(menu));
         });
         listen(window, "resize", function () {
             if (mobileQuery.matches) updateMobileMenuPosition();
@@ -222,12 +221,13 @@
             item.classList.remove("active");
         });
         activeLink.classList.add("active");
+        return activeLink;
     }
 
-    function syncActiveSubmenus(menu) {
+    function syncActiveSubmenus(menu, activeLink) {
         queryAll(".menu-submenu-toggle", menu).forEach(function (toggle) {
             const submenu = getSubmenu(toggle);
-            const hasActiveChild = !!(submenu && submenu.querySelector(".menu-item.active, [aria-current='page']"));
+            const hasActiveChild = !!(submenu && (activeLink ? submenu.contains(activeLink) : submenu.querySelector(".menu-item.active, [aria-current='page']")));
             toggle.classList.toggle("child-active", hasActiveChild);
             if (hasActiveChild) setSubmenuExpanded(toggle, true);
         });
@@ -252,8 +252,7 @@
             }
         });
 
-        syncHashActiveLink(menu);
-        syncActiveSubmenus(menu);
+        syncActiveSubmenus(menu, syncHashActiveLink(menu));
     }
 
     function initThemeButtons() {

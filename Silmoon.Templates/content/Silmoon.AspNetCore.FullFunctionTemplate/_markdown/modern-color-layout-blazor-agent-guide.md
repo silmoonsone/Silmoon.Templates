@@ -198,7 +198,7 @@ builder.Services.AddJsSilmoonAuthInterop();
 初始化器应通过通用脚本加载器调用现代颜色布局：
 
 ```csharp
-await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js?v=5");
+await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js?v=6");
 await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout-blazor.js?v=1");
 await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
 ```
@@ -433,6 +433,8 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 - 同一个 `.menu-group` 可以同时包含一个主入口和一个展开按钮，但两者必须是两个元素。
 - 子项 active 后，脚本会自动展开父级，不需要 C# 状态保存展开状态。
 - 没有 active 子项时，脚本会按稳定子菜单 `id` 恢复用户此前的展开或收起状态。
+
+点击导航时只按本次点击项判断父级归属，不能再用旧页面尚未更新的 `aria-current="page"` 展开原父级；导航完成或刷新后，按新页面输出的激活项自动展开其父级。用户手动收起其他组的状态继续保留，不因导航到无关页面而重新展开，也不强制收起用户手动打开的其他组。
 
 ## 10. 认证菜单
 

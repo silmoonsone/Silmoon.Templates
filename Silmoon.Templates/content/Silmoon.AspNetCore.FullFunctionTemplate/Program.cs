@@ -75,13 +75,16 @@ builder.Services.AddJsSilmoonAuthInterop();
 //builder.Services.AddWebAuthnJsInterop();
 //builder.Services.AddWebAuthn<WebAuthnServiceXXX>(o =>
 //{
-//#if DEBUG
-//    o.AppName = ProjectName + "_DEBUG";
-//#else
-//    o.AppName = ProjectName;
-//    // Optional, used to specify a fixed host name.
-//    //o.Host = "localhost";
-//#endif
+//    if (builder.Environment.IsDevelopment())
+//    {
+//        o.AppName = ProjectName + "_DEBUG";
+//    }
+//    else
+//    {
+//        o.AppName = ProjectName;
+//        // Optional, used to specify a fixed host name.
+//        //o.Host = "localhost";
+//    }
 //});
 
 
@@ -102,11 +105,10 @@ builder.Services.AddJsSilmoonAuthInterop();
 
 builder.Services.AddSilmoonConfigure<SilmoonConfigureServiceImpl>(o =>
 {
-#if DEBUG
-    o.DebugConfig();
-#else
-    o.ReleaseConfig();
-#endif
+    if (builder.Environment.IsDevelopment())
+        o.DebugConfig();
+    else
+        o.ReleaseConfig();
 });
 
 builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);

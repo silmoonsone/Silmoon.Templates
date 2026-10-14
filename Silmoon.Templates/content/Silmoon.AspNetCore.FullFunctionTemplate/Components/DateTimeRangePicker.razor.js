@@ -38,6 +38,7 @@
                 start.setDate(start.getDate() - 7);
                 break;
             case "thisMonth": start.setDate(1); break;
+            case "thirtyDays": start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29); break;
             case "lastMonth":
                 start.setDate(1);
                 nextDay = new Date(start);

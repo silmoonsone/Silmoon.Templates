@@ -6,7 +6,7 @@ const vm = require("node:vm");
 
 const componentsRoot = process.env.FFWEB_COMPONENTS_ROOT || path.join(__dirname, "..", "..", "Silmoon.Templates", "content", "Silmoon.AspNetCore.FullFunctionTemplate", "Components");
 const source = fs.readFileSync(path.join(componentsRoot, "DateTimeRangePicker.razor.js"), "utf8");
-const presetLabels = { today: "今天", yesterday: "昨天", threeDays: "近三天", thisWeek: "本周", lastWeek: "上周", thisMonth: "本月", lastMonth: "上月", threeMonths: "三个月", sixMonths: "半年", oneYear: "一年", all: "全部" };
+const presetLabels = { today: "今天", yesterday: "昨天", threeDays: "近三天", thisWeek: "本周", lastWeek: "上周", thisMonth: "本月", thirtyDays: "近30天", lastMonth: "上月", threeMonths: "三个月", sixMonths: "半年", oneYear: "一年", all: "全部" };
 
 function fixture(now = "2026-10-06T12:34:56.789+08:00", includeTime = true, options = {}) {
     class Element extends EventTarget {
@@ -75,7 +75,7 @@ function withTimezone(timezone, action) {
 const expected = {
     today: ["2026-10-06", "2026-10-06"], yesterday: ["2026-10-05", "2026-10-05"], threeDays: ["2026-10-04", "2026-10-06"],
     thisWeek: ["2026-10-05", "2026-10-06"], lastWeek: ["2026-09-28", "2026-10-04"], thisMonth: ["2026-10-01", "2026-10-06"],
-    lastMonth: ["2026-09-01", "2026-09-30"], threeMonths: ["2026-07-06", "2026-10-06"], sixMonths: ["2026-04-06", "2026-10-06"], oneYear: ["2025-10-06", "2026-10-06"]
+    thirtyDays: ["2026-09-07", "2026-10-06"], lastMonth: ["2026-09-01", "2026-09-30"], threeMonths: ["2026-07-06", "2026-10-06"], sixMonths: ["2026-04-06", "2026-10-06"], oneYear: ["2025-10-06", "2026-10-06"]
 };
 
 for (const [preset, dates] of Object.entries(expected)) {
@@ -94,6 +94,42 @@ for (const [preset, dates] of Object.entries(expected)) {
         assert.ok(f.trigger.title.includes(dates[0]) && f.trigger.title.includes(dates[1]));
         if (includeTime) assert.match(f.trigger.title, /00:00:00\.000.*23:59:59\.999/);
         else assert.doesNotMatch(f.trigger.title, /\d{2}:\d{2}|\.999/);
+        f.picker.dispose();
+    }));
+}
+
+test("the thirty-day shortcut is shown between this month and last month", () => {
+    const markup = fs.readFileSync(path.join(componentsRoot, "DateTimeRangePicker.razor"), "utf8");
+    const buttons = [...markup.matchAll(/data-date-range-preset="([^"]+)"[^>]*>([^<]+)<\/button>/g)].map(match => [match[1], match[2]]);
+    const monthIndex = buttons.findIndex(([key]) => key === "thisMonth");
+    assert.ok(monthIndex >= 0);
+    assert.deepEqual(buttons.slice(monthIndex, monthIndex + 3), [["thisMonth", "本月"], ["thirtyDays", "近30天"], ["lastMonth", "上月"]]);
+});
+
+const thirtyDayCases = [
+    { name: "cross-year", timezone: "Asia/Shanghai", now: "2026-01-10T12:00:00+08:00", start: "2025-12-12", end: "2026-01-10", utcStart: "2025-12-11T16:00:00.000Z", utcEnd: "2026-01-10T15:59:59.999Z", hours: 720 },
+    { name: "leap February", timezone: "Asia/Shanghai", now: "2024-03-01T12:00:00+08:00", start: "2024-02-01", end: "2024-03-01", utcStart: "2024-01-31T16:00:00.000Z", utcEnd: "2024-03-01T15:59:59.999Z", hours: 720 },
+    { name: "non-leap February", timezone: "Asia/Shanghai", now: "2026-03-01T12:00:00+08:00", start: "2026-01-31", end: "2026-03-01", utcStart: "2026-01-30T16:00:00.000Z", utcEnd: "2026-03-01T15:59:59.999Z", hours: 720 },
+    { name: "DST spring transition", timezone: "America/New_York", now: "2026-03-20T12:00:00-04:00", start: "2026-02-19", end: "2026-03-20", utcStart: "2026-02-19T05:00:00.000Z", utcEnd: "2026-03-21T03:59:59.999Z", hours: 719 },
+    { name: "DST fall transition", timezone: "America/New_York", now: "2026-11-15T12:00:00-05:00", start: "2026-10-17", end: "2026-11-15", utcStart: "2026-10-17T04:00:00.000Z", utcEnd: "2026-11-16T04:59:59.999Z", hours: 721 },
+    { name: "today begins at 01:00", timezone: "America/Santiago", now: "2026-09-06T12:00:00-03:00", start: "2026-08-08", end: "2026-09-06", utcStart: "2026-08-08T04:00:00.000Z", utcEnd: "2026-09-07T02:59:59.999Z", hours: 719 }
+];
+
+for (const boundary of thirtyDayCases) {
+    for (const includeTime of [true, false]) test("thirtyDays " + boundary.name + (includeTime ? " date-time" : " date-only") + " includes 30 local calendar dates through today", () => withTimezone(boundary.timezone, () => {
+        const f = fixture(boundary.now, includeTime);
+        f.open();
+        f.choose("thirtyDays");
+        assert.equal(f.applied.length, 0, "Choosing a preset only updates the draft");
+        assert.equal(f.start.value, boundary.start + (includeTime ? "T00:00:00.000" : ""));
+        assert.equal(f.end.value, boundary.end + (includeTime ? "T23:59:59.999" : ""));
+        assert.equal(f.presets.find(button => button.dataset.dateRangePreset === "thirtyDays").attributes["aria-pressed"], "true");
+        f.submit();
+        assert.deepEqual(f.applied, [{ startTime: boundary.utcStart, endTime: boundary.utcEnd, label: "近30天" }]);
+        assert.equal(new Date(f.applied[0].endTime) - new Date(f.applied[0].startTime) + 1, boundary.hours * 3600000);
+        f.picker.setValue(f.applied[0]);
+        f.open();
+        assert.equal(f.presets.find(button => button.dataset.dateRangePreset === "thirtyDays").attributes["aria-pressed"], "true", "Reopening retains the matching preset");
         f.picker.dispose();
     }));
 }

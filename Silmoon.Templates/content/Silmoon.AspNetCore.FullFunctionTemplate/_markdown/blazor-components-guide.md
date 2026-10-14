@@ -66,7 +66,7 @@ const choice = await window.SiteDialogs.choose({
 
 - `IncludeTime` 默认 `true`，可以在 Blazor 管理模式下动态切换，组件会重建浏览器实例并同步绑定值。`false` 使用日期输入，`true` 使用日期时间输入并保留毫秒。
 - 输入按浏览器本地时区解释，确认后返回 UTC `DateTimeOffset`，起止端点均包含。仅日期模式涵盖开始与结束日期全天；跨夏令时的日期取当天第一个有效时刻至次日开始前一毫秒，不能假设每天固定 24 小时。
-- 快捷项在两种模式下都生成完整日期范围；周一是周起点，近三天包含今天，本周／本月截止今天结束，月跨度会将月末夹到目标月最后一天。
+- 快捷项在两种模式下都生成完整日期范围；周一是周起点，近三天包含今天；“近30天”位于“本月”和“上月”之间，包含今天及此前 29 天，按本地日历计算而非固定小时数。本周／本月截止今天结束，月跨度会将月末夹到目标月最后一天。
 - 编辑和快捷项只修改草稿；确认才通知宿主，取消／Esc 不通知。控件不会提交外层 `EditForm`，也不创建嵌套表单。
 - 浏览器原生日期输入的外观由浏览器和操作系统决定，`color-scheme` 随页面主题继承；不要为它叠加重复图标反色或隐藏原生日期按钮。
 
@@ -93,7 +93,7 @@ const choice = await window.SiteDialogs.choose({
 已有 JS 页面可以使用 `<DateTimeRangePicker JavaScriptManaged="true" IncludeTime="false" />`，保留 `mount / setValue / dispose` 接口：
 
 ```javascript
-await import("/Components/DateTimeRangePicker.razor.js?v=3");
+await import("/Components/DateTimeRangePicker.razor.js?v=4");
 const picker = window.DateTimeRangePicker.mount(root, {
     onApply: async range => {
         try {

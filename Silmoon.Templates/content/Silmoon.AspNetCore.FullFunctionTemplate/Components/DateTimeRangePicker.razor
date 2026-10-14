@@ -18,6 +18,7 @@
                 <button type="button" data-date-range-preset="thisWeek">本周</button>
                 <button type="button" data-date-range-preset="lastWeek">上周</button>
                 <button type="button" data-date-range-preset="thisMonth">本月</button>
+                <button type="button" data-date-range-preset="thirtyDays">近30天</button>
                 <button type="button" data-date-range-preset="lastMonth">上月</button>
                 <button type="button" data-date-range-preset="threeMonths">三个月</button>
                 <button type="button" data-date-range-preset="sixMonths">半年</button>
@@ -74,7 +75,7 @@
                 await DisposePickerAsync();
                 return;
             }
-            JsModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./Components/DateTimeRangePicker.razor.js?v=3");
+            JsModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./Components/DateTimeRangePicker.razor.js?v=4");
             if (Disposed) return;
             var includeTime = IncludeTime;
             if (Picker is not null && MountedIncludeTime != includeTime) await DisposePickerAsync();
