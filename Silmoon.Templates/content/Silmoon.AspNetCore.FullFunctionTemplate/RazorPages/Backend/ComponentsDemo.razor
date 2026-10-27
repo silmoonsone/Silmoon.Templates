@@ -61,6 +61,19 @@
     <output class="d-block mt-3" aria-live="polite">当前值：@DropdownValue</output>
 </section>
 
+<section class="card p-4 mb-4" aria-labelledby="menu-heading">
+    <h2 id="menu-heading" class="h4">多级操作菜单</h2>
+    <p class="text-secondary">逐级进入操作分组，再返回上一级；普通操作更新页面结果，链接直接跳转。两个菜单各自维护展开状态。</p>
+    <div class="d-flex flex-wrap align-items-center gap-3">
+        <DropdownMenu Items="MenuItems" ItemSelected="SelectMenuItem" Label="数据操作" TriggerText="数据操作" Disabled="@MenuDisabled" OpenUpward="@MenuOpenUpward" AlignEnd="@MenuAlignEnd" />
+        <DropdownMenu Items="MenuLinks" Label="示例导航菜单" TriggerText="示例导航" IconClass="bi bi-link-45deg" />
+        <label class="form-check-label"><input class="form-check-input me-2" type="checkbox" @bind="MenuDisabled" />禁用操作菜单</label>
+        <label>展开方向 <select class="form-select w-auto d-inline-block" @bind="MenuOpenUpward"><option value="false">向下</option><option value="true">向上</option></select></label>
+        <label>对齐方式 <select class="form-select w-auto d-inline-block" @bind="MenuAlignEnd"><option value="false">靠左</option><option value="true">靠右</option></select></label>
+    </div>
+    <output class="d-block mt-3" aria-live="polite">@MenuMessage</output>
+</section>
+
 <section class="card p-4 mb-4" aria-labelledby="input-heading">
     <h2 id="input-heading" class="h4">枚举与时间输入</h2>
     <EditForm Model="Form" OnValidSubmit="SaveForm" FormName="components-demo-form">
@@ -164,6 +177,37 @@
         new() { Value = "inputs", Text = "枚举与时间", Href = "#input-heading" },
         new() { Value = "folders", Text = "逻辑目录", Href = "#folder-heading" }
     ];
+    bool MenuDisabled { get; set; }
+    bool MenuOpenUpward { get; set; }
+    bool MenuAlignEnd { get; set; }
+    int MenuSelectionCount { get; set; }
+    string MenuMessage { get; set; } = "尚未选择操作。";
+    IReadOnlyList<DropdownMenuItem> MenuItems { get; } = [
+        new() { Text = "数据", IconClass = "bi bi-folder", Children = [
+            new() { Key = "refresh", Text = "刷新", IconClass = "bi bi-arrow-clockwise" },
+            new() { Text = "导出格式", IconClass = "bi bi-download", Children = [
+                new() { Key = "csv", Text = "CSV" },
+                new() { Key = "json", Text = "JSON" },
+                new() { Key = "xml", Text = "XML（暂不可用）", Disabled = true }
+            ] }
+        ] },
+        new() { Text = "布局示例", Href = "/ModernColorDemo", IconClass = "bi bi-window" },
+        new() { Text = "禁用链接", Href = "/unavailable", Disabled = true }
+    ];
+    IReadOnlyList<DropdownMenuItem> MenuLinks { get; } = [
+        new() { Text = "当前页", Children = [
+            new() { Text = "枚举与时间", Href = "#input-heading" },
+            new() { Text = "逻辑目录", Href = "#folder-heading" }
+        ] },
+        new() { Text = "后台布局示例", Href = "/backend/modern-color-demo" }
+    ];
+
+    void SelectMenuItem(DropdownMenuItem item)
+    {
+        MenuSelectionCount++;
+        MenuMessage = $"已选择：{item.Text}（{item.Key}），回调次数：{MenuSelectionCount}。";
+    }
+
     ConfirmDialog? Dialog { get; set; }
     ConfirmDialog? SecondDialog { get; set; }
     bool ShowDialog { get; set; } = true;

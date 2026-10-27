@@ -22,11 +22,11 @@ sone@silmoon.com
 
 ## Blazor 通用控件
 
-模板内置确认对话框、通用下拉选择、日期范围选择器、枚举选择、逻辑目录树、时间输入和可定制品牌的表单卡片。运行生成项目后访问 `/backend/components-demo` 查看交互示例。
+模板内置确认对话框、通用下拉选择、多级菜单、日期范围选择器、枚举选择、逻辑目录树、时间输入和可定制品牌的表单卡片。运行生成项目后访问 `/backend/components-demo` 查看交互示例。
 
 接入方式见 [Blazor 通用控件说明](Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。
 
-确认框和通用下拉框在组件内声明自己的模块，宿主保留 `site.js` 通用加载入口、隔离样式和图标即可，不再在 `App.razor` 或静态布局逐个引用组件脚本。已有项目迁移时，按指南同步配套文件、加载入口和缓存引用；当前源码更改不表示已发布到 NuGet。
+确认框、通用下拉框和多级菜单在组件内声明自己的模块，宿主保留 `site.js` 通用加载入口、隔离样式、Bootstrap 5 bundle（含 Popper）和图标即可，不再在 `App.razor` 或静态布局逐个引用组件脚本。已有项目迁移时，按指南同步配套文件、加载入口和缓存引用；当前源码更改不表示已发布到 NuGet。
 
 ## 现代颜色框架维护
 

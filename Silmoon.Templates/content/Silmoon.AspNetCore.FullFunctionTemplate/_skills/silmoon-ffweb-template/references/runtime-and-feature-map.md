@@ -132,9 +132,9 @@ SignalR 默认未启用：`AddSignalR()`、Chat service 注册和两个 `MapHub`
 
 ## 通用控件与按需模块
 
-通用 API 和迁移清单见[控件指南](../../../_markdown/blazor-components-guide.md)。`ConfirmDialog`、`DropdownSelect` 通过组件内的 `silmoon-module` 声明模块，宿主保留 `site.js` 注册的通用加载入口和隔离样式／图标。确认框方法内也等待同一模块；原生调用方从模板 `data-module-src` 读取地址并等待导入。`App.razor`、静态布局无需逐个引用这两个专用脚本。
+通用 API 和迁移清单见[控件指南](../../../_markdown/blazor-components-guide.md)。`ConfirmDialog`、`DropdownSelect`、`DropdownMenu` 通过组件内的 `silmoon-module` 声明模块，宿主保留 `site.js` 注册的通用加载入口和隔离样式／图标；多级菜单还依赖 Bootstrap 5 bundle（含 Popper）。确认框方法内也等待同一模块；原生调用方从模板 `data-module-src` 读取地址并等待导入。`App.razor`、静态布局无需逐个引用这些专用脚本。
 
-`DropdownSelect` 的真实 `Href` 支持静态呈现，`ValueChanged` 则需交互渲染。迁移时确认目标已注册相应 Razor 组件服务；不要仅依赖 `OnAfterRenderAsync` 处理静态 SSR，也不要把已有项目的 `Server`、`@Assets` 或目录差异机械改成模板默认形式。现代颜色核心同步工具不覆盖组件或 `site.js`。
+`DropdownSelect` 的真实 `Href` 支持静态呈现，`ValueChanged` 则需交互渲染；`DropdownMenu` 的分组与链接也支持静态呈现，`ItemSelected` 需要交互渲染。迁移时确认目标已注册相应 Razor 组件服务；不要仅依赖 `OnAfterRenderAsync` 处理静态 SSR，也不要把已有项目的 `Server`、`@Assets` 或目录差异机械改成模板默认形式。现代颜色核心同步工具不覆盖组件或 `site.js`。
 
 ## 其他预留功能
 

@@ -18,6 +18,8 @@ var contracts = new (string Name, Func<Task> Run)[]
     ("EnumSelect rendered disposal releases EditContext subscriptions", EnumSelectDisposalContract),
     ("DropdownSelect value binding and disabled selection", DropdownSelectValueContract),
     ("DropdownSelect SSR links and disabled fallback", DropdownSelectLinkContract),
+    ("DropdownMenu recursive panels and SSR links", DropdownMenuRenderingContract),
+    ("DropdownMenu callbacks and dynamic disabled state", DropdownMenuSelectionContract),
     ("ConfirmDialog component-owned module loading", ConfirmDialogLoadingContract),
     ("TimeInput end-of-day parsing and formatting", TimeInputEndOfDayContract)
 };
@@ -166,6 +168,77 @@ static async Task DropdownSelectLinkContract()
     Require(!enabledHtml.Contains("href=\"/restricted\"") && Regex.Matches(enabledHtml, @"<button\b[^>]*\bdisabled(?:\s|=|>)").Count == 1, "A disabled link option must render as a disabled button without a navigable href.");
     var disabledHtml = await Render(true);
     Require(!Regex.IsMatch(disabledHtml, @"<a\b") && Regex.Matches(disabledHtml, @"<button\b[^>]*\bdisabled(?:\s|=|>)").Count == items.Length, "Disabling the whole component must turn every link into a disabled button.");
+}
+
+static async Task DropdownMenuRenderingContract()
+{
+    const int depth = 12;
+    var branch = new DropdownMenuItem { Key = "deep", Text = "Deep action" };
+    for (var level = depth; level > 0; level--)
+        branch = new DropdownMenuItem { Text = $"Level {level}", Href = "/group-must-not-navigate", Children = [branch] };
+    var items = new[]
+    {
+        branch,
+        new DropdownMenuItem { Text = "Documentation", Href = "/docs", Selected = true },
+        new DropdownMenuItem { Text = "Restricted", Href = "/restricted", Disabled = true },
+        new DropdownMenuItem { Key = "selected", Text = "Selected action", Selected = true },
+        new DropdownMenuItem { Key = "other", Text = "Other action", Selected = false }
+    };
+    using var services = new ServiceCollection().AddSingleton<NavigationManager>(new TestNavigation()).BuildServiceProvider();
+    await using var renderer = new HtmlRenderer(services, NullLoggerFactory.Instance);
+    async Task<string> Render(bool disabled, bool alignEnd = false, bool openUpward = false) => await renderer.Dispatcher.InvokeAsync(async () =>
+    {
+        var rendered = await renderer.RenderComponentAsync<DropdownMenu>(ParameterView.FromDictionary(new Dictionary<string, object?>
+        {
+            [nameof(DropdownMenu.Items)] = items,
+            [nameof(DropdownMenu.Disabled)] = disabled,
+            [nameof(DropdownMenu.AlignEnd)] = alignEnd,
+            [nameof(DropdownMenu.OpenUpward)] = openUpward
+        }));
+        return rendered.ToHtmlString();
+    });
+
+    var html = await Render(false);
+    Require(html.Contains("<silmoon-module src=\"https://example.test/nested-app/Components/DropdownMenu.razor.js?v=3\""), "SSR must declare the module with the application base path without invoking interactive JS.");
+    Require(html.Contains("data-align-end=\"false\"") && html.Contains("data-open-upward=\"false\""), "The default menu must declare logical-start alignment and downward preference.");
+    Require(html.Contains("data-bs-display=\"static\"") && html.Contains("popover=\"manual\"") && !html.Contains("dropdown-menu-end"), "Bootstrap must own the toggle while the component owns top-layer positioning without forced end alignment.");
+    var upwardEndHtml = await Render(false, alignEnd: true, openUpward: true);
+    Require(upwardEndHtml.Contains("data-align-end=\"true\"") && upwardEndHtml.Contains("data-open-upward=\"true\""), "Explicit alignment and direction parameters must reach the positioning module.");
+    var panels = Regex.Matches(html, "data-dropdown-menu-panel=\"([^\"]+)\"").Select(match => match.Groups[1].Value).ToArray();
+    var expectedPanels = Enumerable.Range(0, depth + 1).Select(level => "root" + string.Concat(Enumerable.Repeat("-0", level))).ToArray();
+    Require(panels.SequenceEqual(expectedPanels), "Menu groups must recurse beyond any fixed submenu depth and preserve stable parent paths.");
+    var parents = Regex.Matches(html, "data-dropdown-menu-back=\"([^\"]+)\"").Select(match => match.Groups[1].Value).ToArray();
+    Require(parents.SequenceEqual(expectedPanels.Take(depth)), "Every nested panel must return to its immediate parent.");
+    Require(Regex.Matches(html, @"<div\b[^>]*data-dropdown-menu-panel[^>]*\bhidden(?:\s|=|>)").Count == depth, "Only the root panel may be visible on first render.");
+    Require(!html.Contains("href=\"/group-must-not-navigate\"") && Regex.Matches(html, "data-dropdown-menu-open=").Count == depth, "Children must take precedence over Href and render group buttons rather than navigation links.");
+    Require(Regex.IsMatch(html, "<a\\b[^>]*href=\"/docs\"[^>]*aria-current=\"true\""), "An enabled selected link must retain its real href and current-state accessibility attribute in SSR.");
+    Require(!html.Contains("href=\"/restricted\"") && Regex.Matches(html, @"<button\b[^>]*\bdisabled(?:\s|=|>)").Count == 1, "A disabled Href must become a disabled button without a navigable URL.");
+    Require(html.Contains("aria-pressed=\"true\"") && html.Contains("aria-pressed=\"false\""), "Selected and unselected action states must remain distinguishable.");
+    var secondHtml = await Render(false);
+    Require(Regex.Match(html, "aria-controls=\"([^\"]+)\"").Groups[1].Value != Regex.Match(secondHtml, "aria-controls=\"([^\"]+)\"").Groups[1].Value, "Separate instances must use separate menu IDs.");
+    var disabledHtml = await Render(true);
+    Require(!Regex.IsMatch(disabledHtml, @"<a\b"), "Disabling the whole menu must remove all navigable links.");
+    var interactiveButtons = Regex.Matches(disabledHtml, @"<button\b[^>]*>").Select(match => match.Value).Where(tag => !tag.Contains("data-dropdown-menu-back="));
+    Require(interactiveButtons.All(tag => Regex.IsMatch(tag, @"\bdisabled(?:\s|=|>)")), "Disabling the component must disable its trigger, groups and every leaf option.");
+}
+
+static async Task DropdownMenuSelectionContract()
+{
+    var menu = new DropdownMenu();
+    var first = new DropdownMenuItem { Key = "first", Text = "First" };
+    var unavailable = new DropdownMenuItem { Key = "disabled", Text = "Disabled", Disabled = true };
+    var calls = new List<DropdownMenuItem>();
+    Set(menu, nameof(menu.Items), new[] { first, unavailable });
+    Set(menu, nameof(menu.ItemSelected), EventCallback.Factory.Create<DropdownMenuItem>(calls, (Action<DropdownMenuItem>)calls.Add));
+    await InvokeAsync(menu, "SelectItem", first);
+    Require(calls.Count == 1 && ReferenceEquals(calls[0], first), "ItemSelected must return the original leaf item exactly once for an action.");
+    await InvokeAsync(menu, "SelectItem", unavailable);
+    Set(menu, nameof(menu.Disabled), true);
+    await InvokeAsync(menu, "SelectItem", first);
+    Require(calls.Count == 1, "Disabled items and a queued callback after the component is disabled must not invoke ItemSelected.");
+    Set(menu, nameof(menu.Disabled), false);
+    await InvokeAsync(menu, "SelectItem", first);
+    Require(calls.Count == 2 && ReferenceEquals(calls[1], first), "Re-enabling must restore action callbacks, including repeated activation of the same item.");
 }
 
 static async Task ConfirmDialogLoadingContract()

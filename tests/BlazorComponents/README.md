@@ -15,10 +15,11 @@ dotnet build Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/S
 Node 测试直接加载实际组件 JavaScript，使用内置测试工具与模拟 DOM，不需要 npm 包。
 
 - `ConfirmDialog.test.cjs`：确认／取消／第二操作、单活动实例、独立模板与 ARIA、拖动、卸载及重复加载。
+- `DropdownMenu.test.cjs`：多层动画与快速反向、键盘、默认／末尾对齐、RTL、上下避让、Popover 顶层、长菜单滚动及键盘聚焦可见性、慢加载、视口与尺寸变化、禁用、关闭取消、卸载重挂及资源清理，共 29 项。
 - `DropdownSelect.test.cjs`：多实例、真实链接、键盘、禁用、Popover 定位和延迟加载前已打开的菜单。
 - `DateTimeRangePicker.test.cjs`：本地日历、UTC、夏令时、异步失败重试、多实例、模式重建与外层表单隔离。
 - `PickerPopover.test.cjs`：顶层浮层定位、视口与滚动祖先限位、键盘、外部关闭、多实例、监听和资源释放。
-- `ComponentContracts`：直接引用模板组件，验证动态禁用、枚举显示元数据、未声明值、表单订阅释放、下拉框绑定和 SSR 链接、组件模块 URL 与确认框导入顺序，以及时间输入的完整 `HH:mm` 和 `24:00` 边界；不增加 NuGet 依赖。
+- `ComponentContracts`：直接引用模板组件，验证动态禁用、枚举显示元数据、未声明值、表单订阅释放、下拉框绑定和 SSR 链接、多级菜单递归与分支优先级、禁用及回调、对齐／展开方向参数、组件模块 URL 与确认框导入顺序，以及时间输入的完整 `HH:mm` 和 `24:00` 边界；不增加 NuGet 依赖。
 
 ## 浏览器验证
 
@@ -46,3 +47,11 @@ Bootstrap 共享浮层样式在 `/ModernColorDemo` 检查：菜单背景不透�
 2026-10-28 补充验证通用下拉框及组件模块封装：97 项 Node 回归、8 项 C# 契约检查通过，模板项目随契约项目构建成功。Chrome 临时无业务宿主验证了无控件入口首次增强导航到 SSR／交互页面、无 Blazor 且无 `base` 的深路径 cshtml、真实链接菜单、交互选择回调、确认／第二操作。该轮未重新打包模板。
 
 未模拟自动模式随系统亮色的分支，未验证其他浏览器或真实移动设备。本组示例只使用页面内存状态，不涉及数据库或交易业务。
+
+2026-10-28 上一轮吸收通用 `DropdownMenu`（模块 v2）：105 项 Node 回归和 10 项 C# 契约通过。独立模板缓存生成非默认名 `MenuContractSample`，LibMan 恢复、Web 构建、命名空间／模块路径／隔离样式检查及生成副本 105 项 Node 回归通过，未打包发布。该轮 Chrome 临时无业务宿主验证到四层菜单和普通叶子回调；随后 Windows 浏览器自动化因无法可靠识别当前 URL 停止，动画时序、Primary 高亮恢复、快速进退最终状态、多实例、卸载重挂、减少动态效果及主题的该轮浏览器验收未完成，不以 Node 结果代替这些实测。该轮临时服务已关闭。
+
+2026-10-28 本轮定位与遮挡修复（模块 v3）：完整 Node 回归 126/126、C# 契约 10/10 通过，示例页新增的 bool 选择控件也已编译通过。Chrome 无业务宿主实际验证了上下／左右四种组合、相邻卡片 `z-index: 30` 与输入框 `z-index: 5000` 覆盖区域的菜单命中和叶子回调，以及 `overflow: hidden` 加 `transform` 容器外两项均可点击。桌面与 390×844 视口的边缘自动避让、亮／暗／仅 Bootstrap 的实色表面、打开第二实例关闭第一实例、卸载后无残留且重挂回调不重复、动态禁用关闭均通过。长根菜单 End 可滚动显示第 24 项，Home 回到第 1 项；右方向键进入 30 项子菜单后，End 可滚动显示末项，Escape 关闭后无残留顶层菜单。增强导航进入 SSR 后，多层真实链接已到达 `/linked?source=static#target`，控制台无警告或错误。
+
+本轮未实测动画精确时序、Primary 高亮恢复时序、快速进退动画最终状态、减少动态效果及其他浏览器，不以自动测试代替这些浏览器验收。上面的非默认名生成验证属于 v2 轮次，本轮未重新打包发布。
+
+本轮 v3 已同步 10 个接收项目及 Trading。Portal、AppHub、API、AspNetCore.Test、Cloudflare.WebTesting、Data.BlazorAppTest 构建通过；TransactionHostServer、Huobao 仍受原有 NU1605 包降级限制，AspNetCore.Blockchain、Url 仍受原有 net9/net10 的 NU1201 限制。10 个接收项目的四个菜单文件与模板归一化一致，命名空间及 Url 的 RazorComponents 路径按项目适配。Trading 保留业务菜单末尾对齐，29 项菜单测试通过，隔离构建 0 错误、226 条既有上游警告。代码同步不等同于各仓已提交、NuGet 发布或应用部署。

@@ -89,7 +89,8 @@ cshtml 基础布局中的 viewport 使用 `minimum-scale=1.0`、`maximum-scale=1
 
 ### 在静态布局中嵌入通用控件
 
-`_BlankLayout.cshtml` 提供带 `asp-append-version` 的 `site.js`、应用隔离样式和 Bootstrap Icons。`ConfirmDialog`、`DropdownSelect` 在组件内通过 `silmoon-module` 声明专用模块，`site.js` 的通用入口负责导入；不要在 `_BlankLayout` 或 `_ModernColorLayout` 再添加它们的专用 `<script>`，也不要把控件加载逻辑并入现代颜色核心。
+`_BlankLayout.cshtml` 提供带 `asp-append-version` 的 `site.js`、应用隔离样式和 Bootstrap Icons。`ConfirmDialog`、`DropdownSelect`、`DropdownMenu` 在组件内通过 `silmoon-module` 声明专用模块，`site.js` 的通用入口负责导入；不要在 `_BlankLayout` 或 `_ModernColorLayout` 再添加它们的专用 `<script>`，也不要把控件加载逻辑并入现代颜色核心。
+多级菜单 `DropdownMenu` 默认从触发器起始侧展开，自动避让视口边缘；支持 Popover 时由控件负责顶层显示，无需调用页修改卡片层级。其分组和链接支持静态渲染，`ItemSelected` 需要交互渲染；保留 Bootstrap 5 bundle（含 Popper）、Bootstrap Icons、隔离样式及通用模块入口，具体用法见[控件指南](blazor-components-guide.md#dropdownmenu通用多级菜单)。
 
 静态呈现的 `DropdownSelect` 可使用真实 `Href`；`ValueChanged` 需要交互宿主。原生 JS 调用确认框时，先从对应 `<template>` 的 `data-module-src` 读取地址并等待导入。加载方式不依赖 Blazor 启动或 `<base>`，但宿主仍需注册 Razor 组件服务、加载通用入口和组件样式。完整示例、迁移及旧 Blazor Server 差异见[通用控件指南](blazor-components-guide.md)。
 

@@ -4,20 +4,20 @@
 
 ## 接入条件
 
-- 使用 `@bind-Value`、`ValueChanged` 或组件引用方法时，需要模板现有的 Interactive Server 渲染。静态 SSR 不执行 Blazor 事件和 `OnAfterRenderAsync`，但 `DropdownSelect` 的真实 `Href`、原生 JS 调用的确认框及纯外观的 `AuthFormCard` 可用于静态内容。
-- 不需要新增 DI 服务。确认框和通用下拉框在组件内部用隐藏的 `silmoon-module` 声明同名 `.razor.js`，由现有 `wwwroot/js/site.js` 注册的通用加载入口按组件出现时导入；初次静态 SSR、cshtml、增强导航和交互插入均适用。`App.razor`、`_BlankLayout.cshtml` 不再逐个引用组件脚本。日期范围、枚举和目录控件保留自己的交互阶段导入与释放逻辑。
-- 保留 `Components/App.razor` 引用的应用隔离样式 bundle、Bootstrap 和 Bootstrap Icons。复制组件时也要携带同名 `.razor.css`、`.razor.js` 及所用值类型；枚举和目录选择器还依赖 `wwwroot/js/picker-popover.js`，不能只复制 `.razor`。
-- 复制确认框或通用下拉框时，还需保留宿主的 `site.js` 通用模块加载入口。组件使用 `NavigationManager` 生成带应用基路径的绝对模块地址；多实例共享浏览器模块缓存，移除实例不会卸载页面级共享模块。导入失败会记录控制台错误。
-- 控件使用现代颜色布局的 CSS 变量。按 [Blazor 布局指南](modern-color-layout-blazor-agent-guide.md) 加载主题；换用其他布局时提供相应的文字、背景、边框、焦点和 `--control-color-scheme` 变量。业务样式放在独立文件，勿改共享主题核心来适配单页。
+- 使用 `@bind-Value`、`ValueChanged`、`ItemSelected` 或组件引用方法时，需要模板现有的 Interactive Server 渲染。静态 SSR 不执行 Blazor 事件和 `OnAfterRenderAsync`，但 `DropdownSelect` / `DropdownMenu` 的真实 `Href`、原生 JS 调用的确认框及纯外观的 `AuthFormCard` 可用于静态内容。
+- 不需要新增 DI 服务。确认框、通用下拉框和多级菜单在组件内部用隐藏的 `silmoon-module` 声明同名 `.razor.js`，由现有 `wwwroot/js/site.js` 注册的通用加载入口按组件出现时导入；初次静态 SSR、cshtml、增强导航和交互插入均适用。`App.razor`、`_BlankLayout.cshtml` 不再逐个引用组件脚本。日期范围、枚举和目录控件保留自己的交互阶段导入与释放逻辑。
+- 保留 `Components/App.razor` 引用的应用隔离样式 bundle、Bootstrap 5 bundle（含 Popper）和 Bootstrap Icons。复制组件时也要携带同名 `.razor.css`、`.razor.js` 及所用值类型；枚举和目录选择器还依赖 `wwwroot/js/picker-popover.js`，不能只复制 `.razor`。
+- 复制确认框、通用下拉框或多级菜单时，还需保留宿主的 `site.js` 通用模块加载入口。组件使用 `NavigationManager` 生成带应用基路径的绝对模块地址；多实例共享浏览器模块缓存，移除实例不会卸载页面级共享模块。导入失败会记录控制台错误。
+- 控件优先使用现代颜色布局的 CSS 变量。按 [Blazor 布局指南](modern-color-layout-blazor-agent-guide.md) 加载主题；`DropdownMenu` 自带 Bootstrap 变量和字面值回退，不要求引入整个现代布局。其他控件按自身依赖检查文字、背景、边框、焦点和 `--control-color-scheme` 变量。业务样式放在独立文件，勿改共享主题核心来适配单页。
 - `EnumSelect` 和 `TimeInput` 继承 `InputBase<T>`，支持 `EditForm`、`ValidationMessage`、附加 HTML 属性及 `@bind-Value`。示例将它们放在 `EditForm` 中。
 
 ## 复制与旧项目迁移
 
-1. 下拉框一起复制 `DropdownSelect.razor`、`.razor.css`、`.razor.js` 和 `DropdownSelectOption.cs`；确认框一起复制同名三文件和 `ConfirmDialogResult.cs`。适配目标命名空间，保留其本地化参数与业务封装，不把 `LanguageSelector` 或业务接口带入通用组件。
+1. 下拉框一起复制 `DropdownSelect.razor`、`.razor.css`、`.razor.js` 和 `DropdownSelectOption.cs`；多级菜单一起复制 `DropdownMenu.razor`、`.razor.css`、`.razor.js` 和 `DropdownMenuItem.cs`；确认框一起复制同名三文件和 `ConfirmDialogResult.cs`。适配目标命名空间，保留其本地化参数与业务封装，不把 `LanguageSelector` 或业务接口带入通用组件。
 2. 将模板 `site.js` 中注册 `silmoon-module` 的通用代码合入目标现有 `site.js`。保留目标原有脚本和 `ScriptLoader`，不要整文件覆盖。每个使用组件的宿主只需加载一次 `site.js`，包括 cshtml/MVC 静态壳。
-3. 保留应用隔离样式 bundle 和 Bootstrap Icons；图标依赖通过目标 `libman.json` 恢复。迁移后检查 CSS 和字体文件，不能只修改依赖声明。
-4. 移除 `App.razor`、`_BlankLayout`、`_ModernColorLayout` 等入口中这两个组件的专用 `<script>`。保留组件内模块声明及确认框的方法内等待导入；不要改为只在 `OnAfterRenderAsync` 加载，否则纯静态 SSR 会失效。
-5. 更新 `site.js` 的缓存引用：cshtml 沿用 `asp-append-version`，采用 `@Assets` 的宿主保留其指纹机制，其余宿主更新现有查询版本。组件模块版本只在组件声明中维护。组件目录变化时，同时调整内部模块路径；`.razor` 不会展开 `~/`，静态 cshtml 也不一定有 `<base>`。
+3. 保留应用隔离样式 bundle、Bootstrap 5 bundle（含 Popper）和 Bootstrap Icons；图标依赖通过目标 `libman.json` 恢复。迁移后检查 CSS 和字体文件，不能只修改依赖声明。
+4. 移除 `App.razor`、`_BlankLayout`、`_ModernColorLayout` 等入口中这些组件的专用 `<script>`。保留组件内模块声明及确认框的方法内等待导入；不要改为只在 `OnAfterRenderAsync` 加载，否则纯静态 SSR 会失效。
+5. 新增组件隔离样式后更新样式 bundle 缓存引用，修改通用入口时更新 `site.js` 的缓存引用：cshtml 沿用 `asp-append-version`，采用 `@Assets` 的宿主保留其指纹机制，其余宿主更新现有查询版本。组件模块版本只在组件声明中维护。组件目录变化时，同时调整内部模块路径；`.razor` 不会展开 `~/`，静态 cshtml 也不一定有 `<base>`。
 6. 检查首次完整加载、无控件页增强导航到有控件页、交互绑定、静态链接、多实例和慢速模块加载。静态页要确认菜单实际可打开，不能只检查生成了 `href`。出现控件并不会自动启用项目尚未注册的 Blazor 服务或渲染模式。
 
 现代颜色 `manage.cjs --write` 只同步核心 CSS/JS，不处理上述组件、模块入口、样式 bundle、缓存版本或本手册。复制控件也不要求复制整个现代颜色布局；可复用现有主题变量和宿主。
@@ -28,18 +28,22 @@
 
 | 仓库 / Web 项目 | 本次控件及宿主差异 |
 | --- | --- |
-| Silmoon.Templates / 模板内容根 | `DropdownSelect`、`ConfirmDialog`；`Components/App.razor` 与 `Pages/Shared/_BlankLayout.cshtml` |
-| Silmoon.Trading.Server / Silmoon.Trading.Server | 两个通用控件；保留 `CloseLabel`、`LanguageSelector` 和原生 WebTrade 确认流程，本地化手册以该项目为准 |
-| Snowfintech.AspNetCore.Portal / Snowfintech.AspNetCore.Portal | `DropdownSelect`；App 和 cshtml 宿主 |
-| Silmoon.AspNetCore.AppHub / Silmoon.AspNetCore.AppHub | `DropdownSelect`；App 和 cshtml 宿主 |
-| Silmoon.Blockchain.Service / Silmoon.Blockchain.TransactionHostServer | `DropdownSelect`；App 和 cshtml 宿主 |
-| Huobao.AspNetCore.CenterServer / Huobao.AspNetCore.CenterServer | `DropdownSelect`；App 和 MVC Views 宿主 |
-| Silmoon.AspNetCore.Api / Silmoon.AspNetCore.Api | `DropdownSelect`；App 和 cshtml 宿主 |
-| Silmoon.AspNetCore.Blockchain / Silmoon.AspNetCore.Blockchain | `DropdownSelect`；App 和 cshtml 宿主 |
-| Silmoon.AspNetCore / Silmoon.AspNetCore.Test | `DropdownSelect`；属于测试 Web 项目源码，不是类库 NuGet 导出的组件 |
-| Silmoon.Cloudflare / Silmoon.Cloudflare.WebTesting | `DropdownSelect`；属于测试 Web 项目源码，不是 Cloudflare SDK 导出的组件 |
-| Silmoon.Data / BlazorAppTest | `DropdownSelect`；保留 `@Assets`、`ImportMap` 和 `MapStaticAssets` 的静态资产机制 |
-| Silmoon.AspNetCore.Url / Silmoon.AspNetCore.Url | `DropdownSelect` 位于 `RazorComponents`，模块地址随目录适配；MVC `<component>` 使用 `Server`／`Static`，现有交互脚本为 `blazor.server.js`，没有 `App.razor` |
+| Silmoon.Templates / 模板内容根 | `DropdownSelect`、`DropdownMenu`、`ConfirmDialog`；`Components/App.razor` 与 `Pages/Shared/_BlankLayout.cshtml` |
+| Silmoon.Trading.Server / Silmoon.Trading.Server | 三个通用控件；菜单最初来源于该项目，本轮定位修复已同步回该项目；保留 `CloseLabel`、`LanguageSelector` 和原生 WebTrade 确认流程，本地化手册以该项目为准 |
+| Snowfintech.AspNetCore.Portal / Snowfintech.AspNetCore.Portal | `DropdownSelect`、`DropdownMenu`；App 和 cshtml 宿主 |
+| Silmoon.AspNetCore.AppHub / Silmoon.AspNetCore.AppHub | `DropdownSelect`、`DropdownMenu`；App 和 cshtml 宿主 |
+| Silmoon.Blockchain.Service / Silmoon.Blockchain.TransactionHostServer | `DropdownSelect`、`DropdownMenu`；App 和 cshtml 宿主 |
+| Huobao.AspNetCore.CenterServer / Huobao.AspNetCore.CenterServer | `DropdownSelect`、`DropdownMenu`；App 和 MVC Views 宿主 |
+| Silmoon.AspNetCore.Api / Silmoon.AspNetCore.Api | `DropdownSelect`、`DropdownMenu`；App 和 cshtml 宿主 |
+| Silmoon.AspNetCore.Blockchain / Silmoon.AspNetCore.Blockchain | `DropdownSelect`、`DropdownMenu`；App 和 cshtml 宿主 |
+| Silmoon.AspNetCore / Silmoon.AspNetCore.Test | `DropdownSelect`、`DropdownMenu`；属于测试 Web 项目源码，不是类库 NuGet 导出的组件 |
+| Silmoon.Cloudflare / Silmoon.Cloudflare.WebTesting | `DropdownSelect`、`DropdownMenu`；属于测试 Web 项目源码，不是 Cloudflare SDK 导出的组件 |
+| Silmoon.Data / BlazorAppTest | `DropdownSelect`、`DropdownMenu`；保留 `@Assets`、`ImportMap` 和 `MapStaticAssets` 的静态资产机制 |
+| Silmoon.AspNetCore.Url / Silmoon.AspNetCore.Url | 两个菜单控件位于 `RazorComponents`，模块地址随目录适配；MVC `<component>` 使用 `Server`／`Static`，现有交互脚本为 `blazor.server.js`，没有 `App.razor` |
+
+多级菜单最初从 Trading 吸收到模板与 10 个接收项目；本轮 v3 定位、遮挡与键盘滚动修复已同步到 Trading 和这 10 个接收项目，连同模板共 12 个 Web 项目。Trading 的 WebTrade 偏好菜单显式保留末尾对齐，其余业务封装不变。菜单样式另提供 Bootstrap 变量／字面值回退，因此普通 Bootstrap 宿主无需引入整个现代颜色布局。Id、WebSite 未启用 Blazor，KnowledgeServer 为 Razor Pages，HtmlColorScheme 为纯 HTML，不加入组件；WinForms／MAUI Hybrid 仍不在本次 Web 范围内。
+
+本轮构建结果、依赖限制及尚未完成的浏览器验收见[组件验证记录](https://github.com/silmoonsone/Silmoon.Templates/blob/master/tests/BlazorComponents/README.md)。源码同步与版本提交、包发布和应用部署分别确认。
 
 接收项目没有本手册副本时，以模板指南为通用接入说明；已有项目手册只维护自身差异和链接，无需为每个项目再复制整套手册。未启用 Blazor 或只有现代颜色核心的项目不因为核心资源同步而获得这些控件。
 
@@ -121,6 +125,38 @@ cshtml/MVC 中的纯链接示例（宿主需具备 Razor 组件服务及 Compone
 ```
 
 此例不需要启动 Blazor 交互脚本，但需要共同的 `site.js` 和组件样式；在深路径或子路径部署时，业务 `Href` 也应由宿主生成正确地址。`Static` 不支持 `ValueChanged`，需要回调时按目标项目现有模式改为交互宿主；旧 Blazor Server 项目使用 `Server`，不能机械替换为 Blazor Web App 的初始化方式。
+
+## DropdownMenu：通用多级菜单
+
+```razor
+<DropdownMenu Items="MenuItems" ItemSelected="OnSelected" Label="更多操作" TriggerText="菜单" BackLabel="返回上一级" />
+
+@code {
+    string LastAction { get; set; } = string.Empty;
+    IReadOnlyList<DropdownMenuItem> MenuItems { get; } = [
+        new() { Key = "display", Text = "显示", IconClass = "bi bi-sliders", Children = [
+            new() { Key = "list", Text = "列表", Selected = true },
+            new() { Key = "more", Text = "更多", Children = [
+                new() { Key = "compact", Text = "紧凑", Selected = false }
+            ] }
+        ] },
+        new() { Key = "docs", Text = "文档", Href = "/docs" },
+        new() { Key = "unavailable", Text = "暂不可用", Disabled = true }
+    ];
+    void OnSelected(DropdownMenuItem item) => LastAction = item.Key;
+}
+```
+
+- 四文件一起复制；不需要新的 DI 服务。宿主须加载 Bootstrap 5 的 bundle（包含 Popper）、Bootstrap Icons、应用隔离样式和已有 `site.js` 通用模块入口。组件声明 `DropdownMenu.razor.js?v=3`，无需顶层专用 script。默认使用现代颜色变量，缺少时回退到 Bootstrap 变量及默认值。
+- `Items` 是递归 `Children` 树，无固定层级上限，数据不得循环引用。`Key` 只供调用方识别，内部面板用位置路径关联，不要求每个业务 Key 全局唯一。`Children` 优先于 `Href`：非空分组只进入子菜单；启用的链接叶子原生跳转、不触发 `ItemSelected`；普通叶子才触发该回调。
+- 叶子项的 `Selected` 为可空布尔值（分组不使用此字段）：null 不显示选中标记，false 预留标记位置，true 显示选中状态。组件不自动修改调用方的数据或选中值。`Disabled` 可禁用整个组件或单个选项；`IconClass`、`Class` 和 `AdditionalAttributes` 可定制外观。组件另提供 `Label`、`BackLabel`、`TriggerText`、`EnhanceNavigation`（默认 true）、`AlignEnd`（默认 false）和 `OpenUpward`（默认 false）。
+- 浮层默认与触发器的逻辑起始侧对齐，在 LTR 页面向右展开；`AlignEnd="true"` 用于右上角等需要末端对齐的入口。默认向下、`OpenUpward="true"` 优先向上，可用空间不足时自动翻转并限制在可见视口内，长菜单内部滚动。支持原生 Popover 的浏览器使用顶层浮层，保留 Blazor DOM 与事件，脱离卡片裁切及侧栏层叠上下文；旧浏览器回退普通定位，仍可能受祖先裁切限制。调用方无需抬高卡片 z-index。
+- 在通常的 LTR 页面，`OpenUpward` 与 `AlignEnd` 分别控制上下方向和左右对齐，可组合为下左（默认）、下右（仅 `AlignEnd="true"`）、上左（仅 `OpenUpward="true"`）、上右（两者均为 true）。RTL 页面按逻辑起始／末端对齐，视口避让优先于方向偏好。演示页提供两组独立选项。
+- Bootstrap 保留开关和外部关闭行为，`data-bs-display="static"` 停止 Popper 写坐标，组件统一处理定位。浮层采用不透明背景；模块晚加载、层级高度变化、窗口与可见视口变化会补齐定位，外部滚动关闭，内部滚动保持打开。关闭、动态禁用和卸载都会清理顶层状态与跟踪帧。
+- 子菜单从右向左、返回从左向右滑动 240ms。进入项与返回来源项使用 Primary 背景及白字；返回动画结束后保持 300ms，再通过伪元素叠层在 200ms 内淡出，临时高亮不改变 `Selected`。系统减少动态效果时跳过这些动画。
+- 上／下、Home／End 只在当前层导航，长菜单会在浮层内部滚动，使聚焦项保持可见；右方向键进入、左方向键返回，Escape 关闭并复焦。快速反向操作不会被旧动画完成回调覆盖；关闭重置到根层，卸载时取消动画和高亮并释放 Bootstrap 实例。多实例独立使用。
+- 静态 SSR／cshtml 可以展开分组和点击真实链接，无须 Blazor 事件；`ItemSelected` 需要交互渲染。cshtml 使用 `<component type="typeof(DropdownMenu)" render-mode="Static" param-Items="items" />`，宿主服务条件与前述 DropdownSelect 相同。普通动作叶子不要用于没有交互渲染的页面。
+- 不要求替换业务菜单；WebTrade 的偏好封装、语言服务和交易资源不属于这个通用组件。示例见 `/backend/components-demo`。
 
 ## DateTimeRangePicker：日期或日期时间范围
 
