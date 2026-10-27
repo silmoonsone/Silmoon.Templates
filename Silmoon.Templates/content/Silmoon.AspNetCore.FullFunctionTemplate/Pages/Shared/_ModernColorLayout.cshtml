@@ -5,24 +5,22 @@
 <script src="~/js/modern-color-layout.js" asp-append-version="true"></script>
 
 <div id="content">
-    <!-- 主题切换按钮组 -->
-    <div class="theme-toggle-group">
-        <button class="theme-btn" data-theme="light" title="亮色模式" type="button">
-            <i class="bi bi-sun"></i>
-        </button>
-        <button class="theme-btn" data-theme="dark" title="暗色模式" type="button">
-            <i class="bi bi-moon"></i>
-        </button>
-        <button class="theme-btn" data-theme="auto" title="自动模式" type="button">
-            <i class="bi bi-circle-half"></i>
-        </button>
-    </div>
-
     <button id="toggle-menu" class="btn btn-primary" type="button" aria-label="打开菜单">
         <i class="bi bi-list"></i>
     </button>
 
     <div class="content-wrapper">
+        <partial name="_ModernColorThemeButtons" model="@(false)" />
         @RenderBody()
+        <footer class="modern-color-footer">
+            @if (IsSectionDefined("Footer"))
+            {
+                @await RenderSectionAsync("Footer", required: false)
+            }
+            else
+            {
+                <partial name="_ModernColorFooter" />
+            }
+        </footer>
     </div>
 </div>

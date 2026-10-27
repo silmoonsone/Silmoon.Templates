@@ -374,3 +374,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Modern Color maintenance dependencies and release output
+/tools/modern-color/node_modules/
+/tools/modern-color/dist/

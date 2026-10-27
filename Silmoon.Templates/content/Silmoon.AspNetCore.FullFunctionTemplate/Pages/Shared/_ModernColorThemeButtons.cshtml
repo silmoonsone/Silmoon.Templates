@@ -1,0 +1,10 @@
+﻿@model bool
+@{
+    var groupClass = Model ? "theme-menu-buttons" : "theme-toggle-group";
+    var buttonClass = Model ? "theme-menu-btn" : "theme-btn";
+}
+<div class="@groupClass">
+    <button class="@buttonClass" data-theme="light" title="亮色模式" type="button"><i class="bi bi-sun"></i></button>
+    <button class="@buttonClass" data-theme="dark" title="暗色模式" type="button"><i class="bi bi-moon"></i></button>
+    <button class="@buttonClass" data-theme="auto" title="自动模式" type="button"><i class="bi bi-circle-half"></i></button>
+</div>

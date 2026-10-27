@@ -1,0 +1,9 @@
+﻿<div class="@(InMenu ? "theme-menu-buttons" : "theme-toggle-group")">
+    <button class="@(InMenu ? "theme-menu-btn" : "theme-btn")" data-theme="light" title="亮色模式" type="button"><i class="bi bi-sun"></i></button>
+    <button class="@(InMenu ? "theme-menu-btn" : "theme-btn")" data-theme="dark" title="暗色模式" type="button"><i class="bi bi-moon"></i></button>
+    <button class="@(InMenu ? "theme-menu-btn" : "theme-btn")" data-theme="auto" title="自动模式" type="button"><i class="bi bi-circle-half"></i></button>
+</div>
+
+@code {
+    [Parameter] public bool InMenu { get; set; }
+}

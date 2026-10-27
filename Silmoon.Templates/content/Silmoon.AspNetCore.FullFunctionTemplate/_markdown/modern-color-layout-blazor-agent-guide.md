@@ -23,7 +23,8 @@ Blazor 现代颜色布局可以用于普通用户页面、后台管理页面或�
 Blazor 现代颜色布局通常涉及以下文件。应根据项目复杂度选择，不要求为了“分层完整”创建所有文件：
 
 - `Components/Layout/ModernColor/ModernColorLayout.razor`：现代颜色公共视觉外壳，包含主题按钮、菜单按钮、菜单容器、正文区域、错误 UI 和初始化组件。单一布局项目中它可以直接是真正的路由 Layout；多区域项目中它也可以只是由具体 Layout 复用的普通组件。
-- `Components/Layout/ModernColor/ModernColorLayoutInitializer.razor`：交互式初始化组件，负责通过 JS interop 加载现代颜色布局核心脚本和 Blazor 适配脚本，并启动生命周期适配。
+- `Components/Layout/ModernColor/ModernColorThemeButtons.razor`：桌面和菜单共用的主题按钮；默认桌面形式，`InMenu="true"` 渲染菜单形式。保留当前项目本地化和无障碍文案。
+- `Components/Layout/ModernColor/ModernColorLayoutInitializer.razor`：交互式初始化组件，集中保存公开 `Stylesheet` / `Script` 常量，通过 JS interop 加载核心脚本，再调用 `ModernColorLayout.initBlazor()` 启动增强导航适配。
 - `Components/Layout/ModernColor/ModernColorMenu.razor`：多个区域共用的菜单部分，例如登录、注册、退出登录和菜单内主题按钮。如果认证菜单需要被顶栏、弹出菜单或其他布局独立复用，或者认证逻辑已经较复杂，可以自行新建独立认证菜单组件，并由 `ModernColorMenu.razor` 引用。
 - `Components/Layout/ModernColor/UserNavMenu.razor`、`AdminNavMenu.razor`：按用户区、管理区或其他业务场景拆分的专属菜单。名称只是示例，应按业务语义命名。
 - `Components/Layout/ModernColor/UserLayout.razor`、`AdminLayout.razor`：多区域项目中真正继承 `LayoutComponentBase` 的具体路由布局。
@@ -33,8 +34,7 @@ Blazor 现代颜色布局通常涉及以下文件。应根据项目复杂度选�
 - `Components/App.razor`：Blazor 应用外壳，配置 viewport，并引用 Bootstrap、Bootstrap Icons、项目样式、`js/site.js` 和 Blazor 脚本。
 - `wwwroot/css/modern-color-layout.css`：现代颜色布局核心样式。
 - `wwwroot/css/site.css`：项目级全局样式，包含手机端触摸缩放策略，不属于现代颜色核心样式。
-- `wwwroot/js/modern-color-layout.js`：现代颜色布局核心脚本，公开可重复调用的 `ModernColorLayout.refresh()`，不依赖 Blazor。
-- `wwwroot/js/modern-color-layout-blazor.js`：Blazor 生命周期适配脚本，在增强导航完成后调用布局刷新。
+- `wwwroot/js/modern-color-layout.js`：现代颜色布局核心脚本，公开可重复调用的 `ModernColorLayout.refresh()`，静态页面可独立运行；可选 `initBlazor()` 入口负责增强导航适配。
 - `wwwroot/js/site.js`：项目脚本，包含通用 `ScriptLoader`。
 
 如果项目已有 `MainLayout.razor`、`NavMenu.razor` 和对应隔离样式，并且希望保留原始模板文件，可以把现代颜色相关文件集中在独立子目录中，再从 `Routes.razor` 显式指定新的默认布局。不要仅为了引入现代颜色框架删除原布局文件。
@@ -93,18 +93,24 @@ builder.Services.AddJsSilmoonAuthInterop();
 如果采用多区域模式，`ModernColorLayout.razor` 可以作为公共外壳组件。它仍然应该保留完整的现代颜色布局骨架，只把标题、菜单和正文变成参数或片段。示意：
 
 ```razor
-<nav id="menu" aria-label="@MenuLabel">
-    <div class="menu-header">
-        <h3>@Title</h3>
-        <div class="text-secondary">@Subtitle</div>
+<div class="content-wrapper">
+    <ModernColorThemeButtons />
+    <div class="modern-color-menu-region">
+        <nav id="menu" aria-label="@MenuLabel">
+            <div class="menu-header">
+                <h3>@Title</h3>
+                <div class="text-secondary">@Subtitle</div>
+            </div>
+            @MenuContent
+            <ModernColorMenu />
+        </nav>
     </div>
-    @MenuContent
-    <ModernColorMenu />
-</nav>
 
-<main class="content-main">
-    @BodyContent
-</main>
+    <main class="content-main">
+        @BodyContent
+    </main>
+    <ModernColorFooter ChildContent="@FooterContent" />
+</div>
 
 @code {
     [Parameter] public string Title { get; set; }
@@ -112,6 +118,7 @@ builder.Services.AddJsSilmoonAuthInterop();
     [Parameter] public string MenuLabel { get; set; } = "主菜单";
     [Parameter] public RenderFragment MenuContent { get; set; }
     [Parameter] public RenderFragment BodyContent { get; set; }
+    [Parameter] public RenderFragment? FooterContent { get; set; }
 }
 ```
 
@@ -170,21 +177,46 @@ builder.Services.AddJsSilmoonAuthInterop();
 
 如果业务项目只想让某个目录使用某个具体布局，应在那个目录单独放 `_Imports.razor`。不要把管理布局放到全局 `_Imports.razor`；全局默认布局应通过路由器或项目既有约定设置，区域布局再在目录中覆盖。
 
+### 4.4 自定义页脚
+
+`ModernColorLayout.razor` 在正文之后统一输出 `ModernColorFooter`，因此 `/backend/modern-color-demo` 和同布局页面都会显示页脚。默认版权文字和链接集中在 `Components/Layout/ModernColor/ModernColorFooter.razor` 中，可以按项目修改。
+
+需要按区域替换内容时，向布局传入 `FooterContent`。单一布局项目可以建立下面的路由布局，并通过 `@layout` 应用：
+
+```razor
+@inherits LayoutComponentBase
+
+<ModernColorLayout Body="@Body">
+    <FooterContent>
+        <span>© @DateTime.Now.Year 示例公司</span>
+        <nav class="modern-color-footer-links" aria-label="页脚导航">
+            <a href="/">返回首页</a>
+        </nav>
+    </FooterContent>
+</ModernColorLayout>
+```
+
+`FooterContent` 为 `RenderFragment?`，未提供时使用默认内容；片段中只写内容，不再嵌套 `<footer>`。多区域公共壳采用 `BodyContent` 的项目保留自己的正文 API，并同样转发 `FooterContent` 给 `ModernColorFooter.ChildContent`。独立外壳也可直接使用 `<ModernColorFooter>自定义内容</ModernColorFooter>`。
+
+`footer.modern-color-footer` 应与 `.modern-color-menu-region` 和 `main.content-main` 同为 `.content-wrapper` 的直接子元素；`nav#menu` 放在 `.modern-color-menu-region` 内，让菜单顶部保持吸附，并在页脚进入视口时缩小菜单可滚动高度。页脚横跨包含菜单在内的整个布局宽度；空正文和短页面靠底，长页面随正文滚动；不要固定在视口上遮挡控件。窄屏版权和链接自动换行，主题颜色跟随核心变量。
+
 ## 5. CSS 和 JS 加载
 
 `ModernColorLayout.razor` 通过 `<HeadContent>` 引入样式。无论它本身是真正的 Layout，还是由具体 Layout 复用的普通组件，都应由这个现代颜色外壳统一加载核心样式，不要在每个具体 Layout 中重复引用：
 
 ```razor
 <HeadContent>
-    <link rel="stylesheet" href="/css/modern-color-layout.css?v=19" />
+    <link rel="stylesheet" href="@ModernColorLayoutInitializer.Stylesheet" />
 </HeadContent>
 ```
 
 不要在 `Components/App.razor` 中直接引用 `modern-color-layout.css` 或 `modern-color-layout.js`。
 
-`Components/App.razor` 可以引用 Bootstrap、Bootstrap Icons、项目样式、公共脚本和 `js/site.js`。`site.js` 提供通用 `ScriptLoader.ensureLoaded(src)`，由 `ModernColorLayoutInitializer.razor` 依次动态加载 `/js/modern-color-layout.js` 和 `/js/modern-color-layout-blazor.js`。
+`Components/App.razor` 可以引用 Bootstrap、Bootstrap Icons、项目样式、公共脚本和 `js/site.js`。`site.js` 提供通用 `ScriptLoader.ensureLoaded(src)`，由 `ModernColorLayoutInitializer.razor` 加载其 `Script` 常量指向的 `/js/modern-color-layout.js`，然后调用同一核心中的可选 `ModernColorLayout.initBlazor()`。
 
 `Components/App.razor` 中的 viewport 应包含 `minimum-scale=1.0`、`maximum-scale=1.0` 和 `user-scalable=no`，`wwwroot/css/site.css` 再使用 `touch-action: pan-x pan-y` 保留单指滚动并抑制双指缩放和双击放大。应在应用外壳和项目级样式中维护这项站点策略，不要为它修改现代颜色核心 CSS/JS 或添加重复的触摸事件脚本。
+
+`ModernColorLayoutInitializer.razor` 的公开常量统一保存 `Stylesheet = "/css/modern-color-layout.css?v=21"` 和 `Script = "/js/modern-color-layout.js?v=10"`；布局通过 `ModernColorLayoutInitializer.Stylesheet` 引用 CSS。
 
 `ModernColorLayoutInitializer.razor` 必须是交互式子组件：
 
@@ -198,14 +230,13 @@ builder.Services.AddJsSilmoonAuthInterop();
 初始化器应通过通用脚本加载器调用现代颜色布局：
 
 ```csharp
-await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js?v=6");
-await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout-blazor.js?v=1");
-await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
+await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", Script);
+await Js.InvokeVoidAsync("ModernColorLayout.initBlazor");
 ```
 
-`ModernColorLayoutBlazor.init()` 会立即调用一次 `ModernColorLayout.refresh()`，然后只注册一次 Blazor `enhancedload` 监听。Blazor 在增强导航后替换页面或布局 DOM 时，适配脚本会再次刷新当前布局，因此从用户区切换到管理区等场景不需要手动刷新浏览器。
+`ModernColorLayout.initBlazor()` 会立即调用一次 `ModernColorLayout.refresh()`，然后只注册一次 Blazor `enhancedload` 监听。Blazor 在增强导航后替换页面或布局 DOM 时，内置适配会再次刷新当前布局，因此从用户区切换到管理区等场景不需要手动刷新浏览器。
 
-`modern-color-layout.js` 是通用核心，不应直接访问 `window.Blazor`。以后接入其他动态页面框架时，应新增对应适配代码，在该框架完成 DOM 更新后调用 `ModernColorLayout.refresh()`，不要继续向核心脚本加入框架判断。
+`modern-color-layout.js` 内置可选的 Blazor 初始化入口；只在显式调用 `initBlazor()` 后检测并订阅 Blazor，静态页面没有 Blazor 也能独立运行。其他动态页面框架仍由项目适配代码在 DOM 更新后调用 `ModernColorLayout.refresh()`。
 
 ## 6. 布局结构
 
@@ -215,12 +246,14 @@ await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
 - `.theme-toggle-group`
 - `#toggle-menu`
 - `.content-wrapper`
+- `.modern-color-menu-region`（包裹桌面菜单，限制吸附侧栏的滚动范围）
 - `nav#menu`
 - `.menu-item`
 - `.menu-group`
 - `.menu-submenu-toggle`
 - `.menu-submenu`
 - `.content-main`
+- `.modern-color-footer`（与菜单区域、正文同级）
 - `#blazor-error-ui`
 - `<ModernColorLayoutInitializer />`
 
@@ -457,7 +490,7 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 
 ## 11. 样式和脚本边界
 
-默认不要直接修改框架自带的 `wwwroot/css/modern-color-layout.css`、`wwwroot/js/modern-color-layout.js` 和 `wwwroot/js/modern-color-layout-blazor.js`。项目或页面定制应优先新增独立 CSS/JS，并在核心资源之后加载，通过样式覆盖、事件订阅或公开 API 扩展；只有确认外部扩展无法合理实现，而且需求属于框架通用能力时，才修改核心文件，并完成本文要求的全部回归检查。
+默认不要直接修改框架自带的 `wwwroot/css/modern-color-layout.css` 和 `wwwroot/js/modern-color-layout.js`。项目或页面定制应优先新增独立 CSS/JS，并在核心资源之后加载，通过样式覆盖、事件订阅或公开 API 扩展；只有确认外部扩展无法合理实现，而且需求属于框架通用能力时，才修改核心文件，并完成本文要求的全部回归检查。
 
 普通按钮或按钮式链接只需使用 `class="btn"`，即可获得随主题变化的中性文字、背景和交互状态；`btn-sm`、`btn-lg` 可继续叠加。需要语义配色时添加 `btn-primary`、`btn-outline-primary` 等类。禁用按钮使用 `disabled`；禁用链接同时使用 `.disabled`、`aria-disabled="true"` 和 `tabindex="-1"`。
 
@@ -479,7 +512,7 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 - 重复初始化保护。
 - 为动态 DOM 提供可重复调用的 `ModernColorLayout.refresh()`。
 
-`modern-color-layout-blazor.js` 只负责：
+核心中的可选 `ModernColorLayout.initBlazor()` 只负责：
 
 - 首次启动时刷新当前布局。
 - 订阅一次 Blazor `enhancedload`。
@@ -517,3 +550,9 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 - `dotnet build --no-restore` 通过。
 - 不只依赖编译结果；实际访问每一种具体布局覆盖的页面，避免普通外壳误用为路由 Layout 的运行时错误。
 - 文档和代码保持 UTF-8 BOM 与 CRLF。
+
+## 核心资源同步与发布
+
+通用核心源位于 Silmoon.Templates 的模板 `wwwroot`。在相邻 Silmoon.Templates 仓库运行 `node tools/modern-color/manage.cjs --check` 检查全部引用目标；确认通用改动后运行 `--write` 同步。目标清单与可选压缩发布包见[现代颜色同步工具](../../../../tests/ModernColor/README.md)。业务菜单、页脚内容、布局组件和项目专用覆盖样式由各项目维护，不由资产同步覆盖。
+
+Blazor 的资源版本由 `ModernColorLayoutInitializer` 集中管理，当前为 CSS v21、核心 JS v10；cshtml 继续使用 `asp-append-version` 内容哈希。发布压缩使用工具产物，源文件保持可读。新的布局应直接将桌面 `.theme-toggle-group` 渲染在 `.content-wrapper` 内；核心 JS 移动旧位置的处理仅用于旧布局兼容。

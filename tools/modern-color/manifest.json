@@ -1,0 +1,18 @@
+{
+  "sourceRoot": "Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/wwwroot",
+  "assets": [
+    "css/modern-color-layout.css",
+    "js/modern-color-layout.js"
+  ],
+  "projects": [
+    { "name": "Silmoon.Templates", "repository": ".", "webRoot": "Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/wwwroot" },
+    { "name": "HtmlColorScheme", "repository": "../HtmlColorScheme", "webRoot": "." },
+    { "name": "Silmoon.AspNetCore.Id", "repository": "../Silmoon.AspNetCore.Id", "webRoot": "Silmoon.AspNetCore.Id/wwwroot" },
+    { "name": "Silmoon.Trading.Server", "repository": "../Silmoon.Trading.Server", "webRoot": "Silmoon.Trading.Server/wwwroot" },
+    { "name": "Snowfintech.AspNetCore.Portal", "repository": "../Snowfintech.AspNetCore.Portal", "webRoot": "Snowfintech.AspNetCore.Portal/wwwroot" },
+    { "name": "Silmoon.Blockchain.Service", "repository": "../Silmoon.Blockchain.Service", "webRoot": "Silmoon.Blockchain.TransactionHostServer/wwwroot" },
+    { "name": "Silmoon.AspNetCore.WebSite", "repository": "../Silmoon.AspNetCore.WebSite", "webRoot": "Silmoon.AspNetCore.WebSite/wwwroot" },
+    { "name": "Silmoon.AspNetCore.AppHub", "repository": "../Silmoon.AspNetCore.AppHub", "webRoot": "Silmoon.AspNetCore.AppHub/wwwroot" },
+    { "name": "Silmoon.Intelligence.KnowledgeServer", "repository": "../Silmoon.Intelligence.KnowledgeServer", "webRoot": "Silmoon.Intelligence.KnowledgeServer/wwwroot" }
+  ]
+}

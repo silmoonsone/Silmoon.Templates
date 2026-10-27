@@ -124,7 +124,7 @@ SignalR 默认未启用：`AddSignalR()`、Chat service 注册和两个 `MapHub`
 - cshtml：`Pages/Shared/_ModernColorLayout*.cshtml` + `Pages/ModernColorDemo.cshtml`。
 - Blazor：`Components/Layout/ModernColor/*.razor` + `RazorPages/Backend/`。
 - 公共核心：`wwwroot/css/modern-color-layout.css`、`wwwroot/js/modern-color-layout.js`。
-- Blazor 适配：`ModernColorLayoutInitializer.razor`、`modern-color-layout-blazor.js` 和 `site.js` 中的 `ScriptLoader`。
+- Blazor 适配：`ModernColorLayoutInitializer.razor` 集中声明 `Stylesheet` / `Script`，由 `site.js` 中的 `ScriptLoader` 加载核心脚本，再显式调用内置 `ModernColorLayout.initBlazor()`；无需单独适配器文件。
 
 当前是 `ModernColorLayout : LayoutComponentBase` 的单一 Blazor layout。模板指南中的 `UserLayout`、`AdminLayout`、`UserNavMenu` 等是扩展设计示例，不是当前已存在的文件。
 
@@ -150,6 +150,6 @@ SignalR 默认未启用：`AddSignalR()`、Chat service 注册和两个 `MapHub`
 | Blazor/render mode | `Program.cs`、`Components/App.razor`、`Routes.razor`、目标 `.razor`、JS interop 服务和静态资产 |
 | 上传 | `FileController.cs`、`WebApiController.cs`、`Views/File/`、Blazor upload components、`sm-upload.js/css`、存储与授权 |
 | SignalR | `Program.cs`、所选 Hub、`ChatService.cs`、`Views/Demo/SignalR.cshtml`、`libman.json` |
-| 现代颜色布局 | 对应 cshtml 或 Blazor layout、共享 CSS/JS、initializer/adapter、对应 `.markdown` 指南 |
+| 现代颜色布局 | 对应 cshtml 或 Blazor layout、共享 CSS/JS、initializer/initBlazor、对应 `.markdown` 指南 |
 
 修改后只验证受影响的链，但至少包含 inner Web 项目构建和一个真实入口的针对性运行检查。

@@ -2,15 +2,17 @@
 @inject IJSRuntime Js
 
 @code {
+    public const string Stylesheet = "/css/modern-color-layout.css?v=21";
+    public const string Script = "/js/modern-color-layout.js?v=10";
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             try
             {
-                await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout.js?v=6");
-                await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", "/js/modern-color-layout-blazor.js?v=1");
-                await Js.InvokeVoidAsync("ModernColorLayoutBlazor.init");
+                await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", Script);
+                await Js.InvokeVoidAsync("ModernColorLayout.initBlazor");
             }
             catch (JSException ex)
             {

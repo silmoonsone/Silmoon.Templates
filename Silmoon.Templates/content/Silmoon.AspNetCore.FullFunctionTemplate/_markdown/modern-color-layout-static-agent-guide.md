@@ -31,6 +31,8 @@ cshtml 现代颜色布局相关文件：
 
 cshtml 基础布局中的 viewport 使用 `minimum-scale=1.0`、`maximum-scale=1.0` 和 `user-scalable=no` 禁止页面缩放，`wwwroot/css/site.css` 再使用 `touch-action: pan-x pan-y` 保留单指滚动并抑制双指缩放和双击放大。应在基础布局和项目级样式中维护这项站点策略，不要为它修改现代颜色核心 CSS/JS 或添加重复的触摸事件脚本。
 
+`Pages/Shared/_ModernColorThemeButtons.cshtml` 统一维护主题三按钮。桌面调用 `<partial name="_ModernColorThemeButtons" model="@(false)" />`，菜单调用时传 `@(true)`。桌面组直接放在 `.content-wrapper` 内；菜单组留在菜单内。
+
 ## 3. 布局关系
 
 `_ModernColorLayout.cshtml` 使用 `_BlankLayout`：
@@ -67,6 +69,7 @@ cshtml 基础布局中的 viewport 使用 `minimum-scale=1.0`、`maximum-scale=1
 - `.menu-submenu`
 - `.theme-menu-buttons`
 - `.content-main`
+- `.modern-color-footer`（由基础布局输出，与菜单区域、正文同级）
 
 页面最终可以这样使用：
 
@@ -92,12 +95,14 @@ cshtml 基础布局中的 viewport 使用 `minimum-scale=1.0`、`maximum-scale=1
 
 自定义布局时应保留：
 
+- `.modern-color-menu-region`（包裹桌面菜单，限制吸附侧栏的滚动范围）
 - `nav id="menu"`
 - `.menu-item`
 - `.menu-group`
 - `.menu-submenu-toggle`
 - `.menu-submenu`
 - `.content-main`
+- `.modern-color-footer`（由基础布局输出，与菜单区域、正文同级）
 - `.theme-menu-btn`
 
 可以替换：
@@ -109,6 +114,23 @@ cshtml 基础布局中的 viewport 使用 `minimum-scale=1.0`、`maximum-scale=1
 - 页面主体内容。
 
 不要改变 `#content`、`#toggle-menu`、`.content-wrapper` 的层级关系，除非同时确认 CSS 和 JS 仍然能处理桌面端与移动端菜单。
+
+### 4.1 自定义页脚
+
+现代颜色外壳统一在正文之后输出 `footer.modern-color-footer`。默认内容来自 `Pages/Shared/_ModernColorFooter.cshtml`，修改该 partial 即可调整整个站点的版权文字和链接。页脚与 `.modern-color-menu-region`、`.content-main` 同为 `.content-wrapper` 的直接子元素；菜单放在 `.modern-color-menu-region` 内，让菜单顶部保持吸附，并在页脚进入视口时缩小菜单可滚动高度，页脚横跨包含菜单在内的整个布局宽度；空正文和短页面靠底，长页面随正文滚动，不能放进卡片或使用固定定位。
+
+单个页面可以通过 `Footer` section 替换默认内容，例如 `/ModernColorDemo` 使用的嵌套布局已支持转发：
+
+```cshtml
+@section Footer {
+    <span>© @DateTime.Now.Year 示例公司</span>
+    <nav class="modern-color-footer-links" aria-label="页脚导航">
+        <a href="~/">返回首页</a>
+    </nav>
+}
+```
+
+只提供页脚内容，不要再嵌套 `<footer>`。自建二级布局时，应像 `_ModernColorLayoutDemo.cshtml` 一样向基础壳转发 `Footer` section；没有自定义 section 时使用默认 partial。核心样式兼容没有页脚的旧布局；只有 `.content-wrapper` 直接包含 `.modern-color-footer` 时，才启用正文和页脚的网格布局。
 
 ## 5. 菜单和激活状态
 
@@ -269,9 +291,9 @@ cshtml 基础布局中的 viewport 使用 `minimum-scale=1.0`、`maximum-scale=1
 
 主题值保存在 `localStorage` 的 `modern-color-layout-theme`。
 
-移动端打开菜单时，脚本会把 `#menu` 移动到 `document.body`，让菜单在页面滚动后仍显示在 `#toggle-menu` 下方。切回桌面宽度后，脚本会把菜单移回 `.content-wrapper`。
+移动端打开菜单时，脚本会把 `#menu` 移动到 `document.body`，让菜单在页面滚动后仍显示在 `#toggle-menu` 下方。切回桌面宽度后，脚本会把菜单移回原桌面父容器，新布局中为 `.modern-color-menu-region`。
 
-不要写依赖 `#menu.parentElement` 永远等于 `.content-wrapper` 的代码。
+不要写依赖 `#menu.parentElement` 始终固定不变的代码。
 
 ### 8.1 局部导航和动态 DOM
 
@@ -281,7 +303,7 @@ cshtml 基础布局中的 viewport 使用 `minimum-scale=1.0`、`maximum-scale=1
 window.ModernColorLayout.refresh();
 ```
 
-`refresh()` 可以重复调用，会扫描当前页面中新出现的菜单、子菜单和主题按钮，并确保当前 DOM 的交互绑定有效且不会重复响应。框架自身的生命周期事件应在项目适配代码中订阅，再从适配代码调用 `refresh()`；不要把某个框架名称或对象直接写进 `modern-color-layout.js`。
+`refresh()` 可以重复调用，会扫描当前页面中新出现的菜单、子菜单和主题按钮，并确保当前 DOM 的交互绑定有效且不会重复响应。Blazor 页面可显式调用同一核心中的 `ModernColorLayout.initBlazor()`；其他框架由项目适配代码订阅生命周期事件后调用 `refresh()`。
 
 例如，项目已有统一的页面更新事件时可以这样接入：
 
@@ -343,3 +365,9 @@ document.addEventListener("page:updated", function () {
 - 局部替换菜单或正文 DOM 后调用 `ModernColorLayout.refresh()`，新元素交互有效且已有元素不会重复响应。
 - `dotnet build --no-restore` 通过。
 - 文档和代码保持 UTF-8 BOM 与 CRLF。
+
+## 核心资源同步与发布
+
+通用核心源位于 Silmoon.Templates 的模板 `wwwroot`。在相邻 Silmoon.Templates 仓库运行 `node tools/modern-color/manage.cjs --check` 检查全部引用目标；确认通用改动后运行 `--write` 同步。目标清单与可选压缩发布包见[现代颜色同步工具](../../../../tests/ModernColor/README.md)。业务菜单、页脚内容、布局组件和项目专用覆盖样式由各项目维护，不由资产同步覆盖。
+
+Blazor 的资源版本由 `ModernColorLayoutInitializer` 集中管理，当前为 CSS v21、核心 JS v10；cshtml 继续使用 `asp-append-version` 内容哈希。发布压缩使用工具产物，源文件保持可读。新的布局应直接将桌面 `.theme-toggle-group` 渲染在 `.content-wrapper` 内；核心 JS 移动旧位置的处理仅用于旧布局兼容。

@@ -1,0 +1,15 @@
+{
+  "name": "modern-color-maintenance",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check": "node manage.cjs --check",
+    "sync": "node manage.cjs --write",
+    "build": "node manage.cjs --build",
+    "test": "node --test tooling.test.cjs"
+  },
+  "devDependencies": {
+    "clean-css": "5.3.3",
+    "terser": "5.51.2"
+  }
+}
