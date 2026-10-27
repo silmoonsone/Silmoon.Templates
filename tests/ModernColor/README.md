@@ -2,6 +2,8 @@
 
 共享核心以当前模板 `Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/wwwroot` 为维护源。`tools/modern-color/manifest.json` 明确列出 9 个仓库及其静态资源目录；只有 CSS 和核心 JS 受工具管理。账户菜单、认证、本地化、交易工作区和品牌页脚仍由各项目维护，不由工具覆盖。
 
+通用 Blazor 控件采用独立接入范围，当前模板及 11 个接收项目见[控件指南](../../Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。`--check`／`--write` 不检查或复制组件、`site.js`、宿主引用、隔离样式 bundle、图标和文档；核心 18 份资源一致不代表这部分已同步。按控件指南逐项迁移并保留各项目宿主差异。
+
 ## 检查与同步
 
 在 Silmoon.Templates 仓库根目录运行，仅需要 Node.js：

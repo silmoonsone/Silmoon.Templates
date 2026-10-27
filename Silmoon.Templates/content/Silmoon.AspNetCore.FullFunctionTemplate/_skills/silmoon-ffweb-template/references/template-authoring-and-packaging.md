@@ -90,4 +90,5 @@
 - 包中不含本地配置、Data Protection key、IDE 用户文件、日志或其他秘密。
 - `.template.config` 的 identity、short name、`sourceName`、文件替换和随机端口与源内容一致。
 - 生成项目包含 `_skills/silmoon-ffweb-template/` 下的 `SKILL.md`、`agents/openai.yaml` 与参考文档，并保持 UTF-8 BOM 和 CRLF。
+- 通用控件的同名 Razor/CSS/JS、值类型和 `site.js` 通用模块加载入口一并进入生成项目；包 README 与项目内 `_markdown` 手册使用相同接入约定，链接在生成目录中仍可解析。源码手册已更新不等同于新包已发布。
 - 最终差异没有覆盖用户已有的包版本或无关文件。

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
@@ -15,6 +16,9 @@ var contracts = new (string Name, Func<Task> Run)[]
     ("EnumSelect dynamic Disabled", EnumSelectDisabledContract),
     ("EnumSelect display metadata and undefined values", EnumSelectDisplayContract),
     ("EnumSelect rendered disposal releases EditContext subscriptions", EnumSelectDisposalContract),
+    ("DropdownSelect value binding and disabled selection", DropdownSelectValueContract),
+    ("DropdownSelect SSR links and disabled fallback", DropdownSelectLinkContract),
+    ("ConfirmDialog component-owned module loading", ConfirmDialogLoadingContract),
     ("TimeInput end-of-day parsing and formatting", TimeInputEndOfDayContract)
 };
 var failures = 0;
@@ -105,6 +109,82 @@ static Task EnumSelectDisplayContract()
         Require((string?)InvokeStatic(componentType, "GetDescription", value) == string.Empty, "An undefined enum value must have an empty description.");
     }
     return Task.CompletedTask;
+}
+
+static async Task DropdownSelectValueContract()
+{
+    var picker = new DropdownSelect<int>();
+    var first = new DropdownSelectOption<int> { Value = 1, Text = "First" };
+    var second = new DropdownSelectOption<int> { Value = 2, Text = "Second" };
+    var unavailable = new DropdownSelectOption<int> { Value = 3, Text = "Unavailable", Disabled = true };
+    var callbacks = new List<int>();
+    Set(picker, nameof(picker.Items), new[] { first, second, unavailable });
+    Set(picker, nameof(picker.Value), first.Value);
+    Set(picker, nameof(picker.ValueChanged), EventCallback.Factory.Create<int>(callbacks, (Action<int>)(value =>
+    {
+        callbacks.Add(value);
+        Set(picker, nameof(picker.Value), value);
+    })));
+
+    await InvokeAsync(picker, "SelectOption", first);
+    Require(callbacks.Count == 0, "Selecting the bound value must not emit ValueChanged.");
+    await InvokeAsync(picker, "SelectOption", second);
+    Require(picker.Value == second.Value && callbacks.SequenceEqual(new[] { second.Value }), "Selection must update the parent binding exactly once.");
+    await InvokeAsync(picker, "SelectOption", second);
+    await InvokeAsync(picker, "SelectOption", unavailable);
+    Set(picker, nameof(picker.Disabled), true);
+    await InvokeAsync(picker, "SelectOption", first);
+    Require(picker.Value == second.Value && callbacks.Count == 1, "Same-value, disabled-option and queued disabled-component selections must not update the binding.");
+    Set(picker, nameof(picker.Disabled), false);
+    await InvokeAsync(picker, "SelectOption", first);
+    Require(picker.Value == first.Value && callbacks.SequenceEqual(new[] { second.Value, first.Value }), "Re-enabling must restore selection and the parent callback.");
+}
+
+static async Task DropdownSelectLinkContract()
+{
+    using var services = new ServiceCollection().AddSingleton<NavigationManager>(new TestNavigation()).BuildServiceProvider();
+    await using var renderer = new HtmlRenderer(services, NullLoggerFactory.Instance);
+    var items = new[]
+    {
+        new DropdownSelectOption<string> { Value = "docs", Text = "Documentation", Href = "/docs" },
+        new DropdownSelectOption<string> { Value = "restricted", Text = "Restricted", Href = "/restricted", Disabled = true }
+    };
+    async Task<string> Render(bool disabled) => await renderer.Dispatcher.InvokeAsync(async () =>
+    {
+        var rendered = await renderer.RenderComponentAsync<DropdownSelect<string>>(ParameterView.FromDictionary(new Dictionary<string, object?>
+        {
+            [nameof(DropdownSelect<string>.Items)] = items,
+            [nameof(DropdownSelect<string>.Value)] = "docs",
+            [nameof(DropdownSelect<string>.Disabled)] = disabled
+        }));
+        return rendered.ToHtmlString();
+    });
+
+    var enabledHtml = await Render(false);
+    Require(enabledHtml.Contains("<silmoon-module src=\"https://example.test/nested-app/Components/DropdownSelect.razor.js?v=2\""), "SSR must declare its own module with the application base path, including on deep cshtml routes without a base tag.");
+    Require(Regex.IsMatch(enabledHtml, "<a\\b[^>]*href=\"/docs\""), "SSR must emit a real href so an enabled option works without interactive rendering.");
+    Require(!enabledHtml.Contains("href=\"/restricted\"") && Regex.Matches(enabledHtml, @"<button\b[^>]*\bdisabled(?:\s|=|>)").Count == 1, "A disabled link option must render as a disabled button without a navigable href.");
+    var disabledHtml = await Render(true);
+    Require(!Regex.IsMatch(disabledHtml, @"<a\b") && Regex.Matches(disabledHtml, @"<button\b[^>]*\bdisabled(?:\s|=|>)").Count == items.Length, "Disabling the whole component must turn every link into a disabled button.");
+}
+
+static async Task ConfirmDialogLoadingContract()
+{
+    var js = new ConfirmJsRuntime();
+    var navigation = new TestNavigation();
+    using var services = new ServiceCollection().AddSingleton<NavigationManager>(navigation).AddSingleton<IJSRuntime>(js).BuildServiceProvider();
+    await using var renderer = new HtmlRenderer(services, NullLoggerFactory.Instance);
+    var html = await renderer.Dispatcher.InvokeAsync(async () => (await renderer.RenderComponentAsync<ConfirmDialog>()).ToHtmlString());
+    Require(js.Calls.Count == 0, "Static rendering must not invoke JavaScript interop.");
+    Require(html.Contains("<silmoon-module src=\"https://example.test/nested-app/Components/ConfirmDialog.razor.js?v=4\""), "The static template must declare the same module URL as interactive calls.");
+    Require(html.Contains("data-module-src=\"https://example.test/nested-app/Components/ConfirmDialog.razor.js?v=4\""), "Native callers must be able to await the component-declared module without maintaining its path or version.");
+
+    await using var dialog = new ConfirmDialog();
+    Set(dialog, "Js", js);
+    Set(dialog, "Navigation", navigation);
+    Require(await dialog.ConfirmAsync("First") && await dialog.ConfirmAsync("Second"), "Both calls must await the module before invoking the confirmation API.");
+    Require(js.Calls.Select(call => call.Identifier).SequenceEqual(new[] { "import", "SiteDialogs.confirm", "SiteDialogs.confirm" }), "Repeated confirmation calls must import once and preserve the public API.");
+    Require((string?)js.Calls[0].Arguments?[0] == "https://example.test/nested-app/Components/ConfirmDialog.razor.js?v=4", "Interactive import and the static declaration must share the absolute module URL.");
 }
 
 static Task TimeInputEndOfDayContract()
@@ -230,4 +310,24 @@ sealed class DisposalJsModule(string mode) : IJSRuntime, IJSObjectReference
         return ValueTask.FromResult(default(TValue)!);
     }
     public ValueTask DisposeAsync() { DisposeCalls++; return ValueTask.CompletedTask; }
+}
+
+sealed class TestNavigation : NavigationManager
+{
+    public TestNavigation() => Initialize("https://example.test/nested-app/", "https://example.test/nested-app/deep/page");
+    protected override void NavigateToCore(string uri, bool forceLoad) => throw new NotSupportedException();
+}
+
+sealed class ConfirmJsRuntime : IJSRuntime
+{
+    public List<(string Identifier, object?[]? Arguments)> Calls { get; } = [];
+    readonly IJSObjectReference Module = new DisposalJsModule("imported");
+    public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args) => InvokeAsync<TValue>(identifier, CancellationToken.None, args);
+    public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+    {
+        Calls.Add((identifier, args));
+        if (identifier == "import") return ValueTask.FromResult((TValue)(object)Module);
+        if (identifier == "SiteDialogs.confirm") return ValueTask.FromResult((TValue)(object)true);
+        return ValueTask.FromResult(default(TValue)!);
+    }
 }

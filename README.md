@@ -22,9 +22,11 @@ sone@silmoon.com
 
 ## Blazor 通用控件
 
-模板内置确认对话框、日期范围选择器、枚举选择、逻辑目录树、时间输入和可定制品牌的表单卡片。运行生成项目后访问 `/backend/components-demo` 查看交互示例。
+模板内置确认对话框、通用下拉选择、日期范围选择器、枚举选择、逻辑目录树、时间输入和可定制品牌的表单卡片。运行生成项目后访问 `/backend/components-demo` 查看交互示例。
 
 接入方式见 [Blazor 通用控件说明](Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。
+
+确认框和通用下拉框在组件内声明自己的模块，宿主保留 `site.js` 通用加载入口、隔离样式和图标即可，不再在 `App.razor` 或静态布局逐个引用组件脚本。已有项目迁移时，按指南同步配套文件、加载入口和缓存引用；当前源码更改不表示已发布到 NuGet。
 
 ## 现代颜色框架维护
 
@@ -36,3 +38,5 @@ node tools/modern-color/manage.cjs --write
 ```
 
 检查、同步、发布压缩包与回归验证见 [维护工具说明](tests/ModernColor/README.md)。工具保留可读源码与各项目业务布局，不操作 Git 暂存区，不提交或部署。
+
+上述 9 项清单只管理现代颜色核心 CSS/JS；通用 Blazor 控件的 12 个已确认项目、宿主差异和手动迁移步骤另见[控件指南](Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。`--write` 不会同步组件、`site.js` 或文档。

@@ -1,7 +1,8 @@
 ﻿@implements IAsyncDisposable
 @inject IJSRuntime Js
+@inject NavigationManager Navigation
 
-<template @ref="TemplateElement" id="@Id" data-permanent>
+<template @ref="TemplateElement" id="@Id" data-module-src="@ModuleUrl" data-permanent>
     <dialog class="site-confirm-dialog" aria-labelledby="@(Id + "-title")" aria-describedby="@(Id + "-message")">
         <header class="site-confirm-header">
             <h2 id="@(Id + "-title")" data-confirm-title>确认操作</h2>
@@ -15,6 +16,7 @@
         </footer>
     </dialog>
 </template>
+<silmoon-module src="@ModuleUrl" hidden></silmoon-module>
 
 @code {
     [Parameter] public string Id { get; set; } = "confirm-dialog-" + Guid.NewGuid().ToString("N");
@@ -23,6 +25,7 @@
     ElementReference TemplateElement { get; set; }
     Task<IJSObjectReference>? ModuleTask { get; set; }
     bool Disposed { get; set; }
+    string ModuleUrl => Navigation.ToAbsoluteUri("Components/ConfirmDialog.razor.js?v=4").AbsoluteUri;
 
     public async Task<bool> ConfirmAsync(string message, string title = "确认操作", string confirmText = "确认", string cancelText = "取消", bool danger = false)
     {
@@ -40,7 +43,7 @@
     async Task EnsureModuleAsync()
     {
         ObjectDisposedException.ThrowIf(Disposed, this);
-        ModuleTask ??= Js.InvokeAsync<IJSObjectReference>("import", "./Components/ConfirmDialog.razor.js?v=4").AsTask();
+        ModuleTask ??= Js.InvokeAsync<IJSObjectReference>("import", ModuleUrl).AsTask();
         await ModuleTask;
         ObjectDisposedException.ThrowIf(Disposed, this);
     }

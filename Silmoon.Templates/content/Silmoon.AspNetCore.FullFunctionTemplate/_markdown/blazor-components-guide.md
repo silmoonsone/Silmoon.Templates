@@ -4,11 +4,44 @@
 
 ## 接入条件
 
-- 使用模板现有的 Interactive Server 注册，在交互式页面中放置控件；静态 SSR 本身不会执行 Blazor 事件和 JS 生命周期。`AuthFormCard` 只提供外观，可以用于静态内容。
-- 不需要新增 DI 服务。确认框、日期范围、枚举和目录控件会在交互阶段加载自己的同名 `.razor.js`，移除时释放监听或取消等待。
+- 使用 `@bind-Value`、`ValueChanged` 或组件引用方法时，需要模板现有的 Interactive Server 渲染。静态 SSR 不执行 Blazor 事件和 `OnAfterRenderAsync`，但 `DropdownSelect` 的真实 `Href`、原生 JS 调用的确认框及纯外观的 `AuthFormCard` 可用于静态内容。
+- 不需要新增 DI 服务。确认框和通用下拉框在组件内部用隐藏的 `silmoon-module` 声明同名 `.razor.js`，由现有 `wwwroot/js/site.js` 注册的通用加载入口按组件出现时导入；初次静态 SSR、cshtml、增强导航和交互插入均适用。`App.razor`、`_BlankLayout.cshtml` 不再逐个引用组件脚本。日期范围、枚举和目录控件保留自己的交互阶段导入与释放逻辑。
 - 保留 `Components/App.razor` 引用的应用隔离样式 bundle、Bootstrap 和 Bootstrap Icons。复制组件时也要携带同名 `.razor.css`、`.razor.js` 及所用值类型；枚举和目录选择器还依赖 `wwwroot/js/picker-popover.js`，不能只复制 `.razor`。
+- 复制确认框或通用下拉框时，还需保留宿主的 `site.js` 通用模块加载入口。组件使用 `NavigationManager` 生成带应用基路径的绝对模块地址；多实例共享浏览器模块缓存，移除实例不会卸载页面级共享模块。导入失败会记录控制台错误。
 - 控件使用现代颜色布局的 CSS 变量。按 [Blazor 布局指南](modern-color-layout-blazor-agent-guide.md) 加载主题；换用其他布局时提供相应的文字、背景、边框、焦点和 `--control-color-scheme` 变量。业务样式放在独立文件，勿改共享主题核心来适配单页。
 - `EnumSelect` 和 `TimeInput` 继承 `InputBase<T>`，支持 `EditForm`、`ValidationMessage`、附加 HTML 属性及 `@bind-Value`。示例将它们放在 `EditForm` 中。
+
+## 复制与旧项目迁移
+
+1. 下拉框一起复制 `DropdownSelect.razor`、`.razor.css`、`.razor.js` 和 `DropdownSelectOption.cs`；确认框一起复制同名三文件和 `ConfirmDialogResult.cs`。适配目标命名空间，保留其本地化参数与业务封装，不把 `LanguageSelector` 或业务接口带入通用组件。
+2. 将模板 `site.js` 中注册 `silmoon-module` 的通用代码合入目标现有 `site.js`。保留目标原有脚本和 `ScriptLoader`，不要整文件覆盖。每个使用组件的宿主只需加载一次 `site.js`，包括 cshtml/MVC 静态壳。
+3. 保留应用隔离样式 bundle 和 Bootstrap Icons；图标依赖通过目标 `libman.json` 恢复。迁移后检查 CSS 和字体文件，不能只修改依赖声明。
+4. 移除 `App.razor`、`_BlankLayout`、`_ModernColorLayout` 等入口中这两个组件的专用 `<script>`。保留组件内模块声明及确认框的方法内等待导入；不要改为只在 `OnAfterRenderAsync` 加载，否则纯静态 SSR 会失效。
+5. 更新 `site.js` 的缓存引用：cshtml 沿用 `asp-append-version`，采用 `@Assets` 的宿主保留其指纹机制，其余宿主更新现有查询版本。组件模块版本只在组件声明中维护。组件目录变化时，同时调整内部模块路径；`.razor` 不会展开 `~/`，静态 cshtml 也不一定有 `<base>`。
+6. 检查首次完整加载、无控件页增强导航到有控件页、交互绑定、静态链接、多实例和慢速模块加载。静态页要确认菜单实际可打开，不能只检查生成了 `href`。出现控件并不会自动启用项目尚未注册的 Blazor 服务或渲染模式。
+
+现代颜色 `manage.cjs --write` 只同步核心 CSS/JS，不处理上述组件、模块入口、样式 bundle、缓存版本或本手册。复制控件也不要求复制整个现代颜色布局；可复用现有主题变量和宿主。
+
+### 已确认接入范围（2026-10-28）
+
+下表记录模板及 11 个接收项目的源码接入范围；不表示它们具有相同组件集，也不表示所有项目都已通过完整构建。Hybrid 不在本次范围内。各项目的业务菜单、认证、本地化和页脚内容继续由各项目维护。
+
+| 仓库 / Web 项目 | 本次控件及宿主差异 |
+| --- | --- |
+| Silmoon.Templates / 模板内容根 | `DropdownSelect`、`ConfirmDialog`；`Components/App.razor` 与 `Pages/Shared/_BlankLayout.cshtml` |
+| Silmoon.Trading.Server / Silmoon.Trading.Server | 两个通用控件；保留 `CloseLabel`、`LanguageSelector` 和原生 WebTrade 确认流程，本地化手册以该项目为准 |
+| Snowfintech.AspNetCore.Portal / Snowfintech.AspNetCore.Portal | `DropdownSelect`；App 和 cshtml 宿主 |
+| Silmoon.AspNetCore.AppHub / Silmoon.AspNetCore.AppHub | `DropdownSelect`；App 和 cshtml 宿主 |
+| Silmoon.Blockchain.Service / Silmoon.Blockchain.TransactionHostServer | `DropdownSelect`；App 和 cshtml 宿主 |
+| Huobao.AspNetCore.CenterServer / Huobao.AspNetCore.CenterServer | `DropdownSelect`；App 和 MVC Views 宿主 |
+| Silmoon.AspNetCore.Api / Silmoon.AspNetCore.Api | `DropdownSelect`；App 和 cshtml 宿主 |
+| Silmoon.AspNetCore.Blockchain / Silmoon.AspNetCore.Blockchain | `DropdownSelect`；App 和 cshtml 宿主 |
+| Silmoon.AspNetCore / Silmoon.AspNetCore.Test | `DropdownSelect`；属于测试 Web 项目源码，不是类库 NuGet 导出的组件 |
+| Silmoon.Cloudflare / Silmoon.Cloudflare.WebTesting | `DropdownSelect`；属于测试 Web 项目源码，不是 Cloudflare SDK 导出的组件 |
+| Silmoon.Data / BlazorAppTest | `DropdownSelect`；保留 `@Assets`、`ImportMap` 和 `MapStaticAssets` 的静态资产机制 |
+| Silmoon.AspNetCore.Url / Silmoon.AspNetCore.Url | `DropdownSelect` 位于 `RazorComponents`，模块地址随目录适配；MVC `<component>` 使用 `Server`／`Static`，现有交互脚本为 `blazor.server.js`，没有 `App.razor` |
+
+接收项目没有本手册副本时，以模板指南为通用接入说明；已有项目手册只维护自身差异和链接，无需为每个项目再复制整套手册。未启用 Blazor 或只有现代颜色核心的项目不因为核心资源同步而获得这些控件。
 
 ## ConfirmDialog：等待明确选择
 
@@ -35,9 +68,12 @@
 - 用户等待不受默认一分钟 JS interop 超时限制；取消、Esc、关闭、页面离开或实例释放结束等待。一个页面同时只显示一个确认框，其他实例发起的并发调用返回取消。
 - 标题、正文、按钮文字为纯文本。调用失败会抛出异常，调用方应显示错误并停止操作；可复用既有 `AlertComponent`。原生 `<dialog>` 是模态窗口，不能依靠点击背景按钮移除已打开的实例。
 
-模板的 `App.razor` 放置全局 `Id="site-confirm-dialog-template"` 模板并加载同源脚本。普通浏览器 JS 可继续调用：
+模板的 `App.razor` 仍放置全局 `Id="site-confirm-dialog-template"` 模板，因此使用该宿主的页面都有一个确认框实例，模块由该实例加载。`ConfirmAsync` / `ChooseAsync` 也会等待同一模块，避免刚渲染便调用时的竞态。普通浏览器 JS 若需立即调用，可从模板声明读取模块地址后等待导入，无须在调用方维护路径和版本：
 
 ```javascript
+const lifetime = new AbortController(); // 由宿主在页面或实例销毁时调用 lifetime.abort()。
+const template = document.getElementById("site-confirm-dialog-template");
+await import(template.dataset.moduleSrc);
 const accepted = await window.SiteDialogs.confirm({
     title: "确认操作", message: "是否继续？", danger: false,
     signal: lifetime.signal
@@ -49,6 +85,42 @@ const choice = await window.SiteDialogs.choose({
 ```
 
 `signal` 是可选 `AbortSignal`，由调用方持有 `AbortController` 并在销毁时取消。`SiteDialogs.dismiss(templateId)` 只取消指定模板的等待。Blazor 页面可使用自己的实例，无需通过全局模板调用。
+
+## DropdownSelect：通用下拉选择
+
+```razor
+<DropdownSelect TValue="string" Items="Options" @bind-Value="Selected" Label="显示方式" />
+
+@code {
+    string Selected { get; set; } = "list";
+    IReadOnlyList<DropdownSelectOption<string>> Options { get; } = [
+        new() { Value = "list", Text = "列表" },
+        new() { Value = "card", Text = "卡片" }
+    ];
+}
+```
+
+- 普通选项通过 `Value` / `ValueChanged` 或 `@bind-Value` 更新；需要交互渲染，不依赖任何语言或业务服务。
+- `DropdownSelectOption<TValue>.Href` 输出真实链接，可用于纯静态 SSR。链接选择不触发 `ValueChanged`；`Disabled` 选项及整个禁用的控件不会输出可跳转链接。
+- 选项支持 `Text`、`Language`、`Direction`、`Disabled`；控件支持 `Placeholder`、`IconClass`、`Class`、`OpenUpward`、`EnhanceNavigation`（默认 `true`）及附加 HTML 属性。
+- 面板使用原生 Popover 顶层，保留在组件 DOM 中以维持 Blazor 事件，避免被卡片裁切。支持上下方向键、Home、End、Escape、外部点击关闭和多实例互斥；旧浏览器回退为普通定位。
+- 脚本只在控件出现后加载；下载期间提前打开的菜单会在模块就绪后补齐定位。没有使用该控件的页面不请求它的脚本。
+
+cshtml/MVC 中的纯链接示例（宿主需具备 Razor 组件服务及 Component Tag Helper）：
+
+```cshtml
+@using Silmoon.AspNetCore.FullFunctionTemplate.Components
+@{
+    var links = new[] {
+        new DropdownSelectOption<string> { Value = "docs", Text = "文档", Href = "/docs" },
+        new DropdownSelectOption<string> { Value = "help", Text = "帮助", Href = "/help" }
+    };
+}
+<component type="typeof(DropdownSelect<string>)" render-mode="Static"
+           param-Items="links" param-Value='@("docs")' param-Label='@("导航")' />
+```
+
+此例不需要启动 Blazor 交互脚本，但需要共同的 `site.js` 和组件样式；在深路径或子路径部署时，业务 `Href` 也应由宿主生成正确地址。`Static` 不支持 `ValueChanged`，需要回调时按目标项目现有模式改为交互宿主；旧 Blazor Server 项目使用 `Server`，不能机械替换为 Blazor Web App 的初始化方式。
 
 ## DateTimeRangePicker：日期或日期时间范围
 

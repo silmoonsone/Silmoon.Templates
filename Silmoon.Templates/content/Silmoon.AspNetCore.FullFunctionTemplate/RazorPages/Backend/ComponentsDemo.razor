@@ -50,6 +50,17 @@
     </div>
 </section>
 
+<section class="card p-4 mb-4" aria-labelledby="dropdown-heading">
+    <h2 id="dropdown-heading" class="h4">通用下拉选择</h2>
+    <p class="text-secondary">值选项更新当前显示方式；链接选项直接跳转。两个实例可独立使用。</p>
+    <div class="d-flex flex-wrap align-items-center gap-3">
+        <DropdownSelect TValue="string" Items="DropdownOptions" @bind-Value="DropdownValue" Label="显示密度" Disabled="@DropdownDisabled" />
+        <DropdownSelect TValue="string" Items="DropdownLinks" Value='@("inputs")' Label="示例导航" IconClass="bi bi-link-45deg" />
+        <label class="form-check-label"><input class="form-check-input me-2" type="checkbox" @bind="DropdownDisabled" />禁用值选择</label>
+    </div>
+    <output class="d-block mt-3" aria-live="polite">当前值：@DropdownValue</output>
+</section>
+
 <section class="card p-4 mb-4" aria-labelledby="input-heading">
     <h2 id="input-heading" class="h4">枚举与时间输入</h2>
     <EditForm Model="Form" OnValidSubmit="SaveForm" FormName="components-demo-form">
@@ -142,6 +153,17 @@
 </details>
 
 @code {
+    string DropdownValue { get; set; } = "comfortable";
+    bool DropdownDisabled { get; set; }
+    DropdownSelectOption<string>[] DropdownOptions { get; } = [
+        new() { Value = "comfortable", Text = "舒适" },
+        new() { Value = "compact", Text = "紧凑" },
+        new() { Value = "unavailable", Text = "暂不可用", Disabled = true }
+    ];
+    DropdownSelectOption<string>[] DropdownLinks { get; } = [
+        new() { Value = "inputs", Text = "枚举与时间", Href = "#input-heading" },
+        new() { Value = "folders", Text = "逻辑目录", Href = "#folder-heading" }
+    ];
     ConfirmDialog? Dialog { get; set; }
     ConfirmDialog? SecondDialog { get; set; }
     bool ShowDialog { get; set; } = true;

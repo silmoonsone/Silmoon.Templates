@@ -2,7 +2,7 @@
 
 本文给 Codex 或其他 AI Agent 使用，说明如何在当前项目的 Razor Pages cshtml 页面中使用现代颜色布局。
 
-本说明只针对当前项目的 cshtml/Razor Pages 结构，不说明 Blazor 用法。Blazor 页面请阅读同目录的 `modern-color-layout-blazor-agent-guide.md`。
+本说明针对当前项目的 cshtml/Razor Pages 结构。Blazor 页面布局请阅读同目录的 `modern-color-layout-blazor-agent-guide.md`；cshtml 内嵌通用 Razor 控件的接入见下文及[通用控件指南](blazor-components-guide.md)。
 
 ## 1. 项目定位
 
@@ -86,6 +86,14 @@ cshtml 基础布局中的 viewport 使用 `minimum-scale=1.0`、`maximum-scale=1
 ```
 
 ## 4. 自定义业务布局
+
+### 在静态布局中嵌入通用控件
+
+`_BlankLayout.cshtml` 提供带 `asp-append-version` 的 `site.js`、应用隔离样式和 Bootstrap Icons。`ConfirmDialog`、`DropdownSelect` 在组件内通过 `silmoon-module` 声明专用模块，`site.js` 的通用入口负责导入；不要在 `_BlankLayout` 或 `_ModernColorLayout` 再添加它们的专用 `<script>`，也不要把控件加载逻辑并入现代颜色核心。
+
+静态呈现的 `DropdownSelect` 可使用真实 `Href`；`ValueChanged` 需要交互宿主。原生 JS 调用确认框时，先从对应 `<template>` 的 `data-module-src` 读取地址并等待导入。加载方式不依赖 Blazor 启动或 `<base>`，但宿主仍需注册 Razor 组件服务、加载通用入口和组件样式。完整示例、迁移及旧 Blazor Server 差异见[通用控件指南](blazor-components-guide.md)。
+
+### 业务布局结构
 
 `_ModernColorLayoutDemo.cshtml` 是示例布局，不要求业务项目原样保留。实际项目可以复制它并新建自己的后台布局，例如：
 
@@ -368,6 +376,6 @@ document.addEventListener("page:updated", function () {
 
 ## 核心资源同步与发布
 
-通用核心源位于 Silmoon.Templates 的模板 `wwwroot`。在相邻 Silmoon.Templates 仓库运行 `node tools/modern-color/manage.cjs --check` 检查全部引用目标；确认通用改动后运行 `--write` 同步。目标清单与可选压缩发布包见[现代颜色同步工具](../../../../tests/ModernColor/README.md)。业务菜单、页脚内容、布局组件和项目专用覆盖样式由各项目维护，不由资产同步覆盖。
+通用核心源位于 Silmoon.Templates 的模板 `wwwroot`。在相邻 Silmoon.Templates 仓库运行 `node tools/modern-color/manage.cjs --check` 检查全部引用目标；确认通用改动后运行 `--write` 同步。目标清单与可选压缩发布包见[现代颜色同步工具](https://github.com/silmoonsone/Silmoon.Templates/blob/master/tests/ModernColor/README.md)。工具只覆盖核心 CSS/JS；业务菜单、页脚内容、布局组件、`site.js`、通用控件和文档不由资产同步覆盖。控件迁移另按[通用控件指南](blazor-components-guide.md)检查。
 
 Blazor 的资源版本由 `ModernColorLayoutInitializer` 集中管理，当前为 CSS v21、核心 JS v10；cshtml 继续使用 `asp-append-version` 内容哈希。发布压缩使用工具产物，源文件保持可读。新的布局应直接将桌面 `.theme-toggle-group` 渲染在 `.content-wrapper` 内；核心 JS 移动旧位置的处理仅用于旧布局兼容。

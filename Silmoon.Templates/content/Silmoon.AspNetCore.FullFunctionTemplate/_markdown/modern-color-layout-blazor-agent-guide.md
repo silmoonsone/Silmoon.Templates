@@ -35,7 +35,7 @@ Blazor 现代颜色布局通常涉及以下文件。应根据项目复杂度选�
 - `wwwroot/css/modern-color-layout.css`：现代颜色布局核心样式。
 - `wwwroot/css/site.css`：项目级全局样式，包含手机端触摸缩放策略，不属于现代颜色核心样式。
 - `wwwroot/js/modern-color-layout.js`：现代颜色布局核心脚本，公开可重复调用的 `ModernColorLayout.refresh()`，静态页面可独立运行；可选 `initBlazor()` 入口负责增强导航适配。
-- `wwwroot/js/site.js`：项目脚本，包含通用 `ScriptLoader`。
+- `wwwroot/js/site.js`：项目脚本，包含通用 `ScriptLoader` 及 `silmoon-module` 组件模块加载入口；后者按组件声明导入模块，支持静态 SSR 和增强导航。
 
 如果项目已有 `MainLayout.razor`、`NavMenu.razor` 和对应隔离样式，并且希望保留原始模板文件，可以把现代颜色相关文件集中在独立子目录中，再从 `Routes.razor` 显式指定新的默认布局。不要仅为了引入现代颜色框架删除原布局文件。
 
@@ -213,6 +213,8 @@ builder.Services.AddJsSilmoonAuthInterop();
 不要在 `Components/App.razor` 中直接引用 `modern-color-layout.css` 或 `modern-color-layout.js`。
 
 `Components/App.razor` 可以引用 Bootstrap、Bootstrap Icons、项目样式、公共脚本和 `js/site.js`。`site.js` 提供通用 `ScriptLoader.ensureLoaded(src)`，由 `ModernColorLayoutInitializer.razor` 加载其 `Script` 常量指向的 `/js/modern-color-layout.js`，然后调用同一核心中的可选 `ModernColorLayout.initBlazor()`。
+
+通用控件使用同一 `site.js` 中的另一入口：`ConfirmDialog`、`DropdownSelect` 在组件内用 `silmoon-module` 声明模块，组件出现后才导入，多实例由浏览器模块缓存复用。`App.razor` 不再引用它们的专用脚本。静态 SSR 不执行 `OnAfterRenderAsync`，不能仅用交互生命周期替代这个入口；普通值绑定仍需要交互渲染，真实 `Href` 链接可静态呈现。配套文件、缓存更新、原生确认调用和旧宿主差异见[通用控件指南](blazor-components-guide.md)，不要用现代颜色 `ScriptLoader` 初始化器代替控件加载。
 
 `Components/App.razor` 中的 viewport 应包含 `minimum-scale=1.0`、`maximum-scale=1.0` 和 `user-scalable=no`，`wwwroot/css/site.css` 再使用 `touch-action: pan-x pan-y` 保留单指滚动并抑制双指缩放和双击放大。应在应用外壳和项目级样式中维护这项站点策略，不要为它修改现代颜色核心 CSS/JS 或添加重复的触摸事件脚本。
 
@@ -553,6 +555,6 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 
 ## 核心资源同步与发布
 
-通用核心源位于 Silmoon.Templates 的模板 `wwwroot`。在相邻 Silmoon.Templates 仓库运行 `node tools/modern-color/manage.cjs --check` 检查全部引用目标；确认通用改动后运行 `--write` 同步。目标清单与可选压缩发布包见[现代颜色同步工具](../../../../tests/ModernColor/README.md)。业务菜单、页脚内容、布局组件和项目专用覆盖样式由各项目维护，不由资产同步覆盖。
+通用核心源位于 Silmoon.Templates 的模板 `wwwroot`。在相邻 Silmoon.Templates 仓库运行 `node tools/modern-color/manage.cjs --check` 检查全部引用目标；确认通用改动后运行 `--write` 同步。目标清单与可选压缩发布包见[现代颜色同步工具](https://github.com/silmoonsone/Silmoon.Templates/blob/master/tests/ModernColor/README.md)。工具只覆盖核心 CSS/JS；业务菜单、页脚内容、布局组件、`site.js`、通用控件和文档不由资产同步覆盖。控件迁移另按[通用控件指南](blazor-components-guide.md)检查。
 
 Blazor 的资源版本由 `ModernColorLayoutInitializer` 集中管理，当前为 CSS v21、核心 JS v10；cshtml 继续使用 `asp-append-version` 内容哈希。发布压缩使用工具产物，源文件保持可读。新的布局应直接将桌面 `.theme-toggle-group` 渲染在 `.content-wrapper` 内；核心 JS 移动旧位置的处理仅用于旧布局兼容。

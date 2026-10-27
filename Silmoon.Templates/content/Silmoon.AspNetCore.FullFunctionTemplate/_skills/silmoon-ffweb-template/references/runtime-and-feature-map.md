@@ -128,7 +128,13 @@ SignalR 默认未启用：`AddSignalR()`、Chat service 注册和两个 `MapHub`
 
 当前是 `ModernColorLayout : LayoutComponentBase` 的单一 Blazor layout。模板指南中的 `UserLayout`、`AdminLayout`、`UserNavMenu` 等是扩展设计示例，不是当前已存在的文件。
 
-具体 DOM、菜单、主题、局部导航和回归规则以模板内对应 `.markdown` 指南为唯一详细事实源；只读取当前表面的一份。不要把认证或业务 API 放进通用布局脚本。
+具体 DOM、菜单、主题、局部导航和回归规则以模板内对应 `_markdown` 指南为详细说明；只读取当前表面的一份。不要把认证或业务 API 放进通用布局脚本。
+
+## 通用控件与按需模块
+
+通用 API 和迁移清单见[控件指南](../../../_markdown/blazor-components-guide.md)。`ConfirmDialog`、`DropdownSelect` 通过组件内的 `silmoon-module` 声明模块，宿主保留 `site.js` 注册的通用加载入口和隔离样式／图标。确认框方法内也等待同一模块；原生调用方从模板 `data-module-src` 读取地址并等待导入。`App.razor`、静态布局无需逐个引用这两个专用脚本。
+
+`DropdownSelect` 的真实 `Href` 支持静态呈现，`ValueChanged` 则需交互渲染。迁移时确认目标已注册相应 Razor 组件服务；不要仅依赖 `OnAfterRenderAsync` 处理静态 SSR，也不要把已有项目的 `Server`、`@Assets` 或目录差异机械改成模板默认形式。现代颜色核心同步工具不覆盖组件或 `site.js`。
 
 ## 其他预留功能
 
@@ -150,6 +156,7 @@ SignalR 默认未启用：`AddSignalR()`、Chat service 注册和两个 `MapHub`
 | Blazor/render mode | `Program.cs`、`Components/App.razor`、`Routes.razor`、目标 `.razor`、JS interop 服务和静态资产 |
 | 上传 | `FileController.cs`、`WebApiController.cs`、`Views/File/`、Blazor upload components、`sm-upload.js/css`、存储与授权 |
 | SignalR | `Program.cs`、所选 Hub、`ChatService.cs`、`Views/Demo/SignalR.cshtml`、`libman.json` |
-| 现代颜色布局 | 对应 cshtml 或 Blazor layout、共享 CSS/JS、initializer/initBlazor、对应 `.markdown` 指南 |
+| 现代颜色布局 | 对应 cshtml 或 Blazor layout、共享 CSS/JS、initializer/initBlazor、对应 `_markdown` 指南 |
+| 通用控件/模块加载 | `.razor`、同名 CSS/JS、值类型、`site.js` 加载入口、App/静态宿主、隔离样式与图标、缓存引用、控件指南 |
 
 修改后只验证受影响的链，但至少包含 inner Web 项目构建和一个真实入口的针对性运行检查。
