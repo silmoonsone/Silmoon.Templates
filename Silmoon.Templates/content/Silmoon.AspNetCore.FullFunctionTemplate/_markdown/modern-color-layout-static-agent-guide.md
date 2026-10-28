@@ -90,7 +90,13 @@ cshtml 基础布局中的 viewport 使用 `minimum-scale=1.0`、`maximum-scale=1
 ### 在静态布局中嵌入通用控件
 
 `_BlankLayout.cshtml` 提供带 `asp-append-version` 的 `site.js`、应用隔离样式和 Bootstrap Icons。`ConfirmDialog`、`DropdownSelect`、`DropdownMenu` 在组件内通过 `silmoon-module` 声明专用模块，`site.js` 的通用入口负责导入；不要在 `_BlankLayout` 或 `_ModernColorLayout` 再添加它们的专用 `<script>`，也不要把控件加载逻辑并入现代颜色核心。
-多级菜单 `DropdownMenu` 默认从触发器起始侧展开，自动避让视口边缘；支持 Popover 时由控件负责顶层显示，无需调用页修改卡片层级。其分组和链接支持静态渲染，`ItemSelected` 需要交互渲染；保留 Bootstrap 5 bundle（含 Popper）、Bootstrap Icons、隔离样式及通用模块入口，具体用法见[控件指南](blazor-components-guide.md#dropdownmenu通用多级菜单)。
+多级菜单 `DropdownMenu` 默认从触发器起始侧展开，自动避让视口边缘；支持 Popover 时由控件负责顶层显示，无需调用页修改卡片层级。其分组和链接支持静态渲染，`ItemSelected` 需要交互渲染；保留 Bootstrap 5 bundle（含 Popper）、Bootstrap Icons、隔离样式及通用模块入口。
+
+`MenuWidth` 默认 `12.5rem`：根字体为 16px 时等于 200px，本模板窄屏根字体为 14px 时等于 175px；需要恒定宽度时显式设置 `MenuWidth="200px"`。`MenuWidth="auto"` 随当前层内容调整，隐藏层和离场层不撑宽，可见视口的宽度限制始终优先。整个浮层打开时淡入 180ms、关闭时淡出 140ms；`prefers-reduced-motion: reduce` 时跳过动画。组件内部模块版本为 `DropdownMenu.razor.js?v=4`，宿主不再重复引用；其余参数与示例见[通用控件指南](blazor-components-guide.md#dropdownmenu通用多级菜单)。
+
+`DropdownSelect` 使用相同的 `AlignEnd`／`OpenUpward` 四种方向组合、默认起始侧向下展开及 180ms／140ms 淡入淡出规则。选择值回调与真实链接仍立即执行；组件内部模块版本为 `DropdownSelect.razor.js?v=3`，升级须一并更新同名样式和宿主隔离样式缓存。旧调用处若要维持原末端对齐，显式设置 `AlignEnd="true"`；完整选择框用法见上述通用控件指南。
+
+通用内容卡片使用 `ContentCard.razor` 与同名隔离样式，可选标题、图标、描述、正文和页脚；默认全宽、h2 标题且不强制居中。旧 `AuthFormCard` 已改名，认证页通过 `Centered="true" MaxWidth="480px" HeadingLevel="1"` 及原有品牌／图标保持外观，业务由页面维护。表单辅助类由 `auth-*` 改为 `card-*`，完整参数与迁移示例见通用控件指南；此组件不需要 JS。
 
 静态呈现的 `DropdownSelect` 可使用真实 `Href`；`ValueChanged` 需要交互宿主。原生 JS 调用确认框时，先从对应 `<template>` 的 `data-module-src` 读取地址并等待导入。加载方式不依赖 Blazor 启动或 `<base>`，但宿主仍需注册 Razor 组件服务、加载通用入口和组件样式。完整示例、迁移及旧 Blazor Server 差异见[通用控件指南](blazor-components-guide.md)。
 

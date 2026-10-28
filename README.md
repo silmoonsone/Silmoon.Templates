@@ -22,7 +22,7 @@ sone@silmoon.com
 
 ## Blazor 通用控件
 
-模板内置确认对话框、通用下拉选择、多级菜单、日期范围选择器、枚举选择、逻辑目录树、时间输入和可定制品牌的表单卡片。运行生成项目后访问 `/backend/components-demo` 查看交互示例。
+模板内置确认对话框、通用下拉选择、多级菜单、日期范围选择器、枚举选择、逻辑目录树、时间输入和通用内容与表单卡片 `ContentCard`。运行生成项目后访问 `/backend/components-demo` 查看常用示例；居中资料表单、多实例及异步交互位于页尾“更多交互示例”。
 
 接入方式见 [Blazor 通用控件说明](Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。
 

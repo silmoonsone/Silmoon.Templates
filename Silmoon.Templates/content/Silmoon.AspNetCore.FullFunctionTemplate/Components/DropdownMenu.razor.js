@@ -21,7 +21,7 @@
     });
 
     function getState(root) {
-        if (!states.has(root)) states.set(root, { panel: root.querySelector("[data-dropdown-menu-panel='root']"), finish: null, frame: null, positionKey: null });
+        if (!states.has(root)) states.set(root, { panel: root.querySelector("[data-dropdown-menu-panel='root']"), finish: null, frame: null, positionKey: null, surfaceAnimation: null });
         return states.get(root);
     }
 
@@ -83,12 +83,65 @@
         else if (target.bottom > bottom) menu.scrollTop += target.bottom - bottom;
     }
 
-    function clearSurface(root) {
+    function stopTracking(root) {
         const state = states.get(root);
         if (state?.frame != null) cancelAnimationFrame(state.frame);
         if (state) { state.frame = null; state.positionKey = null; }
+    }
+
+    function cancelSurfaceAnimation(root) {
+        const state = states.get(root);
+        const animation = state?.surfaceAnimation;
+        if (state) state.surfaceAnimation = null;
+        animation?.cancel();
+    }
+
+    function clearSurface(root) {
+        stopTracking(root);
+        cancelSurfaceAnimation(root);
         const menu = root.querySelector(".dropdown-menu-popup");
         if (typeof menu?.hidePopover === "function" && menu.matches(":popover-open")) menu.hidePopover();
+        menu?.classList.remove("is-closing");
+        if (menu) menu.inert = false;
+    }
+
+    function animateSurface(root, opening) {
+        const menu = root.querySelector(".dropdown-menu-popup");
+        const state = getState(root);
+        // Continue from the current opacity when a quick reopen interrupts a fade-out.
+        const opacity = state.surfaceAnimation ? Number.parseFloat(getComputedStyle(menu).opacity) : opening ? 0 : 1;
+        cancelSurfaceAnimation(root);
+        menu.classList.toggle("is-closing", !opening);
+        menu.inert = !opening;
+        if (reducedMotion.matches || typeof menu.animate !== "function") {
+            if (!opening) { clearSurface(root); reset(root); }
+            return;
+        }
+        const animation = menu.animate([{ opacity }, { opacity: opening ? 1 : 0 }], {
+            duration: opening ? 180 : 140, easing: opening ? "ease-out" : "ease-in", fill: "both"
+        });
+        state.surfaceAnimation = animation;
+        const finish = () => {
+            if (state.surfaceAnimation !== animation) return;
+            state.surfaceAnimation = null;
+            animation.cancel();
+            if (!opening) { clearSurface(root); reset(root); }
+        };
+        animation.finished.then(finish, finish);
+    }
+
+    function hideSurface(root) {
+        const menu = root.querySelector(".dropdown-menu-popup");
+        const toggle = root.querySelector("[data-bs-toggle='dropdown']");
+        stopTracking(root);
+        getState(root).finish?.(false);
+        if (!root.isConnected || toggle?.disabled || (typeof menu?.showPopover === "function" && !menu.matches(":popover-open"))) {
+            clearSurface(root);
+            reset(root);
+            return;
+        }
+        // Bootstrap has already closed logically; only the non-interactive surface fades out.
+        animateSurface(root, false);
     }
 
     function closeDisabled(root) {
@@ -106,9 +159,11 @@
         const toggle = root.querySelector("[data-bs-toggle='dropdown']");
         if (!root.isConnected || !menu?.classList.contains("show")) return;
         if (toggle?.disabled) { closeDisabled(root); return; }
+        if (menu.classList.contains("is-closing")) reset(root);
         updatePosition(root);
         const state = getState(root);
         if (state.frame != null) return;
+        animateSurface(root, true);
         function track() {
             state.frame = null;
             if (!root.isConnected || !menu.classList.contains("show")) { clearSurface(root); return; }
@@ -120,7 +175,7 @@
                 if (menu.classList.contains("show")) state.frame = requestAnimationFrame(track);
                 return;
             }
-            const key = [bounds.left, bounds.top, bounds.width, bounds.height, menu.offsetWidth, menu.offsetHeight, menu.scrollHeight, viewport.left, viewport.top, viewport.width, viewport.height, root.dataset.alignEnd, root.dataset.openUpward, getComputedStyle(root).direction].join(",");
+            const key = [bounds.left, bounds.top, bounds.width, bounds.height, menu.offsetWidth, menu.offsetHeight, menu.scrollHeight, viewport.left, viewport.top, viewport.width, viewport.height, root.dataset.alignEnd, root.dataset.openUpward, root.dataset.menuWidth, getComputedStyle(root).direction].join(",");
             if (key !== state.positionKey) { updatePosition(root); state.positionKey = key; }
             state.frame = requestAnimationFrame(track);
         }
@@ -161,9 +216,9 @@
         const menu = root.querySelector(".dropdown-menu-popup");
         if (menu) menu.scrollTop = 0;
         state.panel = next;
+        previous.inert = true;
         const newHeight = next.getBoundingClientRect().height;
         (returning ? opener : next.querySelector(".dropdown-item:not(:disabled)"))?.focus({ preventScroll: true });
-        previous.inert = true;
         const animations = [];
         const finish = completed => {
             if (state.finish !== finish) return;
@@ -217,7 +272,7 @@
 
     document.addEventListener("hidden.bs.dropdown", event => {
         const root = event.target.closest?.(selector);
-        if (root) { clearSurface(root); reset(root); }
+        if (root) hideSurface(root);
     });
 
     document.addEventListener("toggle", event => {

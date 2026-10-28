@@ -2,7 +2,7 @@
 
 @inject NavigationManager Navigation
 
-<details class="dropdown-select @Class" data-dropdown-select data-open-upward="@OpenUpward.ToString().ToLowerInvariant()" data-disabled="@Disabled.ToString().ToLowerInvariant()" data-enhance-nav="@EnhanceNavigation.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
+<details class="dropdown-select @Class" data-dropdown-select data-align-end="@AlignEnd.ToString().ToLowerInvariant()" data-open-upward="@OpenUpward.ToString().ToLowerInvariant()" data-disabled="@Disabled.ToString().ToLowerInvariant()" data-enhance-nav="@EnhanceNavigation.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
     <summary class="dropdown-select-trigger" aria-label="@($"{Label}: {SelectedOption?.Text ?? Placeholder}")" aria-disabled="@Disabled.ToString().ToLowerInvariant()" tabindex="@(Disabled ? -1 : 0)">
         @if (!string.IsNullOrEmpty(IconClass))
         {
@@ -32,7 +32,7 @@
         }
     </div>
 </details>
-<silmoon-module src="@Navigation.ToAbsoluteUri("Components/DropdownSelect.razor.js?v=2")" hidden></silmoon-module>
+<silmoon-module src="@Navigation.ToAbsoluteUri("Components/DropdownSelect.razor.js?v=3")" hidden></silmoon-module>
 
 @code {
     [Parameter] public IReadOnlyList<DropdownSelectOption<TValue>> Items { get; set; } = [];
@@ -43,6 +43,7 @@
     [Parameter] public string? IconClass { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool AlignEnd { get; set; }
     [Parameter] public bool OpenUpward { get; set; }
     [Parameter] public bool EnhanceNavigation { get; set; } = true;
     [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }

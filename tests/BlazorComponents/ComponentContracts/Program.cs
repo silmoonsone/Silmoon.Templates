@@ -17,9 +17,10 @@ var contracts = new (string Name, Func<Task> Run)[]
     ("EnumSelect display metadata and undefined values", EnumSelectDisplayContract),
     ("EnumSelect rendered disposal releases EditContext subscriptions", EnumSelectDisposalContract),
     ("DropdownSelect value binding and disabled selection", DropdownSelectValueContract),
-    ("DropdownSelect SSR links and disabled fallback", DropdownSelectLinkContract),
-    ("DropdownMenu recursive panels and SSR links", DropdownMenuRenderingContract),
+    ("DropdownSelect SSR links, direction parameters and disabled fallback", DropdownSelectLinkContract),
+    ("DropdownMenu recursive panels, SSR links and width parameters", DropdownMenuRenderingContract),
     ("DropdownMenu callbacks and dynamic disabled state", DropdownMenuSelectionContract),
+    ("ContentCard optional content, heading semantics and layout parameters", ContentCardRenderingContract),
     ("ConfirmDialog component-owned module loading", ConfirmDialogLoadingContract),
     ("TimeInput end-of-day parsing and formatting", TimeInputEndOfDayContract)
 };
@@ -151,19 +152,29 @@ static async Task DropdownSelectLinkContract()
         new DropdownSelectOption<string> { Value = "docs", Text = "Documentation", Href = "/docs" },
         new DropdownSelectOption<string> { Value = "restricted", Text = "Restricted", Href = "/restricted", Disabled = true }
     };
-    async Task<string> Render(bool disabled) => await renderer.Dispatcher.InvokeAsync(async () =>
+    async Task<string> Render(bool disabled, bool alignEnd = false, bool openUpward = false) => await renderer.Dispatcher.InvokeAsync(async () =>
     {
         var rendered = await renderer.RenderComponentAsync<DropdownSelect<string>>(ParameterView.FromDictionary(new Dictionary<string, object?>
         {
             [nameof(DropdownSelect<string>.Items)] = items,
             [nameof(DropdownSelect<string>.Value)] = "docs",
-            [nameof(DropdownSelect<string>.Disabled)] = disabled
+            [nameof(DropdownSelect<string>.Disabled)] = disabled,
+            [nameof(DropdownSelect<string>.AlignEnd)] = alignEnd,
+            [nameof(DropdownSelect<string>.OpenUpward)] = openUpward
         }));
         return rendered.ToHtmlString();
     });
 
     var enabledHtml = await Render(false);
-    Require(enabledHtml.Contains("<silmoon-module src=\"https://example.test/nested-app/Components/DropdownSelect.razor.js?v=2\""), "SSR must declare its own module with the application base path, including on deep cshtml routes without a base tag.");
+    Require(enabledHtml.Contains("<silmoon-module src=\"https://example.test/nested-app/Components/DropdownSelect.razor.js?v=3\""), "SSR must declare its own module with the application base path, including on deep cshtml routes without a base tag.");
+    Require(enabledHtml.Contains("<details ") && enabledHtml.Contains("<summary ") && enabledHtml.Contains("popover=\"manual\""), "SSR must retain native details/summary and its popover enhancement without requiring an interactive circuit.");
+    Require(enabledHtml.Contains("data-align-end=\"false\"") && enabledHtml.Contains("data-open-upward=\"false\""), "The default select must align to the logical start and prefer opening downward.");
+    foreach (var alignEnd in new[] { false, true })
+        foreach (var openUpward in new[] { false, true })
+        {
+            var directionHtml = await Render(false, alignEnd, openUpward);
+            Require(directionHtml.Contains($"data-align-end=\"{alignEnd.ToString().ToLowerInvariant()}\"") && directionHtml.Contains($"data-open-upward=\"{openUpward.ToString().ToLowerInvariant()}\""), "Each independent direction parameter must reach the rendered select root.");
+        }
     Require(Regex.IsMatch(enabledHtml, "<a\\b[^>]*href=\"/docs\""), "SSR must emit a real href so an enabled option works without interactive rendering.");
     Require(!enabledHtml.Contains("href=\"/restricted\"") && Regex.Matches(enabledHtml, @"<button\b[^>]*\bdisabled(?:\s|=|>)").Count == 1, "A disabled link option must render as a disabled button without a navigable href.");
     var disabledHtml = await Render(true);
@@ -186,20 +197,30 @@ static async Task DropdownMenuRenderingContract()
     };
     using var services = new ServiceCollection().AddSingleton<NavigationManager>(new TestNavigation()).BuildServiceProvider();
     await using var renderer = new HtmlRenderer(services, NullLoggerFactory.Instance);
-    async Task<string> Render(bool disabled, bool alignEnd = false, bool openUpward = false) => await renderer.Dispatcher.InvokeAsync(async () =>
+    async Task<string> Render(bool disabled, bool alignEnd = false, bool openUpward = false, string? menuWidth = null) => await renderer.Dispatcher.InvokeAsync(async () =>
     {
-        var rendered = await renderer.RenderComponentAsync<DropdownMenu>(ParameterView.FromDictionary(new Dictionary<string, object?>
+        var parameters = new Dictionary<string, object?>
         {
             [nameof(DropdownMenu.Items)] = items,
             [nameof(DropdownMenu.Disabled)] = disabled,
             [nameof(DropdownMenu.AlignEnd)] = alignEnd,
             [nameof(DropdownMenu.OpenUpward)] = openUpward
-        }));
+        };
+        if (menuWidth is not null) parameters[nameof(DropdownMenu.MenuWidth)] = menuWidth;
+        var rendered = await renderer.RenderComponentAsync<DropdownMenu>(ParameterView.FromDictionary(parameters));
         return rendered.ToHtmlString();
     });
 
     var html = await Render(false);
-    Require(html.Contains("<silmoon-module src=\"https://example.test/nested-app/Components/DropdownMenu.razor.js?v=3\""), "SSR must declare the module with the application base path without invoking interactive JS.");
+    Require(html.Contains("<silmoon-module src=\"https://example.test/nested-app/Components/DropdownMenu.razor.js?v=4\""), "SSR must declare the module with the application base path without invoking interactive JS.");
+    Require(html.Contains("style=\"--dropdown-menu-width: 12.5rem\"") && html.Contains("data-menu-width=\"12.5rem\"") && html.Contains("data-auto-width=\"false\""), "The default menu width must be 12.5rem, equivalent to 200px at a 16px root font, and expose the same value to position tracking.");
+    foreach (var width in new[] { (Input: " auto ", Expected: "max-content", Auto: true), (Input: "AUTO", Expected: "max-content", Auto: true), (Input: " 20rem ", Expected: "20rem", Auto: false), (Input: "calc(100vw - 2rem)", Expected: "calc(100vw - 2rem)", Auto: false), (Input: "  ", Expected: "12.5rem", Auto: false) })
+    {
+        var widthHtml = await Render(false, menuWidth: width.Input);
+        Require(widthHtml.Contains($"style=\"--dropdown-menu-width: {width.Expected}\""), "MenuWidth must support content sizing and custom CSS lengths, trim input and restore the default for blank values.");
+        Require(widthHtml.Contains($"data-menu-width=\"{width.Expected}\""), "The normalized width must be available to position tracking even when a parameter change preserves the same rendered dimensions.");
+        Require(widthHtml.Contains($"data-auto-width=\"{width.Auto.ToString().ToLowerInvariant()}\""), "Only content-sized widths must request automatic width handling from the module.");
+    }
     Require(html.Contains("data-align-end=\"false\"") && html.Contains("data-open-upward=\"false\""), "The default menu must declare logical-start alignment and downward preference.");
     Require(html.Contains("data-bs-display=\"static\"") && html.Contains("popover=\"manual\"") && !html.Contains("dropdown-menu-end"), "Bootstrap must own the toggle while the component owns top-layer positioning without forced end alignment.");
     var upwardEndHtml = await Render(false, alignEnd: true, openUpward: true);
@@ -239,6 +260,59 @@ static async Task DropdownMenuSelectionContract()
     Set(menu, nameof(menu.Disabled), false);
     await InvokeAsync(menu, "SelectItem", first);
     Require(calls.Count == 2 && ReferenceEquals(calls[1], first), "Re-enabling must restore action callbacks, including repeated activation of the same item.");
+}
+
+static async Task ContentCardRenderingContract()
+{
+    using var services = new ServiceCollection().BuildServiceProvider();
+    await using var renderer = new HtmlRenderer(services, NullLoggerFactory.Instance);
+    async Task<string> Render(Dictionary<string, object?>? parameters = null) => await renderer.Dispatcher.InvokeAsync(async () =>
+    {
+        var rendered = await renderer.RenderComponentAsync<ContentCard>(ParameterView.FromDictionary(parameters ?? new()));
+        return rendered.ToHtmlString();
+    });
+
+    var emptyHtml = await Render();
+    Require(!Regex.IsMatch(emptyHtml, @"<h[1-6]\b") && !emptyHtml.Contains("aria-labelledby="), "An untitled card must not emit an empty heading or a dangling accessible-name reference.");
+    Require(!emptyHtml.Contains("<header") && !emptyHtml.Contains("<footer") && !emptyHtml.Contains("bi-person") && !emptyHtml.Contains("Trading"), "An empty general-purpose card must not force authentication branding, an icon or empty slots.");
+    Require(!emptyHtml.Contains("content-card-centered") && emptyHtml.Contains("--content-card-width: 100%") && emptyHtml.Contains("--content-card-max-width: 100%"), "Cards must use available width without forcing centered authentication-page layout.");
+
+    var parameters = new Dictionary<string, object?>
+    {
+        [nameof(ContentCard.Title)] = "Settings & status",
+        [nameof(ContentCard.Brand)] = "Example workspace",
+        [nameof(ContentCard.Description)] = "Choose <safe> content",
+        [nameof(ContentCard.Icon)] = "bi-gear",
+        [nameof(ContentCard.Class)] = "project-settings",
+        [nameof(ContentCard.Width)] = " 80% ",
+        [nameof(ContentCard.MaxWidth)] = " 36rem ",
+        [nameof(ContentCard.AdditionalAttributes)] = new Dictionary<string, object> { ["data-purpose"] = "settings", ["style"] = "background: #123456" },
+        [nameof(ContentCard.ChildContent)] = (RenderFragment)(builder => { builder.OpenElement(0, "p"); builder.AddContent(1, "Body supplied by the page"); builder.CloseElement(); }),
+        [nameof(ContentCard.FooterContent)] = (RenderFragment)(builder => { builder.OpenElement(0, "a"); builder.AddAttribute(1, "href", "/help"); builder.AddContent(2, "Footer supplied by the page"); builder.CloseElement(); })
+    };
+    var html = await Render(parameters);
+    var heading = Regex.Match(html, "<h2\\b[^>]*id=\"([^\"]+)\"[^>]*>Settings &amp; status</h2>");
+    Require(heading.Success && Regex.Matches(html, @"<h[1-6]\b").Count == 1, "A titled general card must emit one level-two heading by default and encode its text.");
+    var titleId = heading.Groups[1].Value;
+    Require(Regex.Matches(html, $"\\bid=\"{Regex.Escape(titleId)}\"").Count == 1 && html.Contains($"aria-labelledby=\"{titleId}\""), "The card's accessible name must point at its single generated title ID.");
+    Require(html.Contains("Example workspace") && html.Contains("bi-gear") && html.Contains("Choose &lt;safe&gt; content"), "Optional brand, icon and description must render without allowing description HTML.");
+    Require(Regex.IsMatch(html, "<section\\b[^>]*class=\"[^\"]*project-settings[^\"]*\"[^>]*data-purpose=\"settings\"") && html.Contains("style=\"background: #123456\""), "Class and unmatched attributes, including a caller-supplied style, must reach the card section.");
+    Require(Regex.IsMatch(html, "<div\\b[^>]*style=\"[^\"]*--content-card-width: 80%; --content-card-max-width: 36rem;[^\"]*\""), "Trimmed width settings must remain inherited from the container when the caller supplies a section style.");
+    Require(html.Contains("Body supplied by the page") && Regex.IsMatch(html, "<footer\\b[^>]*>.*href=\"/help\".*Footer supplied by the page.*</footer>", RegexOptions.Singleline), "The card must preserve arbitrary body and footer content, including real footer links.");
+    var secondHtml = await Render(parameters);
+    Require(!secondHtml.Contains($"id=\"{titleId}\""), "Multiple cards rendered in one renderer must not reuse title IDs.");
+
+    var brandingOnly = await Render(new() { [nameof(ContentCard.Title)] = " ", [nameof(ContentCard.Brand)] = "Example workspace" });
+    Require(brandingOnly.Contains("Example workspace") && !Regex.IsMatch(brandingOnly, @"<h[1-6]\b") && !brandingOnly.Contains("aria-labelledby="), "Branding may be shown without inventing a heading for a whitespace title.");
+    var signInHtml = await Render(new() { [nameof(ContentCard.Title)] = "Welcome", [nameof(ContentCard.Brand)] = "Trading Server", [nameof(ContentCard.Icon)] = "bi-box-arrow-in-right", [nameof(ContentCard.Centered)] = true, [nameof(ContentCard.MaxWidth)] = "480px", [nameof(ContentCard.HeadingLevel)] = 1 });
+    Require(signInHtml.Contains("content-card-centered") && signInHtml.Contains("--content-card-max-width: 480px") && Regex.IsMatch(signInHtml, "<h1\\b[^>]*>Welcome</h1>") && signInHtml.Contains("Trading Server") && signInHtml.Contains("bi-box-arrow-in-right"), "Authentication callers must be able to retain their centered 480px page, explicit brand/icon and level-one heading.");
+    foreach (var level in new[] { 0, 9 })
+    {
+        var boundedHtml = await Render(new() { [nameof(ContentCard.Title)] = "Bounded", [nameof(ContentCard.HeadingLevel)] = level });
+        Require(Regex.IsMatch(boundedHtml, $"<h{Math.Clamp(level, 1, 6)}\\b[^>]*>Bounded</h{Math.Clamp(level, 1, 6)}>"), "Out-of-range heading levels must still produce valid semantic heading elements.");
+    }
+    var fallbackHtml = await Render(new() { [nameof(ContentCard.Width)] = " ", [nameof(ContentCard.MaxWidth)] = " " });
+    Require(fallbackHtml.Contains("--content-card-width: 100%") && fallbackHtml.Contains("--content-card-max-width: 100%"), "Blank width values must retain the default layout instead of producing invalid empty declarations.");
 }
 
 static async Task ConfirmDialogLoadingContract()

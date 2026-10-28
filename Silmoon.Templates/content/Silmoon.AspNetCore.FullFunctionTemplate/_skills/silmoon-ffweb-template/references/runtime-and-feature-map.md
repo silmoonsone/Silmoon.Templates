@@ -136,6 +136,10 @@ SignalR 默认未启用：`AddSignalR()`、Chat service 注册和两个 `MapHub`
 
 `DropdownSelect` 的真实 `Href` 支持静态呈现，`ValueChanged` 则需交互渲染；`DropdownMenu` 的分组与链接也支持静态呈现，`ItemSelected` 需要交互渲染。迁移时确认目标已注册相应 Razor 组件服务；不要仅依赖 `OnAfterRenderAsync` 处理静态 SSR，也不要把已有项目的 `Server`、`@Assets` 或目录差异机械改成模板默认形式。现代颜色核心同步工具不覆盖组件或 `site.js`。
 
+`DropdownSelect` 与 `DropdownMenu` 通过 `AlignEnd`、`OpenUpward` 控制对齐和方向，浮层开闭使用淡入淡出并尊重系统减少动态效果设置；`DropdownMenu` 另通过 `MenuWidth` 选择固定宽度或当前层内容自适应。这些行为由组件自身处理，调用页不需提高卡片层级。参数默认值、字体换算、浏览器回退和模块缓存升级按上述控件指南执行。
+
+通用内容容器使用 `ContentCard` 及同名隔离样式，支持可选标题、图标、描述、正文与页脚，并可指定宽度、标题级别和居中布局。旧 `AuthFormCard` 已改名，旧页迁移时显式保留原品牌、图标及居中宽度，并将表单辅助类改为 `card-*`；组件不承担认证或提交逻辑。
+
 ## 其他预留功能
 
 以下默认都不是已启用能力：Swagger、SignalR Newtonsoft protocol、WebAuthn、Turnstile、SilmoonDevApp、自定义 Hosted Service、API decrypt。接入前逐项确认：

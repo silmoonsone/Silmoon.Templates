@@ -7,7 +7,7 @@
 
 <header class="content-header">
     <h1>通用控件</h1>
-    <p class="text-secondary mt-2">确认、范围选择和表单输入的独立示例。操作结果只保存在当前页面。</p>
+    <p class="text-secondary mt-2">确认、日期范围、下拉菜单、表单输入和内容卡片的独立示例。更多交互与组合用法可在页尾展开，操作结果只保存在当前页面。</p>
 </header>
 
 @if (!string.IsNullOrWhiteSpace(ErrorMessage))
@@ -54,9 +54,19 @@
     <h2 id="dropdown-heading" class="h4">通用下拉选择</h2>
     <p class="text-secondary">值选项更新当前显示方式；链接选项直接跳转。两个实例可独立使用。</p>
     <div class="d-flex flex-wrap align-items-center gap-3">
-        <DropdownSelect TValue="string" Items="DropdownOptions" @bind-Value="DropdownValue" Label="显示密度" Disabled="@DropdownDisabled" />
+        <DropdownSelect TValue="string" Items="DropdownOptions" @bind-Value="DropdownValue" Label="显示密度" Disabled="@DropdownDisabled" OpenUpward="@DropdownOpenUpward" AlignEnd="@DropdownAlignEnd" />
         <DropdownSelect TValue="string" Items="DropdownLinks" Value='@("inputs")' Label="示例导航" IconClass="bi bi-link-45deg" />
         <label class="form-check-label"><input class="form-check-input me-2" type="checkbox" @bind="DropdownDisabled" />禁用值选择</label>
+    </div>
+    <div class="row g-3 mt-1">
+        <div class="col-sm-6 col-lg-4">
+            <label class="form-label" for="demo-dropdown-direction">展开方向</label>
+            <select id="demo-dropdown-direction" class="form-select" @bind:get="DropdownOpenUpward.ToString().ToLowerInvariant()" @bind:set="(string value) => DropdownOpenUpward = bool.Parse(value)"><option value="false">向下</option><option value="true">向上</option></select>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <label class="form-label" for="demo-dropdown-alignment">对齐方式</label>
+            <select id="demo-dropdown-alignment" class="form-select" @bind:get="DropdownAlignEnd.ToString().ToLowerInvariant()" @bind:set="(string value) => DropdownAlignEnd = bool.Parse(value)"><option value="false">靠左</option><option value="true">靠右</option></select>
+        </div>
     </div>
     <output class="d-block mt-3" aria-live="polite">当前值：@DropdownValue</output>
 </section>
@@ -65,12 +75,25 @@
     <h2 id="menu-heading" class="h4">多级操作菜单</h2>
     <p class="text-secondary">逐级进入操作分组，再返回上一级；普通操作更新页面结果，链接直接跳转。两个菜单各自维护展开状态。</p>
     <div class="d-flex flex-wrap align-items-center gap-3">
-        <DropdownMenu Items="MenuItems" ItemSelected="SelectMenuItem" Label="数据操作" TriggerText="数据操作" Disabled="@MenuDisabled" OpenUpward="@MenuOpenUpward" AlignEnd="@MenuAlignEnd" />
-        <DropdownMenu Items="MenuLinks" Label="示例导航菜单" TriggerText="示例导航" IconClass="bi bi-link-45deg" />
+        <DropdownMenu Items="MenuItems" ItemSelected="SelectMenuItem" Label="数据操作" TriggerText="数据操作" Disabled="@MenuDisabled" OpenUpward="@MenuOpenUpward" AlignEnd="@MenuAlignEnd" MenuWidth="@MenuWidth" />
+        <DropdownMenu Items="MenuLinks" Label="示例导航菜单" TriggerText="示例导航" IconClass="bi bi-link-45deg" MenuWidth="auto" />
         <label class="form-check-label"><input class="form-check-input me-2" type="checkbox" @bind="MenuDisabled" />禁用操作菜单</label>
-        <label>展开方向 <select class="form-select w-auto d-inline-block" @bind="MenuOpenUpward"><option value="false">向下</option><option value="true">向上</option></select></label>
-        <label>对齐方式 <select class="form-select w-auto d-inline-block" @bind="MenuAlignEnd"><option value="false">靠左</option><option value="true">靠右</option></select></label>
     </div>
+    <div class="row g-3 mt-1">
+        <div class="col-sm-6 col-lg-4">
+            <label class="form-label" for="demo-menu-direction">展开方向</label>
+            <select id="demo-menu-direction" class="form-select" @bind:get="MenuOpenUpward.ToString().ToLowerInvariant()" @bind:set="(string value) => MenuOpenUpward = bool.Parse(value)"><option value="false">向下</option><option value="true">向上</option></select>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <label class="form-label" for="demo-menu-alignment">对齐方式</label>
+            <select id="demo-menu-alignment" class="form-select" @bind:get="MenuAlignEnd.ToString().ToLowerInvariant()" @bind:set="(string value) => MenuAlignEnd = bool.Parse(value)"><option value="false">靠左</option><option value="true">靠右</option></select>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <label class="form-label" for="demo-menu-width">菜单宽度</label>
+            <select id="demo-menu-width" class="form-select" @bind="MenuWidth"><option value="12.5rem">12.5rem（默认约 200px）</option><option value="200px">固定 200px</option><option value="20rem">固定 20rem</option><option value="320px">固定 320px</option><option value="auto">随当前层内容自适应</option></select>
+        </div>
+    </div>
+    <p class="small text-secondary mt-3 mb-0">操作菜单可切换固定或自适应宽度；导航菜单按当前层内容调整。固定宽度不足时文字换行，菜单始终受可见视口限制。</p>
     <output class="d-block mt-3" aria-live="polite">@MenuMessage</output>
 </section>
 
@@ -108,22 +131,14 @@
     <output class="d-block mt-3 text-break" aria-live="polite">当前目录：@Folder</output>
 </section>
 
-<section aria-label="表单卡片示例">
-    <AuthFormCard Title="完善个人资料" Brand="示例应用" Description="卡片只提供外观，字段和操作由当前页面定义。">
-        <div class="auth-form">
-            <div>
-                <label class="form-label" for="demo-display-name">显示名称</label>
-                <input id="demo-display-name" class="form-control" @bind="DisplayName" />
-            </div>
-            <div class="auth-actions">
-                <button type="button" class="btn btn-primary" @onclick="PreviewProfile">预览资料</button>
-            </div>
-            <p class="auth-note" aria-live="polite">@ProfileMessage</p>
-        </div>
-    </AuthFormCard>
-</section>
+<ContentCard Title="内容卡片" Description="默认占满可用宽度，可放置说明、列表或其他组件。" Class="mb-4">
+    <ChildContent>
+        <p class="mb-0">标题、品牌、图标和页脚均可选。居中表单与多实例用法见下方“更多交互示例”。</p>
+    </ChildContent>
+    <FooterContent><span class="text-secondary small">页脚内容由使用此卡片的页面提供。</span></FooterContent>
+</ContentCard>
 
-<details class="card p-4 mb-4">
+<details id="more-examples" class="card p-4 mb-4">
     <summary class="h5 mb-0">更多交互示例</summary>
     <div class="mt-4">
         <h2 class="h5">确认框移除与第二实例</h2>
@@ -157,35 +172,50 @@
         <output class="d-block mt-2 small text-break" aria-live="polite">@AsyncRangeMessage @FormatRange(AsyncRange)</output>
 
         <hr class="my-4" />
-        <h2 class="h5">第二张表单卡片</h2>
-        <p class="text-secondary">省略品牌与描述的卡片可与上方实例同时存在。</p>
-        <AuthFormCard Title="消息提醒" Icon="bi-bell">
-            <p class="auth-note">这张卡片使用自己的标题标识，不影响其他卡片。</p>
-        </AuthFormCard>
+        <h2 class="h5">内容卡片与表单组合</h2>
+        <p class="text-secondary">同一个内容卡片可以承载资料表单，也可以只显示一段说明。下方示例设置居中及最大宽度，字段和操作由页面提供。</p>
+        <ContentCard Title="完善个人资料" Brand="示例应用" Description="预览只更新下方提示，不会保存个人资料。" Icon="bi-person-circle" Centered="true" MaxWidth="480px" HeadingLevel="3">
+            <div class="card-form">
+                <div>
+                    <label class="form-label" for="demo-display-name">显示名称</label>
+                    <input id="demo-display-name" class="form-control" @bind="DisplayName" />
+                </div>
+                <div class="card-actions">
+                    <button type="button" class="btn btn-primary" @onclick="PreviewProfile">预览资料</button>
+                </div>
+                <p class="card-note" aria-live="polite">@ProfileMessage</p>
+            </div>
+        </ContentCard>
+        <ContentCard Title="简洁内容" HeadingLevel="3">
+            <p class="mb-0">省略品牌、图标和描述也可独立使用。每张卡片都有自己的标题标识。</p>
+        </ContentCard>
     </div>
 </details>
 
 @code {
     string DropdownValue { get; set; } = "comfortable";
     bool DropdownDisabled { get; set; }
+    bool DropdownOpenUpward { get; set; }
+    bool DropdownAlignEnd { get; set; }
     DropdownSelectOption<string>[] DropdownOptions { get; } = [
         new() { Value = "comfortable", Text = "舒适" },
         new() { Value = "compact", Text = "紧凑" },
         new() { Value = "unavailable", Text = "暂不可用", Disabled = true }
     ];
     DropdownSelectOption<string>[] DropdownLinks { get; } = [
-        new() { Value = "inputs", Text = "枚举与时间", Href = "#input-heading" },
-        new() { Value = "folders", Text = "逻辑目录", Href = "#folder-heading" }
+        new() { Value = "inputs", Text = "枚举与时间", Href = "backend/components-demo#input-heading" },
+        new() { Value = "folders", Text = "逻辑目录", Href = "backend/components-demo#folder-heading" }
     ];
     bool MenuDisabled { get; set; }
     bool MenuOpenUpward { get; set; }
     bool MenuAlignEnd { get; set; }
+    string MenuWidth { get; set; } = "12.5rem";
     int MenuSelectionCount { get; set; }
     string MenuMessage { get; set; } = "尚未选择操作。";
     IReadOnlyList<DropdownMenuItem> MenuItems { get; } = [
         new() { Text = "数据", IconClass = "bi bi-folder", Children = [
             new() { Key = "refresh", Text = "刷新", IconClass = "bi bi-arrow-clockwise" },
-            new() { Text = "导出格式", IconClass = "bi bi-download", Children = [
+            new() { Text = "导出当前筛选结果（保留列标题）", IconClass = "bi bi-download", Children = [
                 new() { Key = "csv", Text = "CSV" },
                 new() { Key = "json", Text = "JSON" },
                 new() { Key = "xml", Text = "XML（暂不可用）", Disabled = true }
@@ -196,8 +226,8 @@
     ];
     IReadOnlyList<DropdownMenuItem> MenuLinks { get; } = [
         new() { Text = "当前页", Children = [
-            new() { Text = "枚举与时间", Href = "#input-heading" },
-            new() { Text = "逻辑目录", Href = "#folder-heading" }
+            new() { Text = "枚举与时间", Href = "backend/components-demo#input-heading" },
+            new() { Text = "逻辑目录", Href = "backend/components-demo#folder-heading" }
         ] },
         new() { Text = "后台布局示例", Href = "/backend/modern-color-demo" }
     ];

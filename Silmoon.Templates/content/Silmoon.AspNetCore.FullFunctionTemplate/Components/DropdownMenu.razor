@@ -1,6 +1,6 @@
 ﻿@inject NavigationManager Navigation
 
-<silmoon-dropdown-menu @key="Items" class="dropdown-menu-control dropdown @Class" data-dropdown-menu data-align-end="@AlignEnd.ToString().ToLowerInvariant()" data-open-upward="@OpenUpward.ToString().ToLowerInvariant()" data-enhance-nav="@EnhanceNavigation.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
+<silmoon-dropdown-menu @key="Items" class="dropdown-menu-control dropdown @Class" data-dropdown-menu data-menu-width="@MenuWidthValue" data-auto-width="@((MenuWidthValue == "max-content").ToString().ToLowerInvariant())" data-align-end="@AlignEnd.ToString().ToLowerInvariant()" data-open-upward="@OpenUpward.ToString().ToLowerInvariant()" data-enhance-nav="@EnhanceNavigation.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
     <button class="dropdown-menu-trigger" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static" disabled="@Disabled" aria-expanded="false" aria-controls="@MenuId" aria-label="@Label" title="@Label">
         @if (!string.IsNullOrEmpty(IconClass))
         {
@@ -11,7 +11,7 @@
             <span>@TriggerText</span>
         }
     </button>
-    <div id="@MenuId" class="dropdown-menu dropdown-menu-popup" popover="manual" role="group" aria-label="@Label">
+    <div id="@MenuId" class="dropdown-menu dropdown-menu-popup" style="--dropdown-menu-width: @MenuWidthValue" popover="manual" role="group" aria-label="@Label">
         <div class="dropdown-menu-viewport">
             @foreach (var panel in GetPanels(Items))
             {
@@ -42,7 +42,7 @@
         </div>
     </div>
 </silmoon-dropdown-menu>
-<silmoon-module src="@Navigation.ToAbsoluteUri("Components/DropdownMenu.razor.js?v=3")" hidden></silmoon-module>
+<silmoon-module src="@Navigation.ToAbsoluteUri("Components/DropdownMenu.razor.js?v=4")" hidden></silmoon-module>
 
 @code {
     [Parameter] public IReadOnlyList<DropdownMenuItem> Items { get; set; } = [];
@@ -52,6 +52,7 @@
     [Parameter] public string? TriggerText { get; set; }
     [Parameter] public string? IconClass { get; set; } = "bi bi-list";
     [Parameter] public string? Class { get; set; }
+    [Parameter] public string MenuWidth { get; set; } = "12.5rem";
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public bool AlignEnd { get; set; }
     [Parameter] public bool OpenUpward { get; set; }
@@ -59,6 +60,7 @@
     [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
     string MenuId { get; } = "dropdown-menu-" + Guid.NewGuid().ToString("N");
+    string MenuWidthValue => string.IsNullOrWhiteSpace(MenuWidth) ? "12.5rem" : string.Equals(MenuWidth.Trim(), "auto", StringComparison.OrdinalIgnoreCase) ? "max-content" : MenuWidth.Trim();
 
     async Task SelectItem(DropdownMenuItem item)
     {

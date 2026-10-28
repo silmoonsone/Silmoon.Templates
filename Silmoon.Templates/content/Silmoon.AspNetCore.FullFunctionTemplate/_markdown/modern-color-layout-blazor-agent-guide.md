@@ -215,7 +215,13 @@ builder.Services.AddJsSilmoonAuthInterop();
 `Components/App.razor` 可以引用 Bootstrap、Bootstrap Icons、项目样式、公共脚本和 `js/site.js`。`site.js` 提供通用 `ScriptLoader.ensureLoaded(src)`，由 `ModernColorLayoutInitializer.razor` 加载其 `Script` 常量指向的 `/js/modern-color-layout.js`，然后调用同一核心中的可选 `ModernColorLayout.initBlazor()`。
 
 通用控件使用同一 `site.js` 中的另一入口：`ConfirmDialog`、`DropdownSelect`、`DropdownMenu` 在组件内用 `silmoon-module` 声明模块，组件出现后才导入，多实例由浏览器模块缓存复用。`App.razor` 不再引用它们的专用脚本。静态 SSR 不执行 `OnAfterRenderAsync`，不能仅用交互生命周期替代这个入口；普通值绑定仍需要交互渲染，真实 `Href` 链接可静态呈现。配套文件、缓存更新、原生确认调用和旧宿主差异见[通用控件指南](blazor-components-guide.md)，不要用现代颜色 `ScriptLoader` 初始化器代替控件加载。
-多级菜单 `DropdownMenu` 默认从触发器起始侧展开，自动避让视口边缘；支持 Popover 时由控件负责顶层显示，无需调用页修改卡片层级。其分组和链接支持静态渲染，`ItemSelected` 需要交互渲染；保留 Bootstrap 5 bundle（含 Popper）、Bootstrap Icons、隔离样式及通用模块入口，具体用法见[控件指南](blazor-components-guide.md#dropdownmenu通用多级菜单)。
+多级菜单 `DropdownMenu` 默认从触发器起始侧展开，自动避让视口边缘；支持 Popover 时由控件负责顶层显示，无需调用页修改卡片层级。其分组和链接支持静态渲染，`ItemSelected` 需要交互渲染；保留 Bootstrap 5 bundle（含 Popper）、Bootstrap Icons、隔离样式及通用模块入口。
+
+`MenuWidth` 默认 `12.5rem`：根字体为 16px 时等于 200px，本模板窄屏根字体为 14px 时等于 175px；需要恒定宽度时显式设置 `MenuWidth="200px"`。`MenuWidth="auto"` 随当前层内容调整，隐藏层和离场层不撑宽，可见视口的宽度限制始终优先。整个浮层打开时淡入 180ms、关闭时淡出 140ms；`prefers-reduced-motion: reduce` 时跳过动画。组件内部模块版本为 `DropdownMenu.razor.js?v=4`，宿主不再重复引用；其余参数与示例见[通用控件指南](blazor-components-guide.md#dropdownmenu通用多级菜单)。
+
+`DropdownSelect` 使用相同的 `AlignEnd`／`OpenUpward` 四种方向组合、默认起始侧向下展开及 180ms／140ms 淡入淡出规则。选择值回调与真实链接仍立即执行；组件内部模块版本为 `DropdownSelect.razor.js?v=3`，升级须一并更新同名样式和宿主隔离样式缓存。旧调用处若要维持原末端对齐，显式设置 `AlignEnd="true"`；完整选择框用法见上述通用控件指南。
+
+通用内容卡片使用 `ContentCard.razor` 与同名隔离样式，可选标题、图标、描述、正文和页脚；默认全宽、h2 标题且不强制居中。旧 `AuthFormCard` 已改名，认证页通过 `Centered="true" MaxWidth="480px" HeadingLevel="1"` 及原有品牌／图标保持外观，业务由页面维护。表单辅助类由 `auth-*` 改为 `card-*`，完整参数与迁移示例见通用控件指南；此组件不需要 JS。
 
 `Components/App.razor` 中的 viewport 应包含 `minimum-scale=1.0`、`maximum-scale=1.0` 和 `user-scalable=no`，`wwwroot/css/site.css` 再使用 `touch-action: pan-x pan-y` 保留单指滚动并抑制双指缩放和双击放大。应在应用外壳和项目级样式中维护这项站点策略，不要为它修改现代颜色核心 CSS/JS 或添加重复的触摸事件脚本。
 

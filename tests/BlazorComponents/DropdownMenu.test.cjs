@@ -10,7 +10,7 @@ const componentsRoot = process.env.FFWEB_COMPONENTS_ROOT || path.join(__dirname,
 const scriptPath = path.join(componentsRoot, "DropdownMenu.razor.js");
 const source = fs.readFileSync(scriptPath, "utf8");
 
-function fixture({ reducedMotion = false, autoLoad = true, popover = true } = {}) {
+function fixture({ reducedMotion = false, autoLoad = true, popover = true, surfaceAnimations = false } = {}) {
     class Target {
         constructor() { this.listeners = new Map(); }
         addEventListener(type, listener) {
@@ -106,9 +106,14 @@ function fixture({ reducedMotion = false, autoLoad = true, popover = true } = {}
         set scrollTop(value) { this._scrollTop = Math.max(0, Math.min(value, Math.max(0, this.scrollHeight - this.clientHeight))); }
         showPopover() { assert.equal(this.isConnected, true, "Only connected elements may enter the top layer."); topLayer.add(this); }
         hidePopover() { topLayer.delete(this); }
-        animate() {
+        animate(keyframes, options) {
             let resolve, reject;
-            const animation = { element: this, cancelled: false, finished: new Promise((yes, no) => { resolve = yes; reject = no; }), finish() { resolve(); }, cancel() { this.cancelled = true; reject(new Error("Animation cancelled")); } };
+            const animation = { element: this, keyframes, options, opacity: keyframes[0].opacity, cancelled: false,
+                finished: new Promise((yes, no) => { resolve = yes; reject = no; }),
+                sample(opacity) { this.opacity = opacity; },
+                finish() { this.opacity = keyframes.at(-1).opacity; resolve(); },
+                cancel() { this.cancelled = true; reject(new Error("Animation cancelled")); }
+            };
             animation.finished.catch(() => {});
             animations.push(animation);
             return animation;
@@ -132,7 +137,7 @@ function fixture({ reducedMotion = false, autoLoad = true, popover = true } = {}
     window.requestAnimationFrame = requestAnimationFrame;
     window.cancelAnimationFrame = cancelAnimationFrame;
     const context = vm.createContext({ window, document, HTMLElement: Element, requestAnimationFrame, cancelAnimationFrame,
-        getComputedStyle: element => ({ direction: element.direction || "ltr" }),
+        getComputedStyle: element => ({ direction: element.direction || "ltr", opacity: String(animations.findLast(animation => animation.element === element && !animation.cancelled && animation.opacity !== undefined)?.opacity ?? element.style.opacity ?? 1) }),
         customElements: { get: name => types.get(name), define(name, type) {
             types.set(name, type);
             document.querySelectorAll(name).forEach(element => { Object.setPrototypeOf(element, type.prototype); element.connectedCallback?.(); });
@@ -144,14 +149,14 @@ function fixture({ reducedMotion = false, autoLoad = true, popover = true } = {}
         document.body.append(menu.root);
         const instance = { updates: 0, disposed: false, preventHide: false, update() { this.updates++; },
             show() {
-                if (menu.toggle.disabled) return;
+                if (menu.toggle.disabled || menu.popup.classList.contains("show")) return;
                 menu.popup.classList.add("show");
                 menu.toggle.classList.add("show");
                 menu.toggle.setAttribute("aria-expanded", "true");
                 document.emit("shown.bs.dropdown", menu.toggle);
             },
             hide() {
-                if (menu.toggle.disabled || this.preventHide) return;
+                if (menu.toggle.disabled || this.preventHide || !menu.popup.classList.contains("show")) return;
                 menu.popup.classList.remove("show");
                 menu.toggle.classList.remove("show");
                 menu.toggle.setAttribute("aria-expanded", "false");
@@ -175,6 +180,7 @@ function fixture({ reducedMotion = false, autoLoad = true, popover = true } = {}
         const popup = root.append(new Element({ class: "dropdown-menu dropdown-menu-popup", popover: "manual" }));
         popup.rect = { left: 0, top: 0, width: 240, height };
         if (!popover) { popup.showPopover = undefined; popup.hidePopover = undefined; }
+        if (!surfaceAnimations) popup.animate = undefined;
         const viewport = popup.append(new Element({ class: "dropdown-menu-viewport" }));
         const panel = name => { const element = viewport.append(new Element({ "data-dropdown-menu-panel": name })); element.hidden = name !== "root"; return element; };
         const option = (parent, attributes = {}) => parent.append(new Element({ class: "dropdown-item", ...attributes }));
@@ -648,6 +654,29 @@ test("position tracking reacts to a direction change without moving the trigger"
     assert.equal(page.frames.size, 0);
 });
 
+test("an equal-size width parameter change restores positioning after Blazor replaces inline styles", () => {
+    const page = fixture();
+    const menu = page.menu({ open: false, rect: { left: 730, top: 100, width: 60, height: 32 } });
+    menu.popup.rect.width = 200;
+    menu.root.setAttribute("data-menu-width", "12.5rem");
+    menu.instance.show();
+    page.flushFrame();
+    const before = menu.popup.getBoundingClientRect();
+    assert.equal(before.width, 200);
+    assert.ok(before.right <= 800);
+    menu.root.setAttribute("data-menu-width", "200px");
+    menu.popup.style = { "--dropdown-menu-width": "200px" };
+    assert.equal(menu.popup.offsetWidth, before.width, "The replacement must not change geometry and accidentally trigger the existing size check.");
+    assert.equal(menu.popup.offsetHeight, before.height);
+    page.flushFrame();
+    assert.equal(menu.popup.style.position, "fixed");
+    assert.equal(menu.popup.getBoundingClientRect().left, before.left);
+    assert.equal(menu.popup.getBoundingClientRect().top, before.top);
+    assert.ok(menu.popup.style.maxWidth && menu.popup.style.maxHeight);
+    assert.equal(page.topLayer.has(menu.popup), true);
+    assert.equal(page.frames.size, 1);
+});
+
 test("End and Home reveal the focused item by scrolling only the long menu", () => {
     const page = fixture();
     page.viewport(800, 300);
@@ -705,4 +734,201 @@ test("viewport resizing keeps the focused end item visible after the menu become
     assert.ok(menu.popup.scrollTop > initialScroll);
     assert.equal(menu.rootCommand.getBoundingClientRect().bottom, menu.popup.getBoundingClientRect().bottom);
     assert.equal(page.document.body.scrollTop, 0);
+});
+
+test("the surface fades in for 180ms and finishes cleanup after its non-interactive 140ms exit", async () => {
+    const page = fixture({ surfaceAnimations: true });
+    const menu = page.menu();
+    const opening = page.animations[0];
+    assert.equal(opening.element, menu.popup);
+    assert.deepEqual(Array.from(opening.keyframes, frame => frame.opacity), [0, 1]);
+    assert.equal(opening.options.duration, 180);
+    assert.equal(menu.popup.inert, false);
+    await settle([opening]);
+    assert.equal(opening.cancelled, true);
+    assert.equal(page.topLayer.has(menu.popup), true);
+    page.close(menu);
+    const closing = page.animations.at(-1);
+    assert.deepEqual(Array.from(closing.keyframes, frame => frame.opacity), [1, 0]);
+    assert.equal(closing.options.duration, 140);
+    assert.equal(menu.popup.classList.contains("show"), false);
+    assert.equal(menu.toggle.getAttribute("aria-expanded"), "false");
+    assert.equal(menu.popup.classList.contains("is-closing"), true);
+    assert.equal(menu.popup.inert, true);
+    assert.equal(page.topLayer.has(menu.popup), true);
+    assert.equal(page.frames.size, 0);
+    await settle([closing]);
+    assert.equal(page.topLayer.size, 0);
+    assert.equal(menu.popup.inert, false);
+    assert.equal(menu.popup.classList.contains("is-closing"), false);
+});
+
+test("interrupting entrance and exit samples current opacity and ignores obsolete completions", async () => {
+    const page = fixture({ surfaceAnimations: true });
+    const menu = page.menu();
+    const firstOpening = page.animations[0];
+    firstOpening.sample(0.45);
+    page.close(menu);
+    const closing = page.animations.at(-1);
+    assert.equal(firstOpening.cancelled, true);
+    assert.equal(closing.keyframes[0].opacity, 0.45);
+    closing.sample(0.2);
+    menu.instance.show();
+    const reopening = page.animations.at(-1);
+    assert.equal(closing.cancelled, true);
+    assert.deepEqual(Array.from(reopening.keyframes, frame => frame.opacity), [0.2, 1]);
+    assert.equal(menu.popup.classList.contains("is-closing"), false);
+    assert.equal(menu.popup.inert, false);
+    await settle([firstOpening, closing]);
+    assert.equal(page.topLayer.has(menu.popup), true);
+    assert.equal(menu.popup.classList.contains("show"), true);
+    assert.equal(reopening.cancelled, false);
+    await settle([reopening]);
+    assert.equal(page.topLayer.has(menu.popup), true);
+    assert.equal(page.frames.size, 1);
+});
+
+test("an exit that has resolved but not completed its microtask cannot hide a reopened menu", async () => {
+    const page = fixture({ surfaceAnimations: true });
+    const menu = page.menu();
+    await settle([...page.animations]);
+    page.close(menu);
+    const closing = page.animations.at(-1);
+    closing.finish();
+    menu.instance.show();
+    const reopening = page.animations.at(-1);
+    await new Promise(setImmediate);
+    assert.equal(menu.popup.classList.contains("show"), true);
+    assert.equal(menu.popup.inert, false);
+    assert.equal(page.topLayer.has(menu.popup), true);
+    assert.equal(reopening.cancelled, false);
+});
+
+test("reopening during a child panel's exit restores the root while reversing opacity continuously", async () => {
+    const page = fixture({ surfaceAnimations: true });
+    const menu = page.menu();
+    await settle([...page.animations]);
+    page.click(menu.enter);
+    await settle([...page.animations]);
+    assert.equal(menu.child.hidden, false);
+    assert.equal(menu.home.hidden, true);
+    page.close(menu);
+    const closing = page.animations.at(-1);
+    closing.sample(0.4);
+    menu.instance.show();
+    const reopening = page.animations.at(-1);
+    assert.equal(reopening.keyframes[0].opacity, 0.4);
+    assert.equal(menu.home.hidden, false);
+    assert.equal(menu.child.hidden, true);
+    assert.equal(menu.home.inert, false);
+    await settle([closing]);
+    assert.equal(page.topLayer.has(menu.popup), true);
+    assert.equal(menu.popup.classList.contains("show"), true);
+    assert.equal(menu.home.hidden, false);
+    assert.equal(reopening.cancelled, false);
+    await settle([reopening]);
+    assert.equal(menu.home.hidden, false);
+    assert.equal(page.topLayer.has(menu.popup), true);
+});
+
+test("disconnect cancels either surface phase immediately and leaves remounting independent", async () => {
+    for (const phase of ["opening", "closing"]) {
+        const page = fixture({ surfaceAnimations: true });
+        const menu = page.menu();
+        if (phase === "closing") { await settle([...page.animations]); page.close(menu); }
+        const stale = page.animations.at(-1);
+        page.disconnect(menu);
+        assert.equal(stale.cancelled, true, phase);
+        assert.equal(page.topLayer.size, 0, phase);
+        assert.equal(page.frames.size, 0, phase);
+        assert.equal(menu.popup.inert, false, phase);
+        assert.equal(menu.popup.classList.contains("is-closing"), false, phase);
+        page.remount(menu);
+        const reopened = page.animations.at(-1);
+        await settle([stale]);
+        assert.equal(reopened.cancelled, false, phase);
+        assert.equal(page.topLayer.has(menu.popup), true, phase);
+    }
+});
+
+test("disabling an open fading menu cancels the surface without scheduling an exit", () => {
+    const page = fixture({ surfaceAnimations: true });
+    const menu = page.menu();
+    const opening = page.animations[0];
+    menu.toggle.disabled = true;
+    page.flushFrame();
+    assert.equal(opening.cancelled, true);
+    assert.equal(page.animations.length, 1);
+    assert.equal(menu.popup.classList.contains("show"), false);
+    assert.equal(menu.popup.classList.contains("is-closing"), false);
+    assert.equal(menu.popup.inert, false);
+    assert.equal(page.topLayer.size, 0);
+    assert.equal(page.frames.size, 0);
+});
+
+test("reduced motion skips surface fades as well as panel transitions", () => {
+    const page = fixture({ surfaceAnimations: true, reducedMotion: true });
+    const menu = page.menu();
+    page.click(menu.enter);
+    assert.equal(menu.child.hidden, false);
+    page.close(menu);
+    assert.equal(page.animations.length, 0);
+    assert.equal(page.topLayer.size, 0);
+    assert.equal(page.frames.size, 0);
+    assert.equal(menu.home.hidden, false);
+    assert.equal(menu.popup.inert, false);
+});
+
+test("cancelling Bootstrap hide does not start a surface exit or disable the open menu", async () => {
+    const page = fixture({ surfaceAnimations: true });
+    const menu = page.menu();
+    await settle([...page.animations]);
+    menu.instance.preventHide = true;
+    page.close(menu);
+    assert.equal(page.animations.length, 1);
+    assert.equal(menu.popup.classList.contains("show"), true);
+    assert.equal(menu.popup.classList.contains("is-closing"), false);
+    assert.equal(menu.popup.inert, false);
+    assert.equal(menu.toggle.getAttribute("aria-expanded"), "true");
+    assert.equal(page.topLayer.has(menu.popup), true);
+    assert.equal(page.frames.size, 1);
+});
+
+test("surface and panel animations finish independently, and close cancels only pending panel work", async () => {
+    const page = fixture({ surfaceAnimations: true });
+    const menu = page.menu();
+    const opening = page.animations[0];
+    page.click(menu.enter);
+    const panels = page.animations.slice(1);
+    assert.equal(panels.length, 3);
+    await settle([opening]);
+    assert.ok(panels.every(animation => !animation.cancelled));
+    page.close(menu);
+    const closing = page.animations.at(-1);
+    assert.ok(panels.every(animation => animation.cancelled));
+    assert.equal(menu.child.hidden, false, "The target layer remains visible during the exit.");
+    assert.equal(menu.popup.inert, true);
+    await settle(panels);
+    assert.equal(page.topLayer.has(menu.popup), true);
+    assert.equal(closing.cancelled, false);
+    await settle([closing]);
+    assert.equal(menu.home.hidden, false);
+    assert.equal(menu.child.hidden, true);
+    assert.equal(page.topLayer.size, 0);
+});
+
+test("the ordinary-menu fallback retains its closing class only until the exit finishes", async () => {
+    const page = fixture({ surfaceAnimations: true, popover: false });
+    const menu = page.menu();
+    await settle([...page.animations]);
+    page.close(menu);
+    const closing = page.animations.at(-1);
+    assert.equal(closing.options.duration, 140);
+    assert.equal(menu.popup.classList.contains("show"), false);
+    assert.equal(menu.popup.classList.contains("is-closing"), true);
+    assert.equal(menu.popup.inert, true);
+    assert.equal(page.topLayer.size, 0);
+    await settle([closing]);
+    assert.equal(menu.popup.classList.contains("is-closing"), false);
+    assert.equal(menu.popup.inert, false);
 });
