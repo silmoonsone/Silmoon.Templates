@@ -153,6 +153,21 @@ test("all resets only on confirmation; custom inputs are local times", () => wit
     f.picker.dispose();
 }));
 
+test("confirming or editing a range during the repeated hour preserves untouched instants and precision", () => withTimezone("America/New_York", () => {
+    const f = fixture();
+    const range = { startTime: "2026-11-01T06:15:00.1234567Z", endTime: "2026-11-01T06:45:00.9876543Z", label: "已保存" };
+    f.picker.setValue(range);
+    f.open();
+    f.submit();
+    assert.deepEqual(f.applied[0], range);
+
+    f.open();
+    f.input(f.end, "2026-11-01T02:05");
+    f.submit();
+    assert.deepEqual(f.applied[1], { startTime: range.startTime, endTime: "2026-11-01T07:05:00.000Z", label: "自定义" });
+    f.picker.dispose();
+}));
+
 test("date-only custom ranges include both entire local dates and cancel/all preserve the commit boundary", () => withTimezone("Asia/Shanghai", () => {
     const f = fixture(undefined, false);
     f.open();

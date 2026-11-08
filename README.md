@@ -11,6 +11,8 @@ sone@silmoon.com
 
 使用 .NET 10 SDK 创建项目。示例项目名为 `Demo.Web`。首次使用 LibMan 时，先运行 `dotnet tool install --global Microsoft.Web.LibraryManager.Cli`。
 
+维护项目时，建议将 NuGet 依赖尽量升级到与目标框架和其他依赖兼容的最新稳定版。在项目目录运行 `dotnet package list --outdated` 可查看可用更新。
+
 ```powershell
 dotnet new install Silmoon.Templates
 dotnet new ffweb -n Demo.Web -o Demo.Web
@@ -23,7 +25,7 @@ dotnet run
 
 模板通过 NuGet 包 `Silmoon.AspNetCore.Blazor` 使用确认框、下拉选择、多级菜单、日期范围、枚举、目录树、时间输入、内容卡片和数据表格。运行后访问 `/backend/components-demo` 查看示例。
 
-现代颜色宿主配置、项目范围和旧 DataGrid 迁移见[模板接入指南](Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。公共 API 和原生 Blazor 示例见[上层控件手册](https://github.com/silmoonsone/Silmoon.AspNetCore/blob/master/README/BlazorComponents.md)。已发布版本另附[NuGet 3.2.0 包说明](https://www.nuget.org/packages/Silmoon.AspNetCore.Blazor/3.2.0)。
+现代颜色宿主配置、项目范围和旧 DataGrid 迁移见[模板接入指南](Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。公共 API 和原生 Blazor 示例见[上层控件手册](https://github.com/silmoonsone/Silmoon.AspNetCore/blob/master/README/BlazorComponents.md)。发布版本和安装说明见 [NuGet 包页面](https://www.nuget.org/packages/Silmoon.AspNetCore.Blazor)。
 
 库负责按需加载组件脚本，模板负责现代颜色适配。原生 Blazor 宿主可以使用库的默认样式，静态 cshtml 的入口和 Bootstrap 依赖见控件指南。
 

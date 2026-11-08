@@ -47,6 +47,19 @@ Bootstrap 共享浮层样式在 `/ModernColorDemo` 检查：菜单背景不透�
 
 ## 已验证范围与限制
 
+### 公共控件 3.2.1（2026-11-08）
+
+模板、Portal、AppHub、TransactionHostServer 和 TradingServer 均使用 NuGet.org 的 3.2.1 完成 Release 构建。模板通过 178 项组件及布局 JavaScript 测试和 13 项 C# 契约。新增的纽约夏令时回拨用例验证了直接确认时保留原始 UTC 端点、七位小数和标签，以及只改结束时间时保留原始起点。
+
+使用模板的 Release 发布产物启动宿主后，`/backend/components-demo`、应用及公共控件隔离样式、Blazor 模块初始化入口均返回 HTTP 200。实际返回的日期 v6、表格 v2 和菜单 v5 脚本与还原包中的文件逐字节一致。Trading 的 WebTrade 模拟浏览器补齐了新版表格排序使用的 `Blob`，离线预览使用包内实际的互操作脚本文件名。
+
+在 3.2.0 与 3.2.1 上分别复现了下列两个边界问题。
+
+- 在 `America/Santiago` 的 2026-09-06 选择“上月”，结束日期会进入 9 月 1 日。日期模式多包含整天，时间模式多包含第一小时。
+- 延迟 `EnumSelect` 或 `TreePicker` 首次模块导入，期间卸载组件再完成导入。两者均在卸载后调用一次 `initialize`，模块释放次数为零。
+
+### 此前版本的验收记录
+
 2026-11-08，Portal、AppHub、TransactionHostServer 均以 3.2.0 完成 Release 构建和发布目录验证。逐项解析三份发布产物的应用 `.styles.css` 及其 `@import`、Blazor `.modules.json` 指定的初始化模块、它导入的公共加载器、`DataGrid.razor.js` 和现代颜色资源，文件均存在。使用的包与 NuGet.org 的 3.2.0 对比，24 项包内容一致。模板另通过 177 项组件及布局 JS 测试和 13 项 C# 契约。适用范围见[模板接入指南](../../Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。
 
 同日核对 Trading 工作树，持仓、历史和对平选单均已引用公共表格，原有四个 DataGrid 文件已删除。Trading 主任务报告解决方案及测试宿主 Release 构建均为 0 警告、0 错误，662 项 Node 测试全部通过。Chrome 在桌面、390px 窄屏及明暗主题下使用模拟交易数据验证了刷新、嵌套按钮、键盘操作、排序后行列号和离页重挂。交易侧复测步骤见 Trading 仓库的 `HubAccountBroadcastHarness/README.md`。
@@ -70,11 +83,6 @@ Portal 和 AppHub 使用实际 Release 依赖离线验证了登录、退出、�
 在模板的 Release 发布产物中切换系统主题，表头和打开的确认框同步变色，表格选中项保持不变。筛选提示采用主题次级文字后，明暗模式下与输入背景的对比度分别为 5.94:1 和 5.40:1。启用“减少动态效果”后打开菜单，没有运行中的动画。
 
 纯静态 `_BlankLayout` 的浏览器验证还覆盖了旧式 JS 调用：`DropdownSelect.bind` 切换语言与文字方向，用户更改只产生一次 `change`；`SiteDialogs.confirm` 通过指定模板返回确认或取消；`DateTimeRangePicker` 支持自定义文字、程序设值、一次应用回调和销毁后解绑。该页未加载 Blazor 运行时。
-
-正式包仍可复现两项限制：
-
-- 将浏览器时区设为 `America/Santiago`，在 2026-09-06 选择“上月”。日期模式会把 9 月 1 日整天算入八月，时间模式的结束值落在 9 月 1 日 00:59:59.999。“近30天”在相同条件下正确。
-- 延迟 `EnumSelect` 或 `TreePicker` 首次 JS 模块导入，在它完成前卸载组件，再允许导入完成。两者均在卸载后调用 `initialize`，模块引用未释放。常规卸载测试覆盖的是导入已经完成的情况。
 
 2026-11-08 九个通用控件接入公共库后的回归通过 155 项 JavaScript 测试和 13 项 C# 契约。近 30 天按钮的顺序和本地化文字改由 C# 契约检查实际渲染结果。Chrome 在独立 Blazor 子路径上验证表单校验、弹层、两种行管理模式和确认框。纯静态 Razor Pages 初始不渲染控件时不会请求对应模块，插入控件后每个模块加载一次。真实模板的 Release 发布产物使用 Blazor 自动发现的带指纹入口以及 cshtml 的固定 `js/component-modules.js`，两条路径均已验证。
 

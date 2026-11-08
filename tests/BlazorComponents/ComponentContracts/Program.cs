@@ -47,39 +47,54 @@ static async Task TreePickerDisabledContract()
 {
     var picker = new TreePicker();
     var callbacks = new List<string>();
-    Set(picker, nameof(TreePicker.Value), "/documents/");
-    Set(picker, nameof(TreePicker.Folders), new[] { "/documents/", "/reports/" });
-    Set(picker, nameof(TreePicker.AllowCreate), true);
-    Set(picker, nameof(TreePicker.ValueChanged), EventCallback.Factory.Create<string>(callbacks, (Action<string>)callbacks.Add));
-    await InvokeAsync(picker, "OnParametersSetAsync");
-    Require(callbacks.Count == 0, "An already normalized initial value must not trigger ValueChanged.");
+    using var services = new ServiceCollection()
+        .AddSingleton<IJSRuntime>(new ConfirmJsRuntime())
+        .AddSingleton<IComponentActivator>(new TreePickerActivator(picker)).BuildServiceProvider();
+    await using var renderer = new HtmlRenderer(services, NullLoggerFactory.Instance);
+    await renderer.Dispatcher.InvokeAsync(async () =>
+    {
+        var rendered = await renderer.RenderComponentAsync<TreePicker>(ParameterView.FromDictionary(new Dictionary<string, object?>
+        {
+            [nameof(TreePicker.Value)] = "/documents/",
+            [nameof(TreePicker.Folders)] = new[] { "/documents/", "/reports/archive/" },
+            [nameof(TreePicker.AllowCreate)] = true,
+            [nameof(TreePicker.ValueChanged)] = EventCallback.Factory.Create<string>(callbacks, (Action<string>)callbacks.Add)
+        }));
+        string Html()
+        {
+            Invoke(picker, "StateHasChanged");
+            return rendered.ToHtmlString();
+        }
+        Task SetDisabled(bool disabled) => picker.SetParametersAsync(ParameterView.FromDictionary(
+            new Dictionary<string, object?> { [nameof(TreePicker.Disabled)] = disabled }));
 
-    Invoke(picker, "TogglePicker");
-    Require(Get<bool>(picker, "IsOpen"), "The enabled picker must open.");
-    Set(picker, nameof(TreePicker.Disabled), true);
-    await InvokeAsync(picker, "OnParametersSetAsync");
-    Require(!Get<bool>(picker, "IsOpen"), "Changing Disabled to true must close the open picker.");
+        Require(callbacks.Count == 0, "An already normalized initial value must not trigger ValueChanged.");
+        Invoke(picker, "TogglePicker");
+        Require(Html().Contains(">/reports/</span>"), "The enabled picker must open and show the reports folder.");
+        await SetDisabled(true);
+        Require(!Html().Contains("role=\"tree\""), "Changing Disabled to true must close the open picker.");
+        Invoke(picker, "TogglePicker");
+        Require(!Html().Contains("role=\"tree\""), "A queued toggle must not reopen a disabled picker.");
+        Invoke(picker, "ToggleFolder", "/reports/");
+        await InvokeAsync(picker, "SelectFolder", "/reports/");
+        Set(picker, "NewFolderName", "drafts");
+        await InvokeAsync(picker, "CreateFolder");
+        Require(picker.Value == "/documents/" && callbacks.Count == 0, "Queued selection and creation must not change the disabled value or invoke ValueChanged.");
 
-    var expandedFolders = Get<HashSet<string>>(picker, "ExpandedFolders").ToHashSet(StringComparer.Ordinal);
-    var additionalFolders = Get<HashSet<string>>(picker, "AdditionalFolders").ToHashSet(StringComparer.Ordinal);
-    Invoke(picker, "TogglePicker");
-    Require(!Get<bool>(picker, "IsOpen"), "A queued toggle must not reopen a disabled picker.");
-    Invoke(picker, "ToggleFolder", "/reports/");
-    Require(expandedFolders.SetEquals(Get<HashSet<string>>(picker, "ExpandedFolders")), "A disabled picker must not change expanded folders.");
-    await InvokeAsync(picker, "SelectFolder", "/reports/");
-    Require(picker.Value == "/documents/" && callbacks.Count == 0, "A queued selection must not change the disabled value or invoke ValueChanged.");
-    Set(picker, "NewFolderName", "drafts");
-    await InvokeAsync(picker, "CreateFolder");
-    Require(picker.Value == "/documents/" && callbacks.Count == 0, "A queued create must not change the disabled value or invoke ValueChanged.");
-    Require(additionalFolders.SetEquals(Get<HashSet<string>>(picker, "AdditionalFolders")), "A disabled create must not add a folder.");
-    Require(expandedFolders.SetEquals(Get<HashSet<string>>(picker, "ExpandedFolders")), "Disabled selection and creation must not change expanded folders.");
-
-    Set(picker, nameof(TreePicker.Disabled), false);
-    await InvokeAsync(picker, "OnParametersSetAsync");
-    Invoke(picker, "TogglePicker");
-    Require(Get<bool>(picker, "IsOpen"), "Re-enabling the picker must allow opening it again.");
-    await InvokeAsync(picker, "SelectFolder", "/reports/");
-    Require(picker.Value == "/reports/" && callbacks.SequenceEqual(new[] { "/reports/" }), "Re-enabling the picker must restore selection and emit exactly one ValueChanged.");
+        await SetDisabled(false);
+        Invoke(picker, "TogglePicker");
+        var reopened = Html();
+        Require(reopened.Contains(">/reports/</span>") && !reopened.Contains("/reports/archive/"), "A queued expansion must leave the reports branch collapsed on reopening.");
+        Require(!reopened.Contains("/documents/drafts/"), "A disabled create must not add a visible child under the current folder.");
+        Invoke(picker, "ToggleFolder", "/reports/");
+        Require(Html().Contains(">/reports/archive/</span>"), "An enabled branch must show its children when expanded.");
+        await InvokeAsync(picker, "SelectFolder", "/reports/");
+        Require(picker.Value == "/reports/" && callbacks.SequenceEqual(new[] { "/reports/" }), "Re-enabling must restore selection and emit exactly one ValueChanged.");
+        Set(picker, "NewFolderName", "drafts");
+        await InvokeAsync(picker, "CreateFolder");
+        Require(Html().Contains(">/reports/drafts/</span>") && callbacks.SequenceEqual(new[] { "/reports/", "/reports/drafts/" }),
+            "The same folder name must create a visible child and emit its path when enabled.");
+    });
 }
 
 static Task EnumSelectDisabledContract()
@@ -168,7 +183,7 @@ static async Task DropdownSelectLinkContract()
     });
 
     var enabledHtml = await Render(false);
-    Require(enabledHtml.Contains("<silmoon-blazor-module src=\"https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/DropdownSelect.razor.js?v=5\""), "SSR must declare its own module with the application base path, including on deep cshtml routes without a base tag.");
+    DeclaredModuleUrl(enabledHtml, "DropdownSelect");
     Require(enabledHtml.Contains("<details ") && enabledHtml.Contains("<summary ") && enabledHtml.Contains("popover=\"manual\""), "SSR must retain native details/summary and its popover enhancement without requiring an interactive circuit.");
     Require(enabledHtml.Contains("data-align-end=\"false\"") && enabledHtml.Contains("data-open-upward=\"false\""), "The default select must align to the logical start and prefer opening downward.");
     foreach (var alignEnd in new[] { false, true })
@@ -214,7 +229,7 @@ static async Task DropdownMenuRenderingContract()
     });
 
     var html = await Render(false);
-    Require(html.Contains("<silmoon-blazor-module src=\"https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/DropdownMenu.razor.js?v=4\""), "SSR must declare the module with the application base path without invoking interactive JS.");
+    DeclaredModuleUrl(html, "DropdownMenu");
     Require(html.Contains("style=\"--dropdown-menu-width: 12.5rem\"") && html.Contains("data-menu-width=\"12.5rem\"") && html.Contains("data-auto-width=\"false\""), "The default menu width must be 12.5rem, equivalent to 200px at a 16px root font, and expose the same value to position tracking.");
     foreach (var width in new[] { (Input: " auto ", Expected: "max-content", Auto: true), (Input: "AUTO", Expected: "max-content", Auto: true), (Input: " 20rem ", Expected: "20rem", Auto: false), (Input: "calc(100vw - 2rem)", Expected: "calc(100vw - 2rem)", Auto: false), (Input: "  ", Expected: "12.5rem", Auto: false) })
     {
@@ -325,15 +340,25 @@ static async Task ConfirmDialogLoadingContract()
     await using var renderer = new HtmlRenderer(services, NullLoggerFactory.Instance);
     var html = await renderer.Dispatcher.InvokeAsync(async () => (await renderer.RenderComponentAsync<ConfirmDialog>()).ToHtmlString());
     Require(js.Calls.Count == 0, "Static rendering must not invoke JavaScript interop.");
-    Require(html.Contains("<silmoon-blazor-module src=\"https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/ConfirmDialog.razor.js?v=4\""), "The static template must declare the same module URL as interactive calls.");
-    Require(html.Contains("data-module-src=\"https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/ConfirmDialog.razor.js?v=4\""), "Native callers must be able to await the component-declared module without maintaining its path or version.");
+    var moduleUrl = DeclaredModuleUrl(html, "ConfirmDialog");
+    Require(html.Contains($"data-module-src=\"{moduleUrl}\""), "Native callers must be able to await the component-declared module without maintaining its path or version.");
 
     await using var dialog = new ConfirmDialog();
     Set(dialog, "Js", js);
     Set(dialog, "Navigation", navigation);
     Require(await dialog.ConfirmAsync("First") && await dialog.ConfirmAsync("Second"), "Both calls must await the module before invoking the confirmation API.");
     Require(js.Calls.Select(call => call.Identifier).SequenceEqual(new[] { "import", "SiteDialogs.confirm", "SiteDialogs.confirm" }), "Repeated confirmation calls must import once and preserve the public API.");
-    Require((string?)js.Calls[0].Arguments?[0] == "https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/ConfirmDialog.razor.js?v=4", "Interactive import and the static declaration must share the absolute module URL.");
+    Require((string?)js.Calls[0].Arguments?[0] == moduleUrl, "Interactive import and the static declaration must share the absolute module URL.");
+}
+
+static string DeclaredModuleUrl(string html, string component)
+{
+    var match = Regex.Match(html, "<silmoon-blazor-module\\b[^>]*\\ssrc=\"([^\"]+)\"");
+    var url = match.Groups[1].Value;
+    var expected = $"https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/{component}.razor.js";
+    Require(Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.GetLeftPart(UriPartial.Path) == expected
+        && Regex.IsMatch(uri.Query, @"^\?v=[^&#]+$"), $"{component} must declare its versioned module under the application base path. Got '{url}'.");
+    return url;
 }
 
 static async Task DateRangeShortcutContract()
@@ -440,6 +465,12 @@ enum SampleMode
     [Display(Name = "列表", Description = "按列表展示内容。")]
     List = 1,
     Grid = 2
+}
+
+sealed class TreePickerActivator(TreePicker picker) : IComponentActivator
+{
+    public IComponent CreateInstance(Type componentType) =>
+        componentType == typeof(TreePicker) ? picker : throw new NotSupportedException(componentType.FullName);
 }
 
 sealed class EnumDisposalModel

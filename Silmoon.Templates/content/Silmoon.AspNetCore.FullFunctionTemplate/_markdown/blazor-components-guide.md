@@ -2,11 +2,11 @@
 
 库中的九个通用控件位于 `Silmoon.AspNetCore.Blazor.Components`。模板在 `/backend/components-demo` 提供交互示例，页面状态保存在内存中。应用布局、认证和简单错误提示 `AlertComponent` 由模板维护。
 
-公共 API、DataGrid 模块用法和故障排查见[上层控件手册](https://github.com/silmoonsone/Silmoon.AspNetCore/blob/master/README/BlazorComponents.md)。3.2.0 发布包内附有 [README](https://www.nuget.org/packages/Silmoon.AspNetCore.Blazor/3.2.0)。运行上层示例项目 `Silmoon.AspNetCore.Test` 后，可在 `/component-test` 查看原生 Blazor 示例。
+已安装的包内附有 `docs/BlazorComponents.md`，可按实际使用的版本查阅组件 API、DataGrid 模块用法和故障排查。运行上层示例项目 `Silmoon.AspNetCore.Test` 后，可在 `/component-test` 查看原生 Blazor 示例。[上层控件手册](https://github.com/silmoonsone/Silmoon.AspNetCore/blob/master/README/BlazorComponents.md)
 
 ## 接入公共库
 
-1. .NET 10 模板通过 `PackageReference` 引用 `Silmoon.AspNetCore.Blazor`；这九个控件从 3.2.0 版开始提供，该包目标框架为 `net10.0`。在 `_Imports.razor` 中添加 `@using Silmoon.AspNetCore.Blazor.Components`。升级已有宿主时，先核对同名本地组件、模型和调用方，再移除已替换的副本与脚本引用，避免类型冲突或旧监听器拦截操作。
+1. 通过 `PackageReference` 引用 `Silmoon.AspNetCore.Blazor`，建议使用与宿主目标框架兼容的最新 NuGet 稳定版。在 `_Imports.razor` 中添加 `@using Silmoon.AspNetCore.Blazor.Components`。从本地组件迁移时，先核对同名组件、模型和调用方，再移除已替换的副本与脚本引用。[NuGet 包页面](https://www.nuget.org/packages/Silmoon.AspNetCore.Blazor)
 2. 保留宿主原有的应用隔离样式文件（`应用名.styles.css`）。公共库的样式会被自动导入。控件可直接使用原生 Blazor 配色；模板在 `wwwroot/css/site.css` 将现代颜色传给控件。多级菜单需要 Bootstrap 5 bundle（含 Popper），菜单及调用方传入的 `bi-*` 图标使用 Bootstrap Icons。
 3. 普通 Blazor Web App 随 Blazor 启动加载库初始化模块。`DropdownMenu`、`DropdownSelect` 和 `ConfirmDialog` 通过 `silmoon-blazor-module` 声明自己的模块，进入页面、增强导航或插入组件后才下载相应脚本。日期、枚举、目录选择器和表格在交互模式下自行导入模块。库内部的 `silmoon-blazor-module` 仅导入本库 `Components/` 下的模块。宿主页面自己的脚本应由该页按需导入。
 4. 纯 cshtml/MVC 页面可以在布局中增加下面的库入口，用于没有 Blazor 运行时的静态菜单和确认框。模板的静态布局已包含此行。真实链接可用于静态渲染，`@bind-Value`、`ItemSelected` 等 .NET 回调需要交互式渲染。`EnumSelect` 和 `TimeInput` 可以直接与 `EditForm`、`ValidationMessage` 配合使用。
@@ -27,7 +27,7 @@
 | --- | --- |
 | Silmoon.AspNetCore.FullFunctionTemplate | 现代颜色 Blazor 布局及 `/backend/components-demo`；也是主题映射和 cshtml 接入的参考宿主。 |
 | Snowfintech.AspNetCore.Portal、Silmoon.AspNetCore.AppHub、Silmoon.Blockchain.TransactionHostServer | 现代颜色 cshtml 布局与交互式 Blazor 共存。核对应用包引用、Blazor 宿主隔离样式、`site.css` 主题映射和静态根布局的模块入口。 |
-| Silmoon.Trading.Server | 持仓、历史和对平选单均使用 3.2.0 的 `DataGrid<TItem>` 和 `JavaScriptManaged="true"`。`WebTradePositions.razor.js` 导入公共模块的 `mount`，交易页提供行键、筛选和业务回调。日期范围等定制控件由 Trading 维护。 |
+| Silmoon.Trading.Server | 持仓、历史和对平选单均使用公共库的 `DataGrid<TItem>` 和 `JavaScriptManaged="true"`。`WebTradePositions.razor.js` 导入公共模块的 `mount`，交易页提供行键、筛选和业务回调。日期范围等定制控件由 Trading 维护。 |
 
 HtmlColorScheme 是静态 HTML；Id、WebSite 未启用交互 Blazor；KnowledgeServer 使用 Razor Pages。这四处继续接收现代颜色核心 CSS/JS。只有旧控件副本、没有现代颜色布局的其他 Blazor 项目不在这次迁移范围内。项目以后启用或移除交互路由时，需重新核对范围。
 
@@ -167,7 +167,7 @@ cshtml/MVC 中的纯链接示例（宿主需具备 Razor 组件服务及 Compone
 ```
 
 - 库提供组件、模型、隔离样式和 JS 模块。宿主提供 Bootstrap 5 bundle（含 Popper）和图标，纯 cshtml 页面按上文引入库初始化模块。
-- `Items` 是递归 `Children` 树，无固定层级上限，数据不得循环引用。`Key` 只供调用方识别，内部面板用位置路径关联，不要求每个业务 Key 全局唯一。`Children` 优先于 `Href`：非空分组只进入子菜单；启用的链接叶子原生跳转、不触发 `ItemSelected`；普通叶子才触发该回调。
+- `Items` 是递归 `Children` 树，无固定层级上限，数据不得循环引用。`Key` 只供调用方识别，内部面板用位置路径关联，不要求每个业务 Key 全局唯一。`Children` 优先于 `Href`：非空分组只进入子菜单；启用的链接叶子原生跳转、不触发 `ItemSelected`；普通叶子才触发该回调。菜单打开期间，父组件可以就地更新 `Items`。移除或替换当前子菜单后，控件会返回根菜单。
 - 叶子项的 `Selected` 为可空布尔值（分组不使用此字段）：null 不显示选中标记，false 预留标记位置，true 显示选中状态。组件不自动修改调用方的数据或选中值。`Disabled` 可禁用整个组件或单个选项；`IconClass`、`Class` 和 `AdditionalAttributes` 可定制外观。组件另提供 `Label`、`BackLabel`、`TriggerText`、`EnhanceNavigation`（默认 true）、`AlignEnd`（默认 false）、`OpenUpward`（默认 false）和 `MenuWidth`（默认 `12.5rem`）。
 - `MenuWidth` 接受 CSS 宽度值，如 `200px`、`20rem`、`320px`；默认 `12.5rem` 在根字体为 16px 时等于 200px，并随根字体缩放。模板窄屏根字体为 14px 时对应 175px；需要始终指定 200px 时使用 `MenuWidth="200px"`。`MenuWidth="auto"` 按当前层内容自适应，内部使用 `max-content`，隐藏层和离场层不撑宽。固定宽度较窄时选项文字换行；可见视口的最大宽度限制始终优先于指定宽度。演示页可选择固定值或自适应，导航菜单另展示自适应效果。
 - 浮层默认与触发器的逻辑起始侧对齐，在 LTR 页面向右展开；`AlignEnd="true"` 用于右上角等需要末端对齐的入口。默认向下、`OpenUpward="true"` 优先向上，可用空间不足时自动翻转并限制在可见视口内，长菜单内部滚动。支持原生 Popover 的浏览器使用顶层浮层，保留 Blazor DOM 与事件，脱离卡片裁切及侧栏层叠上下文；旧浏览器回退普通定位，仍可能受祖先裁切限制。调用方无需抬高卡片 z-index。
@@ -202,7 +202,8 @@ cshtml/MVC 中的纯链接示例（宿主需具备 Razor 组件服务及 Compone
 - `IncludeTime` 默认 `true`，可以在 Blazor 管理模式下动态切换，组件会重建浏览器实例并同步绑定值。`false` 使用日期输入，`true` 使用日期时间输入并保留毫秒。
 - 输入按浏览器本地时区解释，确认后返回 UTC `DateTimeOffset`，起止端点均包含。仅日期模式涵盖开始与结束日期全天；跨夏令时的日期取当天第一个有效时刻至次日开始前一毫秒，不能假设每天固定 24 小时。
 - 快捷项在两种模式下都生成完整日期范围；周一是周起点，近三天包含今天；“近30天”位于“本月”和“上月”之间，包含今天及此前 29 天，按本地日历计算而非固定小时数。本周／本月截止今天结束，月跨度会将月末夹到目标月最后一天。
-- 3.2.0 的已知例外：在 `America/Santiago` 的午夜夏令时跳变日（例如 2026-09-06），“上月”会多包含 9 月 1 日的时间。依赖严格月界的查询应核对传入端点；“近30天”未出现这个问题。
+- 依赖严格月界的查询应在升级后复测午夜夏令时跳变。例如将时区设为 `America/Santiago`、当前日期设为 2026-09-06，选择“上月”，确认结束值落在当地 8 月 31 日。已验收的部分版本会把 9 月 1 日的时间也算入范围。
+- `IncludeTime="true"` 时直接确认已有范围，会保留两个端点的原始时刻、精度和标签。只改一端也会保留另一端的原值，包括夏令时回拨时重复出现的本地时间。
 - 编辑和快捷项只修改草稿；确认才通知宿主，取消／Esc 不通知。控件不会提交外层 `EditForm`，也不创建嵌套表单。
 - 浏览器原生日期输入的外观由浏览器和操作系统决定，`color-scheme` 随页面主题继承；不要为它叠加重复图标反色或隐藏原生日期按钮。
 
@@ -229,7 +230,7 @@ cshtml/MVC 中的纯链接示例（宿主需具备 Razor 组件服务及 Compone
 可通过 `Texts` 字典按默认中文文案覆盖标签、快捷项和提示；没有指定的项目保留默认文案。以下 JS 示例假定页面的 `<base>` 指向应用根目录，纯 cshtml 可改用 `Url.Content("~/_content/...")` 生成地址。已有 JS 页面可以使用 `<DateTimeRangePicker JavaScriptManaged="true" IncludeTime="false" />`，保留 `mount / setValue / dispose` 接口：
 
 ```javascript
-await import(new URL("_content/Silmoon.AspNetCore.Blazor/Components/DateTimeRangePicker.razor.js?v=5", document.baseURI));
+await import(new URL("_content/Silmoon.AspNetCore.Blazor/Components/DateTimeRangePicker.razor.js", document.baseURI));
 const picker = window.DateTimeRangePicker.mount(root, {
     onApply: async range => {
         try {
@@ -279,10 +280,10 @@ picker.dispose();
 ```
 
 - `EnumSelect<TEnum>` 要求 `struct, Enum`，默认列出所有枚举成员；可传 `Options: IReadOnlyCollection<TEnum>` 限定选项、`Disabled` 禁用，`ShowDescriptions` 默认 `true`。名称与描述使用 `DisplayAttribute` 的 `Name`、`Description`；未声明的初始值显示其字符串，不会自动选择第一项。它是单值选择器，不负责组合 `[Flags]`。
-- `TreePicker` 接收 `Folders: IReadOnlyCollection<string>` 和字符串 `Value / ValueChanged`，提供 `Placeholder`、`AllowCreate`、`Disabled`。空值归一为根目录 `/`，目录前后使用 `/`；创建子目录只是更新字符串并回调，不写磁盘、不保存数据。新增单级名称不能为 `.`、`..` 或含 `/`、`\`、`*`。
-- `TimeInput` 绑定 `TimeSpan`，以 `HH:mm` 输入，默认允许 `00:00` 至 `23:59`；`AllowEndOfDay="true"` 增加 `24:00`，其值为 `TimeSpan.FromDays(1)`。它表达一天内的时间位置，不携带日期或时区；无效输入显示表单验证信息，不覆盖上一个有效值。
+- `TreePicker` 接收 `Folders: IReadOnlyCollection<string>` 和字符串 `Value / ValueChanged`，提供 `Placeholder`、`AllowCreate`、`Disabled`。空值归一为根目录 `/`，目录前后使用 `/`。切换数据集时一并更新 `Folders` 和 `Value`，树中只额外保留此实例手动创建的目录。创建子目录只是更新字符串并回调，不写磁盘、不保存数据。新增单级名称不能为 `.`、`..` 或含 `/`、`\`、`*`。
+- `TimeInput` 绑定 `TimeSpan`，以 `HH:mm` 输入，默认允许 `00:00` 至 `23:59`；`AllowEndOfDay="true"` 增加 `24:00`，其值为 `TimeSpan.FromDays(1)`。Blazor Server 上可以连续键入 `12:34`，每次输入都会更新校验状态。它表达一天内的时间位置，不携带日期或时区；无效输入显示表单验证信息，不覆盖上一个有效值。
 - 三者不需要页面手写 JS。枚举与目录组件负责外部点击、键盘相关监听和释放；时间输入完全由 Blazor 管理。
-- 3.2.0 的生命周期限制：如果 `EnumSelect` 或 `TreePicker` 在首次模块导入完成前已被移除，迟到的初始化仍会执行，模块引用不会释放。频繁动态挂载这两个控件时，应将慢加载后立即离页纳入升级回归。
+- 动态挂载 `EnumSelect` 或 `TreePicker` 的页面，升级后应复测首次模块导入期间离开页面的情况。已验收的部分版本会在卸载后继续初始化，且未释放模块引用。
 - 枚举和目录面板使用浏览器原生 Popover API，在顶层显示，保留 Blazor 对节点和事件的管理。它们可以放在带 `overflow: hidden` 的卡片或滚动容器内，面板按触发按钮定位并限制在可见视口内；不要通过全局取消卡片裁切或增加 `z-index` 代替组件定位。
 
 ## DataGrid：可排序、筛选的数据表格
@@ -304,7 +305,7 @@ picker.dispose();
 }
 ```
 
-`Items` 是已加载的数据。数据会增删或重排时，传入稳定且唯一的 `RowKey`。交互式 Blazor 按需导入库模块，点击列标题依次按升序、降序、原始顺序排列。筛选在浏览器执行。数字单元格用 `data-grid-type="number"`，可通过 `data-grid-value` 指定用于排序的原始值。静态 SSR 可以显示行，交互操作需要交互式渲染或由调用方挂载 JS。
+`Items` 是已加载的数据。数据会增删或重排时，传入稳定且唯一的 `RowKey`。交互式 Blazor 按需导入库模块，点击列标题依次按升序、降序、原始顺序排列。Blazor 管理行时，大批行键的排序结果由控件自动以流传回，使用 GUID 行键也可沿用 SignalR 默认消息大小。筛选在浏览器执行。数字单元格用 `data-grid-type="number"`，可通过 `data-grid-value` 指定用于排序的原始值。静态 SSR 可以显示行，交互操作需要交互式渲染或由调用方挂载 JS。
 
 `OnRowClick`、`OnRowDoubleClick` 接收 `DataGridRowEvent<TItem>`，包含记录、键、列键和从 0 开始的可见行号与列号。开启 `SingleSelect` 后可用方向键选择行，`OnSelectionChanged` 接收所选键，取消选择时为 `null`。行内按钮和链接保留自己的操作。
 
