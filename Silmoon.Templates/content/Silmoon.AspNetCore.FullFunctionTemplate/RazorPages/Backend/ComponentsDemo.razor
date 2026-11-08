@@ -7,7 +7,7 @@
 
 <header class="content-header">
     <h1>通用控件</h1>
-    <p class="text-secondary mt-2">确认、日期范围、下拉菜单、表单输入和内容卡片的独立示例。更多交互与组合用法可在页尾展开，操作结果只保存在当前页面。</p>
+    <p class="text-secondary mt-2">确认、日期范围、下拉菜单、表单输入、数据表格和内容卡片的独立示例。更多交互与组合用法可在页尾展开，操作结果只保存在当前页面。</p>
 </header>
 
 @if (!string.IsNullOrWhiteSpace(ErrorMessage))
@@ -131,6 +131,20 @@
     <output class="d-block mt-3 text-break" aria-live="polite">当前目录：@Folder</output>
 </section>
 
+<section class="card p-4 mb-4" aria-labelledby="grid-heading">
+    <h2 id="grid-heading" class="h4">数据表格</h2>
+    <DataGrid TItem="DemoComponent" Items="ComponentRows" RowKey="item => item.Name"
+              Label="控件目录" FilterLabel="筛选控件" EmptyFilterText="没有匹配的控件。"
+              SingleSelect="true" OnSelectionChanged="key => SelectedComponent = key">
+        <Header>
+            <th scope="col"><button type="button" data-grid-sort="name">控件</button></th>
+            <th scope="col"><button type="button" data-grid-sort="purpose">用途</button></th>
+        </Header>
+        <RowTemplate Context="item"><td>@item.Name</td><td>@item.Purpose</td></RowTemplate>
+    </DataGrid>
+    <output class="d-block mt-2" aria-live="polite">当前选择：@(SelectedComponent ?? "未选择")</output>
+</section>
+
 <ContentCard Title="内容卡片" Description="默认占满可用宽度，可放置说明、列表或其他组件。" Class="mb-4">
     <ChildContent>
         <p class="mb-0">标题、品牌、图标和页脚均可选。居中表单与多实例用法见下方“更多交互示例”。</p>
@@ -193,6 +207,14 @@
 </details>
 
 @code {
+    sealed record DemoComponent(string Name, string Purpose);
+    static readonly DemoComponent[] ComponentRows = [
+        new("DataGrid", "排序、筛选与选择行"),
+        new("ContentCard", "展示内容与表单"),
+        new("TimeInput", "输入时刻")
+    ];
+    string? SelectedComponent { get; set; }
+
     string DropdownValue { get; set; } = "comfortable";
     bool DropdownDisabled { get; set; }
     bool DropdownOpenUpward { get; set; }

@@ -132,13 +132,13 @@ SignalR 默认未启用：`AddSignalR()`、Chat service 注册和两个 `MapHub`
 
 ## 通用控件与按需模块
 
-通用 API 和迁移清单见[控件指南](../../../_markdown/blazor-components-guide.md)。`ConfirmDialog`、`DropdownSelect`、`DropdownMenu` 通过组件内的 `silmoon-module` 声明模块，宿主保留 `site.js` 注册的通用加载入口和隔离样式／图标；多级菜单还依赖 Bootstrap 5 bundle（含 Popper）。确认框方法内也等待同一模块；原生调用方从模板 `data-module-src` 读取地址并等待导入。`App.razor`、静态布局无需逐个引用这些专用脚本。
+九个通用控件从 `Silmoon.AspNetCore.Blazor.Components` 引用。Blazor 启动时加载库初始化模块，纯静态 cshtml 通过 `<script type="module">` 加载同一入口。确认框、下拉选择及多级菜单按组件声明导入各自的模块，多级菜单需要 Bootstrap 5 bundle。详见[控件指南](../../../_markdown/blazor-components-guide.md)。
 
 `DropdownSelect` 的真实 `Href` 支持静态呈现，`ValueChanged` 则需交互渲染；`DropdownMenu` 的分组与链接也支持静态呈现，`ItemSelected` 需要交互渲染。迁移时确认目标已注册相应 Razor 组件服务；不要仅依赖 `OnAfterRenderAsync` 处理静态 SSR，也不要把已有项目的 `Server`、`@Assets` 或目录差异机械改成模板默认形式。现代颜色核心同步工具不覆盖组件或 `site.js`。
 
 `DropdownSelect` 与 `DropdownMenu` 通过 `AlignEnd`、`OpenUpward` 控制对齐和方向，浮层开闭使用淡入淡出并尊重系统减少动态效果设置；`DropdownMenu` 另通过 `MenuWidth` 选择固定宽度或当前层内容自适应。这些行为由组件自身处理，调用页不需提高卡片层级。参数默认值、字体换算、浏览器回退和模块缓存升级按上述控件指南执行。
 
-通用内容容器使用 `ContentCard` 及同名隔离样式，支持可选标题、图标、描述、正文与页脚，并可指定宽度、标题级别和居中布局。旧 `AuthFormCard` 已改名，旧页迁移时显式保留原品牌、图标及居中宽度，并将表单辅助类改为 `card-*`；组件不承担认证或提交逻辑。
+通用内容容器 `ContentCard` 与数据表格 `DataGrid<TItem>` 由 `Silmoon.AspNetCore.Blazor.Components` 提供。表格支持本地排序、筛选和行选择。卡片支持可选标题、图标、描述、正文与页脚，并可指定宽度、标题级别和居中布局。旧 `AuthFormCard` 已改名，旧页迁移时显式保留原品牌、图标及居中宽度，并将表单辅助类改为 `card-*`；组件不承担认证或提交逻辑。
 
 ## 其他预留功能
 
@@ -161,6 +161,6 @@ SignalR 默认未启用：`AddSignalR()`、Chat service 注册和两个 `MapHub`
 | 上传 | `FileController.cs`、`WebApiController.cs`、`Views/File/`、Blazor upload components、`sm-upload.js/css`、存储与授权 |
 | SignalR | `Program.cs`、所选 Hub、`ChatService.cs`、`Views/Demo/SignalR.cshtml`、`libman.json` |
 | 现代颜色布局 | 对应 cshtml 或 Blazor layout、共享 CSS/JS、initializer/initBlazor、对应 `_markdown` 指南 |
-| 通用控件/模块加载 | `.razor`、同名 CSS/JS、值类型、`site.js` 加载入口、App/静态宿主、隔离样式与图标、缓存引用、控件指南 |
+| 通用控件/模块加载 | 公共库 `Components/`、`wwwroot/js/component-modules.js`、宿主隔离样式、Bootstrap、控件指南 |
 
 修改后只验证受影响的链，但至少包含 inner Web 项目构建和一个真实入口的针对性运行检查。

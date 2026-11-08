@@ -4,7 +4,7 @@ const path = require("node:path");
 const test = require("node:test");
 const vm = require("node:vm");
 
-const componentsRoot = process.env.FFWEB_COMPONENTS_ROOT || path.join(__dirname, "..", "..", "Silmoon.Templates", "content", "Silmoon.AspNetCore.FullFunctionTemplate", "Components");
+const { componentsRoot } = require("./component-assets.cjs");
 const source = fs.readFileSync(path.join(componentsRoot, "DateTimeRangePicker.razor.js"), "utf8");
 const presetLabels = { today: "今天", yesterday: "昨天", threeDays: "近三天", thisWeek: "本周", lastWeek: "上周", thisMonth: "本月", thirtyDays: "近30天", lastMonth: "上月", threeMonths: "三个月", sixMonths: "半年", oneYear: "一年", all: "全部" };
 
@@ -97,14 +97,6 @@ for (const [preset, dates] of Object.entries(expected)) {
         f.picker.dispose();
     }));
 }
-
-test("the thirty-day shortcut is shown between this month and last month", () => {
-    const markup = fs.readFileSync(path.join(componentsRoot, "DateTimeRangePicker.razor"), "utf8");
-    const buttons = [...markup.matchAll(/data-date-range-preset="([^"]+)"[^>]*>([^<]+)<\/button>/g)].map(match => [match[1], match[2]]);
-    const monthIndex = buttons.findIndex(([key]) => key === "thisMonth");
-    assert.ok(monthIndex >= 0);
-    assert.deepEqual(buttons.slice(monthIndex, monthIndex + 3), [["thisMonth", "本月"], ["thirtyDays", "近30天"], ["lastMonth", "上月"]]);
-});
 
 const thirtyDayCases = [
     { name: "cross-year", timezone: "Asia/Shanghai", now: "2026-01-10T12:00:00+08:00", start: "2025-12-12", end: "2026-01-10", utcStart: "2025-12-11T16:00:00.000Z", utcEnd: "2026-01-10T15:59:59.999Z", hours: 720 },

@@ -4,22 +4,21 @@ Consider previewing the README before uploading (https://learn.microsoft.com/en-
 # Silmoon.Templates
 
 ### Fully functional templates for Silmoon projects.
-> To install:
-> ```cmd
-> dotnet new install Silmoon.Templates
-> dotnet new ffweb -n [ProjectName]
-> ```
-> **注意：创建项目后，必须运行以下命令以还原前端依赖：**
-> ```cmd
-> dotnet tool install --global Microsoft.Web.LibraryManager.Cli
-> libman restore
-> ```
+使用 .NET 10 SDK 创建项目。示例项目名为 `Demo.Web`。首次使用 LibMan 时，先运行 `dotnet tool install --global Microsoft.Web.LibraryManager.Cli`。
+
+```powershell
+dotnet new install Silmoon.Templates
+dotnet new ffweb -n Demo.Web -o Demo.Web
+cd Demo.Web
+libman restore
+dotnet run
+```
 
 ### Blazor 通用控件
 
-包含确认对话框、通用下拉选择、多级菜单、日期范围选择器、枚举选择、逻辑目录树、时间输入和通用内容与表单卡片 `ContentCard`。生成项目启动后访问 `/backend/components-demo`，居中资料表单、多实例及异步交互可在页尾“更多交互示例”中展开；接入方式见项目内 `_markdown/blazor-components-guide.md`。
+生成的项目通过 NuGet 包 `Silmoon.AspNetCore.Blazor` 引用九个通用控件，覆盖确认、选择、菜单、表单、卡片和表格。还原依赖并启动后，访问 `/backend/components-demo`。
 
-确认框、通用下拉框和多级菜单由组件声明自己的 JavaScript 模块。保留宿主的 `wwwroot/js/site.js` 通用加载入口、应用隔离样式、Bootstrap 5 bundle（含 Popper）及 Bootstrap Icons，不再向 `App.razor`、`_BlankLayout.cshtml` 添加组件专用脚本。下拉框的 `@bind-Value` 需要交互渲染，真实 `Href` 链接可用于静态 SSR；具体示例和已有项目迁移步骤见上述控件指南。
+Blazor 自动加载库初始化模块，纯 cshtml 宿主可显式加载组件模块入口。现代颜色适配、静态及交互用法、旧 DataGrid 迁移见项目内 `_markdown/blazor-components-guide.md`。公共 API 和原生 Blazor 示例见[上层控件手册](https://github.com/silmoonsone/Silmoon.AspNetCore/blob/master/README/BlazorComponents.md)，此版本的安装要求见[NuGet 3.2.0 包说明](https://www.nuget.org/packages/Silmoon.AspNetCore.Blazor/3.2.0)。
 
 ### 项目内手册
 

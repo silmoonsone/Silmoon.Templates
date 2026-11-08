@@ -4,7 +4,7 @@
 
 ## 两层项目职责
 
-- 外层 `Silmoon.Templates/Silmoon.Templates.csproj` 是 NuGet Template 包装项目。它声明 `PackageType=Template`、把 `content/**` 收进包，并不承载 Web 应用运行时。
+- 外层 `Silmoon.Templates/Silmoon.Templates.csproj` 声明 `PackageType=Template`，从 `content/` 收录模板源码、示例配置、静态资源和手册。
 - 内层 `Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/Silmoon.AspNetCore.FullFunctionTemplate.csproj` 才是生成项目的 Web `.csproj` 和直接构建目标。
 - `.template.config/template.json` 定义 template engine 的身份与替换契约。
 
@@ -12,7 +12,7 @@
 
 ## 生成契约
 
-当前模板 identity 与 `sourceName` 是 `Silmoon.AspNetCore.FullFunctionTemplate`，short name 是 `ffweb`。`sourceName` 与 `ClassName` replacement 负责把原始项目名、命名空间、文件名和内容中的同名标记替换为生成项目名。
+当前模板 identity 与 `sourceName` 是 `Silmoon.AspNetCore.FullFunctionTemplate`，short name 是 `ffweb`。`sourceName` 与 `ClassName` replacement 将项目文件名和应用源码中的名称替换为生成项目名。`_markdown/` 和 `_skills/` 采用 `copyOnly`，保留手册中引用的上游目录、模板身份和端口示例。
 
 模板还以 random generator 替换 launch settings 中的两个占位端口：HTTP `5140` 与 HTTPS `7045`。修改这些数字、launch profile 或 symbol 时必须保持 `template.json` 与源文件同步。
 
@@ -31,6 +31,8 @@
 
 更新内层包引用并不自动授权更新外层模板包版本；更新外层版本也不证明内层依赖已验证。分别处理并保留用户已有版本改动。
 
+模板通过 `PackageReference` 使用 `Silmoon.AspNetCore.Blazor` 的九个公共控件。验证模板包时，在仓库外生成不同名称的项目，从 NuGet 还原并执行 Release 发布，检查隔离样式和组件脚本。
+
 ## LibMan 与静态前端依赖
 
 `libman.json` 是 jQuery、Bootstrap、jquery-ajax-unobtrusive、Bootstrap Icons 和 SignalR 浏览器脚本的源声明。`wwwroot/lib/` 被模板 `.gitignore` 忽略，README 也要求生成后运行 `libman restore`。
@@ -42,21 +44,21 @@
 
 ## 物理工作区与 pack 内容
 
-外层包装项目当前启用 `NoDefaultExcludes`，并用宽泛的 `Content Include="content\**\*"` 收集文件，显式排除主要只有 inner `bin/` 与 `obj/`。NuGet pack 读取物理文件，不读取 Git 是否跟踪；因此 `.gitignore` 不是包排除规则。
+外层项目先用 `<Content Include="content\**\*" />` 递归收录物理工作目录里的文件，随后逐条用 `<Content Remove="..." />` 排除指定路径。新增的模板目录、文件类型和配置示例默认随包分发。`NoDefaultExcludes` 使包可以保留 `.gitignore` 和 `.template.config/template.json`。
 
-这不是理论风险：本地被忽略的 Data Protection key、`config.local*.json`、`.csproj.user` 与还原后的 `wwwroot/lib/` 都可能进入 `.nupkg`。不得读取或输出其中的秘密来做普通清单检查，只检查路径和类型即可。
+在仓库根运行 `dotnet msbuild Silmoon.Templates/Silmoon.Templates.csproj -getItem:Content` 可查看排除后的候选路径。现有 `Content Remove` 条目覆盖本机配置、Data Protection 密钥、构建缓存和已还原的 `wwwroot/lib/`。新增本机状态未被现有条目覆盖时，在 `Include` 后添加相应的 `Content Remove`。`.gitignore` 只影响 Git，最终入包内容以 `.nupkg` 的文件列表为准。
 
 打包或发布前必须：
 
 1. 检查内容根的物理文件，而不只看 `git status` 或 `git ls-files`。
-2. 把需要运输的模板源与本机/运行时状态分开；优先用明确 pack exclude 修正长期规则，或从已验证的干净工作区打包。
+2. 确认新增的模板源文件出现在打包清单中，仅开发机使用的文件未被选中。
 3. 把输出写到明确的临时或任务输出目录，避免误覆盖用户已有 `.nupkg`。
 4. 打开最终 `.nupkg` 的 archive manifest，确认不存在以下内容：
    - `DataProtection/key-*.xml` 或其他运行时密钥。
    - `config.local*.json`、秘密文件、证书和本机连接配置。
    - `*.csproj.user`、IDE/用户状态、日志、数据库和临时文件。
    - 非预期的 `wwwroot/lib/`、build output 或缓存目录。
-5. 发现上述内容时停止发布；修正 pack include/exclude 或工作区来源后重新生成并再次检查。不要以“文件已被 Git 忽略”作为放行理由。
+5. 如果归档中含有上述文件，修正相应的 `Content Remove` 条目，再次打包并核对归档。
 
 本技能不授权删除本机 key、配置或用户文件。若需要清理，先精确确认目标和恢复影响；修正包装规则通常比删除工作区状态更可靠。
 
@@ -90,5 +92,5 @@
 - 包中不含本地配置、Data Protection key、IDE 用户文件、日志或其他秘密。
 - `.template.config` 的 identity、short name、`sourceName`、文件替换和随机端口与源内容一致。
 - 生成项目包含 `_skills/silmoon-ffweb-template/` 下的 `SKILL.md`、`agents/openai.yaml` 与参考文档，并保持 UTF-8 BOM 和 CRLF。
-- 通用控件的同名 Razor/CSS/JS、值类型和 `site.js` 通用模块加载入口一并进入生成项目；包 README 与项目内 `_markdown` 手册使用相同接入约定，链接在生成目录中仍可解析。源码手册已更新不等同于新包已发布。
+- 生成项目应引用包含九个控件的公共库，并能从 `_content/Silmoon.AspNetCore.Blazor/` 加载隔离样式和 JS。包 README 与 `_markdown` 手册应说明一致的接入方式。
 - 最终差异没有覆盖用户已有的包版本或无关文件。

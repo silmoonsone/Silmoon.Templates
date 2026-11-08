@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
-using Silmoon.AspNetCore.FullFunctionTemplate.Components;
+using Silmoon.AspNetCore.Blazor.Components;
 
 var contracts = new (string Name, Func<Task> Run)[]
 {
@@ -21,7 +21,9 @@ var contracts = new (string Name, Func<Task> Run)[]
     ("DropdownMenu recursive panels, SSR links and width parameters", DropdownMenuRenderingContract),
     ("DropdownMenu callbacks and dynamic disabled state", DropdownMenuSelectionContract),
     ("ContentCard optional content, heading semantics and layout parameters", ContentCardRenderingContract),
+    ("DataGrid row identity, order and ownership", DataGridContracts.RunAsync),
     ("ConfirmDialog component-owned module loading", ConfirmDialogLoadingContract),
+    ("DateTimeRangePicker renders ordered and localizable calendar shortcuts", DateRangeShortcutContract),
     ("TimeInput end-of-day parsing and formatting", TimeInputEndOfDayContract)
 };
 var failures = 0;
@@ -166,7 +168,7 @@ static async Task DropdownSelectLinkContract()
     });
 
     var enabledHtml = await Render(false);
-    Require(enabledHtml.Contains("<silmoon-module src=\"https://example.test/nested-app/Components/DropdownSelect.razor.js?v=3\""), "SSR must declare its own module with the application base path, including on deep cshtml routes without a base tag.");
+    Require(enabledHtml.Contains("<silmoon-blazor-module src=\"https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/DropdownSelect.razor.js?v=5\""), "SSR must declare its own module with the application base path, including on deep cshtml routes without a base tag.");
     Require(enabledHtml.Contains("<details ") && enabledHtml.Contains("<summary ") && enabledHtml.Contains("popover=\"manual\""), "SSR must retain native details/summary and its popover enhancement without requiring an interactive circuit.");
     Require(enabledHtml.Contains("data-align-end=\"false\"") && enabledHtml.Contains("data-open-upward=\"false\""), "The default select must align to the logical start and prefer opening downward.");
     foreach (var alignEnd in new[] { false, true })
@@ -212,7 +214,7 @@ static async Task DropdownMenuRenderingContract()
     });
 
     var html = await Render(false);
-    Require(html.Contains("<silmoon-module src=\"https://example.test/nested-app/Components/DropdownMenu.razor.js?v=4\""), "SSR must declare the module with the application base path without invoking interactive JS.");
+    Require(html.Contains("<silmoon-blazor-module src=\"https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/DropdownMenu.razor.js?v=4\""), "SSR must declare the module with the application base path without invoking interactive JS.");
     Require(html.Contains("style=\"--dropdown-menu-width: 12.5rem\"") && html.Contains("data-menu-width=\"12.5rem\"") && html.Contains("data-auto-width=\"false\""), "The default menu width must be 12.5rem, equivalent to 200px at a 16px root font, and expose the same value to position tracking.");
     foreach (var width in new[] { (Input: " auto ", Expected: "max-content", Auto: true), (Input: "AUTO", Expected: "max-content", Auto: true), (Input: " 20rem ", Expected: "20rem", Auto: false), (Input: "calc(100vw - 2rem)", Expected: "calc(100vw - 2rem)", Auto: false), (Input: "  ", Expected: "12.5rem", Auto: false) })
     {
@@ -323,15 +325,36 @@ static async Task ConfirmDialogLoadingContract()
     await using var renderer = new HtmlRenderer(services, NullLoggerFactory.Instance);
     var html = await renderer.Dispatcher.InvokeAsync(async () => (await renderer.RenderComponentAsync<ConfirmDialog>()).ToHtmlString());
     Require(js.Calls.Count == 0, "Static rendering must not invoke JavaScript interop.");
-    Require(html.Contains("<silmoon-module src=\"https://example.test/nested-app/Components/ConfirmDialog.razor.js?v=4\""), "The static template must declare the same module URL as interactive calls.");
-    Require(html.Contains("data-module-src=\"https://example.test/nested-app/Components/ConfirmDialog.razor.js?v=4\""), "Native callers must be able to await the component-declared module without maintaining its path or version.");
+    Require(html.Contains("<silmoon-blazor-module src=\"https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/ConfirmDialog.razor.js?v=4\""), "The static template must declare the same module URL as interactive calls.");
+    Require(html.Contains("data-module-src=\"https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/ConfirmDialog.razor.js?v=4\""), "Native callers must be able to await the component-declared module without maintaining its path or version.");
 
     await using var dialog = new ConfirmDialog();
     Set(dialog, "Js", js);
     Set(dialog, "Navigation", navigation);
     Require(await dialog.ConfirmAsync("First") && await dialog.ConfirmAsync("Second"), "Both calls must await the module before invoking the confirmation API.");
     Require(js.Calls.Select(call => call.Identifier).SequenceEqual(new[] { "import", "SiteDialogs.confirm", "SiteDialogs.confirm" }), "Repeated confirmation calls must import once and preserve the public API.");
-    Require((string?)js.Calls[0].Arguments?[0] == "https://example.test/nested-app/Components/ConfirmDialog.razor.js?v=4", "Interactive import and the static declaration must share the absolute module URL.");
+    Require((string?)js.Calls[0].Arguments?[0] == "https://example.test/nested-app/_content/Silmoon.AspNetCore.Blazor/Components/ConfirmDialog.razor.js?v=4", "Interactive import and the static declaration must share the absolute module URL.");
+}
+
+static async Task DateRangeShortcutContract()
+{
+    using var services = new ServiceCollection().AddSingleton<IJSRuntime>(new ConfirmJsRuntime()).BuildServiceProvider();
+    await using var renderer = new HtmlRenderer(services, NullLoggerFactory.Instance);
+    await renderer.Dispatcher.InvokeAsync(async () =>
+    {
+        foreach (var translated in new[] { false, true })
+        {
+            var parameters = translated
+                ? ParameterView.FromDictionary(new Dictionary<string, object?> { [nameof(DateTimeRangePicker.Texts)] = new Dictionary<string, string> { ["近30天"] = "Last 30 days" } })
+                : ParameterView.Empty;
+            var html = (await renderer.RenderComponentAsync<DateTimeRangePicker>(parameters)).ToHtmlString();
+            var buttons = Regex.Matches(html, "data-date-range-preset=\"([^\"]+)\"[^>]*>([^<]*)</button>")
+                .Select(match => (Key: match.Groups[1].Value, Text: System.Net.WebUtility.HtmlDecode(match.Groups[2].Value))).ToList();
+            var index = buttons.FindIndex(button => button.Key == "thisMonth");
+            Require(index >= 0 && buttons.Skip(index).Take(3).SequenceEqual(new[] { ("thisMonth", "本月"), ("thirtyDays", translated ? "Last 30 days" : "近30天"), ("lastMonth", "上月") }),
+                "The thirty-day shortcut must stay between this month and last month in the rendered component, including localized labels.");
+        }
+    });
 }
 
 static Task TimeInputEndOfDayContract()

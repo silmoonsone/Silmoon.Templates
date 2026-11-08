@@ -118,3 +118,61 @@ a {
 .jsclickable-outline-active {
     border: 1px solid #888; /* 修改为你所需的点击时的边框颜色 */
 }
+
+/* Map the template theme to the public Blazor components, including dialogs attached to body. */
+:root {
+    --silmoon-ui-text-primary: var(--text-primary);
+    --silmoon-ui-text-secondary: var(--text-secondary);
+    --silmoon-ui-primary-color: var(--primary-color);
+    --silmoon-ui-danger-color: var(--danger-color);
+    --silmoon-ui-bg-primary: var(--bg-primary);
+    --silmoon-ui-bg-secondary: var(--bg-secondary);
+    --silmoon-ui-border-color: var(--border-color);
+    --silmoon-ui-border-radius: var(--border-radius);
+    --silmoon-ui-card-border-radius: var(--card-border-radius);
+    --silmoon-ui-shadow-color: var(--shadow-color);
+    --silmoon-ui-focus-ring-color: var(--focus-ring-color);
+    --silmoon-ui-control-color-scheme: var(--control-color-scheme);
+    --silmoon-ui-panel-bg: var(--panel-bg);
+    --silmoon-ui-panel-bg-hover: var(--panel-bg-hover);
+    --silmoon-ui-interactive-bg: var(--interactive-bg);
+    --silmoon-ui-interactive-bg-hover: var(--interactive-bg-hover);
+    --silmoon-ui-interactive-bg-focus: var(--interactive-bg-focus);
+    --silmoon-ui-interactive-bg-disabled: var(--interactive-bg-disabled);
+    --silmoon-ui-interactive-text-disabled: var(--interactive-text-disabled);
+    --silmoon-ui-active-bg: var(--active-bg);
+    --silmoon-ui-table-row-hover-bg: var(--table-row-hover-bg);
+    --silmoon-ui-danger-soft-bg: var(--danger-soft-bg);
+    --silmoon-ui-danger-soft-border: var(--danger-soft-border);
+    --silmoon-ui-success-soft-bg: var(--success-soft-bg);
+    --silmoon-ui-input-bg: var(--input-bg, var(--card-bg));
+}
+
+.content-card {
+    --content-card-accent: var(--primary-color);
+    --content-card-muted: var(--text-secondary);
+    --content-card-border: var(--border-color);
+}
+
+.card.content-card:hover {
+    transform: none;
+}
+
+.card.content-card::before {
+    opacity: 1;
+}
+
+.data-grid {
+    color-scheme: var(--control-color-scheme, inherit);
+    --data-grid-header-bg: var(--bg-secondary);
+    --data-grid-border-color: var(--border-color);
+    --data-grid-hover-bg: var(--table-row-hover-bg);
+    --data-grid-selected-bg: color-mix(in srgb, var(--primary-color) 18%, var(--bg-primary));
+    --data-grid-focus-color: var(--primary-color);
+    --data-grid-muted-color: var(--text-secondary);
+}
+
+.data-grid-filter::placeholder {
+    color: var(--data-grid-muted-color);
+    opacity: 1;
+}

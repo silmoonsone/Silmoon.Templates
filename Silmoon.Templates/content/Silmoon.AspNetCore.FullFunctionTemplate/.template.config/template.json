@@ -10,6 +10,13 @@
     "type": "project"
   },
   "sourceName": "Silmoon.AspNetCore.FullFunctionTemplate",
+  "sources": [
+    {
+      "modifiers": [
+        { "copyOnly": [ "_markdown/**/*", "_skills/**/*" ] }
+      ]
+    }
+  ],
   "symbols": {
     "ClassName": {
       "type": "parameter",

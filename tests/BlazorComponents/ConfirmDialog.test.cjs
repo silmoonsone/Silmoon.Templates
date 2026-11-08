@@ -4,7 +4,7 @@ const path = require("node:path");
 const test = require("node:test");
 const vm = require("node:vm");
 
-const componentsRoot = process.env.FFWEB_COMPONENTS_ROOT || path.join(__dirname, "..", "..", "Silmoon.Templates", "content", "Silmoon.AspNetCore.FullFunctionTemplate", "Components");
+const { componentsRoot } = require("./component-assets.cjs");
 const source = fs.readFileSync(path.join(componentsRoot, "ConfirmDialog.razor.js"), "utf8");
 
 function createFixture(options = {}) {

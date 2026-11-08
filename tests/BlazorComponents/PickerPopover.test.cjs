@@ -4,8 +4,8 @@ const path = require("node:path");
 const test = require("node:test");
 const vm = require("node:vm");
 
-const componentsRoot = process.env.FFWEB_COMPONENTS_ROOT || path.join(__dirname, "..", "..", "Silmoon.Templates", "content", "Silmoon.AspNetCore.FullFunctionTemplate", "Components");
-const helperSource = fs.readFileSync(path.join(componentsRoot, "..", "wwwroot", "js", "picker-popover.js"), "utf8");
+const { componentsRoot, jsRoot } = require("./component-assets.cjs");
+const helperSource = fs.readFileSync(path.join(jsRoot, "picker-popover.js"), "utf8");
 
 function fixture(kind = "enum") {
     const frames = new Map();

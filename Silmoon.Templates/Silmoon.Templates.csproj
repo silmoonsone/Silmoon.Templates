@@ -17,7 +17,7 @@
 
   <PropertyGroup>
     <PackageId>Silmoon.Templates</PackageId>
-    <Version>3.2.0</Version>
+    <Version>3.3.0-alpha</Version>
     <Authors>SILMOON</Authors>
     <Company>SILMOON LLC</Company>
     <Description>Silmoon templates</Description>
@@ -34,7 +34,58 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="content\**\*" Exclude="content\**\bin\**;content\**\obj\**" />
+    <Content Include="content\**\*" />
+
+    <!-- Build and test output -->
+    <Content Remove="content\**\bin\**" />
+    <Content Remove="content\**\obj\**" />
+    <Content Remove="content\**\publish\**" />
+    <Content Remove="content\**\artifacts\**" />
+    <Content Remove="content\**\TestResults\**" />
+
+    <!-- Restored dependencies -->
+    <Content Remove="content\**\wwwroot\lib\**" />
+    <Content Remove="content\**\node_modules\**" />
+
+    <!-- Keys and publishing credentials -->
+    <Content Remove="content\**\DataProtection\**" />
+    <Content Remove="content\**\*.pfx" />
+    <Content Remove="content\**\*.p12" />
+    <Content Remove="content\**\*.key" />
+    <Content Remove="content\**\*.pem" />
+    <Content Remove="content\**\*.pubxml" />
+    <Content Remove="content\**\*.publishsettings" />
+
+    <!-- Local configuration and notes -->
+    <Content Remove="content\**\.env" />
+    <Content Remove="content\**\.env.local" />
+    <Content Remove="content\**\.env.*.local" />
+    <Content Remove="content\**\config.local*.json" />
+    <Content Remove="content\**\*.local.*" />
+    <Content Remove="content\**\*.local-log.db*" />
+    <Content Remove="content\**\local.json" />
+    <Content Remove="content\**\local.md" />
+    <Content Remove="content\**\*-local.json" />
+    <Content Remove="content\**\*-local.md" />
+
+    <!-- Version control and IDE files -->
+    <Content Remove="content\**\.git" />
+    <Content Remove="content\**\.git\**" />
+    <Content Remove="content\**\.vs\**" />
+    <Content Remove="content\**\.idea\**" />
+    <Content Remove="content\**\*.user" />
+    <Content Remove="content\**\*.suo" />
+    <Content Remove="content\**\*.rsuser" />
+    <Content Remove="content\**\.DS_Store" />
+
+    <!-- Temporary files, logs and packages -->
+    <Content Remove="content\**\*.tmp" />
+    <Content Remove="content\**\*.bak" />
+    <Content Remove="content\**\*.log" />
+    <Content Remove="content\**\*.binlog" />
+    <Content Remove="content\**\*.nupkg" />
+    <Content Remove="content\**\*.snupkg" />
+
     <Compile Remove="**\*" />
   </ItemGroup>
 

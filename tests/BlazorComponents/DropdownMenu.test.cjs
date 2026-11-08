@@ -6,7 +6,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 
-const componentsRoot = process.env.FFWEB_COMPONENTS_ROOT || path.join(__dirname, "..", "..", "Silmoon.Templates", "content", "Silmoon.AspNetCore.FullFunctionTemplate", "Components");
+const { componentsRoot } = require("./component-assets.cjs");
 const scriptPath = path.join(componentsRoot, "DropdownMenu.razor.js");
 const source = fs.readFileSync(scriptPath, "utf8");
 

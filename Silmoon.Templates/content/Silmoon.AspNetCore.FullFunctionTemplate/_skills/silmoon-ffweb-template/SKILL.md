@@ -46,7 +46,7 @@ description: "在维护 Silmoon.Templates 中的 Silmoon.AspNetCore.FullFunction
    - `template.json`、`sourceName`、随机端口、LibMan、pack 或模板生成验证：读取 [references/template-authoring-and-packaging.md](references/template-authoring-and-packaging.md)。
    - cshtml/Razor Pages 现代颜色布局：读取 [现代颜色布局 cshtml 指南](../../_markdown/modern-color-layout-static-agent-guide.md)。
    - Blazor 现代颜色布局：读取 [现代颜色布局 Blazor 指南](../../_markdown/modern-color-layout-blazor-agent-guide.md)。
-   - 通用控件、组件按需模块或从旧宿主迁移：读取 [通用 Blazor 控件指南](../../_markdown/blazor-components-guide.md)，同时检查组件配套文件、`site.js` 通用入口、隔离样式、图标和目标渲染模式；不能把核心 CSS/JS 同步当作控件同步。
+   - 通用控件、组件按需模块或从旧宿主迁移：先对照上层 `Silmoon.AspNetCore/README/BlazorComponents.md` 或所用 NuGet 包的 README，再按[模板接入指南](../../_markdown/blazor-components-guide.md)核对宿主引用、隔离样式、主题和渲染模式。JS 管理的 DataGrid 还要验证公共模块 `mount` 的导入、业务行回调和页面离开时的 `dispose()`。
 5. 如果需求引入模板中不存在的业务概念，先确定其业务含义、授权主体、数据契约与真实数据源；不要从页面名称、示例模型或 `Core` 桩代码反推业务规则。
 6. 选择任务真正涉及的一种 UI 表面或一个扩展点，做最小范围修改；只有需求明确跨表面时才同步扩展 MVC、Razor Pages 与 Blazor。
 7. 按改动风险构建并验证实际路径；最后复查差异、生成内容和敏感文件边界。
@@ -61,7 +61,7 @@ description: "在维护 Silmoon.Templates 中的 Silmoon.AspNetCore.FullFunction
 - Swagger、SignalR、WebAuthn、Turnstile、DevApp、API 解密和自定义 Hosted Service 是预留接线示例，不是默认能力；其中可能缺包、包含占位类型，或像 `SilmoonDevAppServiceImpl.cs` 一样被项目文件排除编译。
 - `Core.GetUser/NewUser`、固定用户数据、MD5 密码处理、示例 MongoDB URI、进程内上传缓存、演示 Controller/Hub/Page 都是 scaffold，不是生产持久化、安全或分布式保证。保留兼容行为与把它宣传为安全默认值是两回事。
 - 当前固定 TFM 与 NuGet 版本只是目标项目快照。修改时读取当前 `.csproj` 和还原结果，不把版本号复制成技能中的永久要求，也不因技能触发而升级依赖。
-- 外层包装项目从物理工作区收集内容；`.gitignore` 不能阻止 ignored 文件进入 `.nupkg`。打包或发布前必须执行 archive manifest 检查，并拒绝携带 Data Protection keys、本地配置、用户文件或其他本机状态。
+- 外层包装项目先用 `Content Include` 递归收录 `content/`，再用独立的 `Content Remove` 条目排除本机配置和生成物。新增模板目录和文件类型默认入包。引入新的本机文件时，检查现有条目是否覆盖其路径，必要时另加一条 `Content Remove`。打包后核对归档。
 
 ## 伴随技能边界
 

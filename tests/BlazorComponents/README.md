@@ -3,23 +3,26 @@
 从仓库根目录运行：
 
 ```powershell
+dotnet restore Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/Silmoon.AspNetCore.FullFunctionTemplate.csproj
 node --test tests/BlazorComponents/*.test.cjs
 dotnet run --project tests/BlazorComponents/ComponentContracts/ComponentContracts.csproj
 dotnet build Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/Silmoon.AspNetCore.FullFunctionTemplate.csproj
 ```
 
-可通过 `--artifacts-path <临时目录>` 将 .NET 构建输出放在仓库外。验证生成项目时，将 `FFWEB_COMPONENTS_ROOT` 环境变量指向生成项目的 `Components` 目录，再执行同一组 Node 测试；结束后移除该变量。
+Node 脚本根据模板的 `obj/project.assets.json`，从实际还原的 NuGet 包读取组件脚本和共享定位脚本。使用独立构建目录时，可设置 `SILMOON_BLAZOR_COMPONENTS_ROOT` 指向该包的 `staticwebassets/Components`；与库源码对照时可显式指向源码的 `Components`。
 
 ## 自动验证范围
 
 Node 测试直接加载实际组件 JavaScript，使用内置测试工具与模拟 DOM，不需要 npm 包。
+
+`DataGrid.test.cjs` 在本机 Chromium 中加载公共库的 ES 模块，验证等待 Blazor 排序期间的行号和键盘顺序、嵌套控件、JS 管理行以及禁用时的焦点。可用 `CHROME_PATH` 指定浏览器路径，找不到浏览器时该项会显示为跳过。
 
 - `ConfirmDialog.test.cjs`：确认／取消／第二操作、单活动实例、独立模板与 ARIA、拖动、卸载及重复加载。
 - `DropdownMenu.test.cjs`：多层动画与快速反向、键盘、默认／末尾对齐、RTL、上下避让、Popover 顶层、长菜单滚动及键盘聚焦可见性、慢加载、视口与尺寸变化、禁用、关闭取消、卸载重挂及资源清理；另覆盖表面淡入淡出、中途反向、退场期间不可交互、快速重开恢复根层及表面／子层动画隔离，共 40 项。
 - `DropdownSelect.test.cjs`：多实例、真实链接、值选择、键盘及焦点滚动、禁用、延迟加载、四方向／RTL／视口避让、超窄宽度限制、Popover 与原生 details 回退、180ms／140ms 淡入淡出、中途反向及过期回调、退出不可交互和卸载清理，共 28 项。
 - `DateTimeRangePicker.test.cjs`：本地日历、UTC、夏令时、异步失败重试、多实例、模式重建与外层表单隔离。
 - `PickerPopover.test.cjs`：顶层浮层定位、视口与滚动祖先限位、键盘、外部关闭、多实例、监听和资源释放。
-- `ComponentContracts`：直接引用模板组件，验证动态禁用、枚举显示元数据、未声明值、表单订阅释放、下拉框绑定和 SSR 链接、多级菜单递归与分支优先级、禁用及回调、对齐／展开方向／宽度参数、组件模块 URL 与确认框导入顺序、ContentCard 可选标题／唯一标识／内容与页脚／宽度及居中参数，以及时间输入的完整 `HH:mm` 和 `24:00` 边界；不增加 NuGet 依赖。
+- `ComponentContracts`：通过模板项目引用覆盖模板和公共库组件，包括动态禁用、枚举显示元数据、未声明值、表单订阅释放、下拉框绑定和 SSR 链接、多级菜单递归与分支优先级、禁用及回调、对齐／展开方向／宽度参数、组件模块 URL 与确认框导入顺序、ContentCard 可选标题／唯一标识／内容与页脚／宽度及居中参数、DataGrid 原始行对象／排序后坐标／SSR 表壳，以及时间输入的完整 `HH:mm` 和 `24:00` 边界；不增加 NuGet 依赖。
 
 ## 浏览器验证
 
@@ -28,7 +31,7 @@ Node 测试直接加载实际组件 JavaScript，使用内置测试工具与模�
 主区保留常用控件和全宽内容卡片；下拉选择与菜单的参数单独成行。展开页尾“更多交互示例”后，再检查确认框生命周期、异步日期和“内容卡片与表单组合”：居中资料表单的预览结果应随输入更新，折叠／重开应保留状态，多个卡片标题标识独立。默认折叠时资料表单不可见，桌面与窄屏均不应产生横向溢出。
 
 - 确认框与日期对话框使用实色表面，在卡片内调用时不应被裁切。
-- 枚举和目录面板使用原生 Popover 顶层，仍由 Blazor 管理 DOM 与事件；卡片外的选项应可见、可点击，不能只检查边界矩形。公共定位脚本为 `wwwroot/js/picker-popover.js`。
+- 枚举和目录面板使用原生 Popover 顶层，仍由 Blazor 管理 DOM 与事件；卡片外的选项应可见、可点击，不能只检查边界矩形。公共定位脚本由类库的 `wwwroot/js/picker-popover.js` 提供。
 - 在带裁切和滚动的容器中测试长目录；触发按钮滚出可见区域后应关闭面板，禁用、卸载后不能保留浮层或监听。
 - 日期异步失败示例会刻意拒绝一次应用，应保留旧值、显示提示且可重试。在日期输入框按 Enter 不应提交外层表单。
 - 时间输入应逐键输入 `10:30` 验证，不能只用一次性填入；未完成的 `10:3` 不应被提前改写为 `10:03`。
@@ -38,11 +41,44 @@ Bootstrap 共享浮层样式在 `/ModernColorDemo` 检查：菜单背景不透�
 
 ## 模板包验证
 
-打包只使用已跟踪及未忽略的包源文件建立干净临时副本。外层项目从物理目录收集内容，不能直接依赖 `.gitignore` 排除本地配置、密钥和构建产物。检查包清单包含所有组件、同名样式／脚本、`wwwroot/js/picker-popover.js` 和接入说明，且不含本地配置、DataProtection、证书、IDE 文件、依赖库、构建输出或临时回归页面。
+从实际开发目录打包到独立临时目录，核对归档中 `content/` 的路径与预期模板源文件逐一相符。外层项目通过 `<Content Include="content\**\*" />` 自动收录新目录和文件类型，后面的 `<Content Remove="..." />` 条目逐条排除指定路径。核对最终包中有模板描述、布局、示例、手册、LibMan 清单及本轮新增的模板资源，并确认归档中没有本机配置、Data Protection 密钥、IDE 文件、临时备份、构建输出和还原后的前端库。公共控件模块、隔离样式及 `js/picker-popover.js` 由上层依赖包提供。
 
-将本地包安装到隔离模板缓存，用非默认名称生成项目，检查命名空间、隔离样式 bundle 和端口替换，再还原静态库、构建和运行测试。此流程只验证包内容，不发布 NuGet 包。
+将本地包安装到隔离模板缓存，用非默认名称生成项目，检查命名空间、隔离样式 bundle 和启动端口替换，并核对手册仍记载上游模板身份和原始示例端口。进入生成项目，执行 LibMan 还原，再构建和运行测试。
 
 ## 已验证范围与限制
+
+2026-11-08，Portal、AppHub、TransactionHostServer 均以 3.2.0 完成 Release 构建和发布目录验证。逐项解析三份发布产物的应用 `.styles.css` 及其 `@import`、Blazor `.modules.json` 指定的初始化模块、它导入的公共加载器、`DataGrid.razor.js` 和现代颜色资源，文件均存在。使用的包与 NuGet.org 的 3.2.0 对比，24 项包内容一致。模板另通过 177 项组件及布局 JS 测试和 13 项 C# 契约。适用范围见[模板接入指南](../../Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。
+
+同日核对 Trading 工作树，持仓、历史和对平选单均已引用公共表格，原有四个 DataGrid 文件已删除。Trading 主任务报告解决方案及测试宿主 Release 构建均为 0 警告、0 错误，662 项 Node 测试全部通过。Chrome 在桌面、390px 窄屏及明暗主题下使用模拟交易数据验证了刷新、嵌套按钮、键盘操作、排序后行列号和离页重挂。交易侧复测步骤见 Trading 仓库的 `HubAccountBroadcastHarness/README.md`。
+
+Portal 和 AppHub 使用实际 Release 依赖离线验证了登录、退出、角色和 BSON 状态值，未连接业务数据库。Portal 的历史 `users.Status = -2` 在新依赖中由封禁改为暂停，部署前需按该项目 README 核对历史数据。两者均保留既有 `System.Security.Cryptography.Pkcs` 9.0.13 的 NU1902/NU1903 警告。TransactionHostServer 另以生产环境模式在本机验证演示页、受保护端点、登录退出和图像往返；发布的 12 个 Silmoon 程序集均可加载。
+
+2026-11-08 在使用 NuGet `Silmoon.AspNetCore.Blazor 3.2.0` 的现代颜色模板 Release 发布页面，用 Chromium 在桌面、390px 窄屏各验收亮色和暗色。155 项 JS 回归（含 Chromium 表格测试）和 13 项 C# 契约通过。模板默认页面展示 Blazor 管理的数据行，JS 管理行在使用同一模板布局和正式包的独立验收页验证。
+
+| 控件 | 已验证的行为 | 3.2.0 结果 |
+| --- | --- | --- |
+| `DataGrid<TItem>` | 两种模式的三态排序、筛选与清空、选择、单双击行列号、键盘激活、嵌套按钮、离页返回；JS 刷新数据后保持选中键和行内焦点 | 48 组交互及两组窄屏长表检查通过。100 行宽表只在表内横滚，纵滚后表头可见，点击第 80 行返回零基行号 79 |
+| `DropdownMenu` | 四种弹出方向、视口翻转、固定及自适应宽度、淡入淡出、多级菜单回调、键盘跳过禁用项 | 通过；强制裁切父卡片后，卡片外仍可点击 |
+| `DropdownSelect<TValue>` | 四种方向、进退动画、禁用项、选择与真实链接、增强导航后重新操作 | 通过；退出动画期间面板不可交互 |
+| `ConfirmDialog` | 确认、取消、第三选项、独立实例；打开时从系统亮色切到暗色 | 通过；切换主题后仍能返回确认结果 |
+| `ContentCard` | 标题层级、正文与页脚、全宽卡片和居中表单、折叠后保留输入 | 通过；居中表单在手机上随可用宽度收窄 |
+| `TimeInput` | 常规时间、允许及禁止 `24:00`、非法输入保留旧绑定值、改正后提交 | 通过 |
+| `EnumSelect<TEnum>` | 元数据、禁用、键盘选择和回焦、裁切卡片外点选 | 常规交互通过；首次导入模块期间卸载的缺陷见下 |
+| `TreePicker` | 目录展开、选择、新建、非法名称、Escape 回焦、裁切卡片外点选 | 常规交互通过；有相同的卸载缺陷 |
+| `DateTimeRangePicker` | 跨月近 30 天、毫秒值、逆序校验、取消和清空、异步失败后重试、外层表单隔离 | 常规交互通过；午夜跳时日的“上月”有误 |
+
+在模板的 Release 发布产物中切换系统主题，表头和打开的确认框同步变色，表格选中项保持不变。筛选提示采用主题次级文字后，明暗模式下与输入背景的对比度分别为 5.94:1 和 5.40:1。启用“减少动态效果”后打开菜单，没有运行中的动画。
+
+纯静态 `_BlankLayout` 的浏览器验证还覆盖了旧式 JS 调用：`DropdownSelect.bind` 切换语言与文字方向，用户更改只产生一次 `change`；`SiteDialogs.confirm` 通过指定模板返回确认或取消；`DateTimeRangePicker` 支持自定义文字、程序设值、一次应用回调和销毁后解绑。该页未加载 Blazor 运行时。
+
+正式包仍可复现两项限制：
+
+- 将浏览器时区设为 `America/Santiago`，在 2026-09-06 选择“上月”。日期模式会把 9 月 1 日整天算入八月，时间模式的结束值落在 9 月 1 日 00:59:59.999。“近30天”在相同条件下正确。
+- 延迟 `EnumSelect` 或 `TreePicker` 首次 JS 模块导入，在它完成前卸载组件，再允许导入完成。两者均在卸载后调用 `initialize`，模块引用未释放。常规卸载测试覆盖的是导入已经完成的情况。
+
+2026-11-08 九个通用控件接入公共库后的回归通过 155 项 JavaScript 测试和 13 项 C# 契约。近 30 天按钮的顺序和本地化文字改由 C# 契约检查实际渲染结果。Chrome 在独立 Blazor 子路径上验证表单校验、弹层、两种行管理模式和确认框。纯静态 Razor Pages 初始不渲染控件时不会请求对应模块，插入控件后每个模块加载一次。真实模板的 Release 发布产物使用 Blazor 自动发现的带指纹入口以及 cshtml 的固定 `js/component-modules.js`，两条路径均已验证。
+
+2026-11-08 类库试迁通过 12 项 C# 契约。Chrome 对比了模板中三种卡片在 1440px、390px 和明暗主题下的尺寸、颜色及悬停样式，12 组结果一致。相同模板页面的数据表格通过排序、选行、筛选及空结果验证。独立 Blazor 宿主仅加载库样式，在 `/nested/` 下按需加载表格模块并完成行回调和两种行管理方式的切换。另用本地类库试验包替换临时模板里的项目引用，在相邻仓库之外生成并构建了不同名称的项目。
 
 2026-10-09 已完成模板构建、Node 回归、实际 C# 组件回归及隔离包生成检查；浏览器覆盖桌面 Chrome、390×844 视口、亮色、暗色与当前系统暗色对应的自动模式。额外临时页面验证过 80 项目录、滚动祖先、相邻卡片、禁用、移除重挂和键盘操作，未加入模板包。
 
