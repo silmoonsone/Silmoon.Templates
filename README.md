@@ -38,6 +38,8 @@ node tools/modern-color/manage.cjs --check
 node tools/modern-color/manage.cjs --write
 ```
 
+共享核心也负责交互式 Blazor 页面的默认重连窗口配色。[布局接入说明](Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/modern-color-layout-blazor-agent-guide.md#默认重连窗口)
+
 检查、同步、发布压缩包与回归验证见 [维护工具说明](tests/ModernColor/README.md)。工具保留可读源码与各项目业务布局，不操作 Git 暂存区，不提交或部署。
 
 上述 9 项清单只管理现代颜色核心 CSS/JS；通用 Blazor 控件的历史分发项目、宿主差异及升级步骤另见[控件指南](Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/blazor-components-guide.md)。`--write` 不会同步组件、`site.js` 或文档。

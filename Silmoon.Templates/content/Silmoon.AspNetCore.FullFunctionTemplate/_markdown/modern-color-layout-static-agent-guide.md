@@ -385,4 +385,4 @@ document.addEventListener("page:updated", function () {
 
 通用核心源位于 Silmoon.Templates 的模板 `wwwroot`。在相邻 Silmoon.Templates 仓库运行 `node tools/modern-color/manage.cjs --check` 检查全部引用目标；确认通用改动后运行 `--write` 同步。目标清单与可选压缩发布包见[现代颜色同步工具](https://github.com/silmoonsone/Silmoon.Templates/blob/master/tests/ModernColor/README.md)。工具只覆盖核心 CSS/JS；业务菜单、页脚内容、布局组件、`site.js`、通用控件和文档不由资产同步覆盖。控件迁移另按[通用控件指南](blazor-components-guide.md)检查。
 
-Blazor 的资源版本由 `ModernColorLayoutInitializer` 集中管理，当前为 CSS v21、核心 JS v10；cshtml 继续使用 `asp-append-version` 内容哈希。发布压缩使用工具产物，源文件保持可读。新的布局应直接将桌面 `.theme-toggle-group` 渲染在 `.content-wrapper` 内；核心 JS 移动旧位置的处理仅用于旧布局兼容。
+Blazor 布局的 CSS、JS 缓存版本分别以 `ModernColorLayoutInitializer.Stylesheet` 和 `ModernColorLayoutInitializer.Script` 为准。cshtml 使用 `asp-append-version` 生成内容哈希。发布压缩使用工具产物，源文件保持可读。新的布局应直接将桌面 `.theme-toggle-group` 渲染在 `.content-wrapper` 内；核心 JS 移动旧位置的处理仅用于旧布局兼容。

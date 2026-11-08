@@ -57,6 +57,7 @@ class Element extends Target {
     set id(value) { this.setAttribute("id", value); }
     get className() { return this.getAttribute("class") || ""; }
     set className(value) { this.setAttribute("class", value); }
+    get parentNode() { return this.parentElement; }
     get nextSibling() { return this.parentElement?.children[this.parentElement.children.indexOf(this) + 1] || null; }
     get nextElementSibling() { return this.nextSibling; }
     setAttribute(name, value) { this.attributes.set(name, String(value)); }
@@ -585,4 +586,74 @@ test("optional Blazor initialization can bind after Blazor becomes available", (
     page.window.ModernColorLayout.initBlazor();
     assert.equal(blazor.listenerCount("enhancedload"), 1);
     assert.equal(page.window.listenerCount("scroll"), 1);
+});
+
+test("Blazor reconnect follows the current theme across disconnection, navigation and reused dialogs", () => {
+    const page = fixture();
+    const { document, window } = page;
+    const observers = [];
+    window.MutationObserver = class {
+        constructor(callback) { this.callback = callback; this.targets = new Map(); observers.push(this); }
+        observe(target, options) { this.targets.set(target, options); }
+        disconnect() { this.targets.clear(); }
+    };
+    function deliver(record) {
+        for (const observer of observers) {
+            const options = observer.targets.get(record.target);
+            if (options?.[record.type] && (!options.attributeFilter || options.attributeFilter.includes(record.attributeName))) {
+                observer.callback([record]);
+            }
+        }
+    }
+    const layout = document.body.appendChild(new Element("div", { class: "trading-layout" }));
+    const host = new Element("div", { id: "components-reconnect-modal" });
+    // The default Blazor display owns its original style and nodes inside an open shadow root.
+    const shadow = host.shadowRoot = new Element("#shadow-root");
+    const original = shadow.appendChild(new Element("style"));
+    const dialog = shadow.appendChild(new Element("div", { class: "components-reconnect-dialog" }));
+    page.refresh();
+    assert.equal(observers.length, 0, "a static host needs no Blazor observer");
+
+    window.Blazor = new Target();
+    window.ModernColorLayout.initBlazor();
+    const preference = window.matchMedia("(prefers-color-scheme: dark)");
+    function setSystemDark(matches) {
+        preference.matches = matches;
+        preference.dispatch("change");
+        deliver({ target: document.documentElement, type: "attributes", attributeName: "data-theme" });
+    }
+    setSystemDark(true);
+    document.body.appendChild(host);
+    deliver({ target: document.body, type: "childList", addedNodes: [host], removedNodes: [] });
+    const styles = () => shadow.querySelectorAll("style");
+    assert.equal(styles().length, 2, "the dialog first appears after disconnection");
+    assert.equal(styles()[0], original);
+    assert.ok(styles()[1].textContent.trim());
+    assert.equal(dialog.parentNode, shadow, "the framework retains its dialog");
+    page.refresh();
+    assert.equal(observers.length, 1, "reinitialization shares the observer");
+    setSystemDark(false);
+    assert.deepEqual(styles(), [original], "auto light restores the default appearance");
+    setSystemDark(true);
+    assert.equal(styles().length, 2, "the existing dialog picks up auto dark again");
+
+    layout.remove();
+    window.Blazor.dispatch("enhancedload");
+    assert.deepEqual(styles(), [original], "leaving the modern layout removes only the override");
+    assert.equal(observers[0].targets.size, 0);
+    document.body.appendChild(layout);
+    window.Blazor.dispatch("enhancedload");
+    assert.equal(styles().length, 2, "navigation back also handles an already mounted dialog");
+
+    host.remove();
+    const custom = document.body.appendChild(new Element("div", { id: host.id }));
+    deliver({ target: document.body, type: "childList", addedNodes: [custom], removedNodes: [host] });
+    assert.deepEqual(styles(), [original]);
+    assert.equal(custom.children.length, 0, "an application's light-DOM reconnect UI is left intact");
+    custom.remove();
+    custom.shadowRoot = new Element("#shadow-root");
+    const message = custom.shadowRoot.appendChild(new Element("p"));
+    document.body.appendChild(custom);
+    deliver({ target: document.body, type: "childList", addedNodes: [custom], removedNodes: [custom] });
+    assert.deepEqual(custom.shadowRoot.children, [message], "a custom shadow UI also keeps its own styles");
 });

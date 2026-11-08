@@ -25,6 +25,6 @@ Blazor 自动加载库初始化模块，纯 cshtml 宿主可显式加载组件�
 ### 项目内手册
 
 - `_markdown/modern-color-layout-static-agent-guide.md`：cshtml 布局、菜单和全宽页脚。
-- `_markdown/modern-color-layout-blazor-agent-guide.md`：Blazor 布局、初始化、增强导航和自定义页脚。
+- `_markdown/modern-color-layout-blazor-agent-guide.md`：Blazor 布局、增强导航、默认重连窗口的主题适配和自定义页脚。
 - `_markdown/blazor-components-guide.md`：通用控件 API、按需模块、静态／交互用法和迁移步骤。
 - `_skills/silmoon-ffweb-template/SKILL.md`：模板／生成项目定位及 Agent 维护入口。

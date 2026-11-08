@@ -124,7 +124,7 @@ SignalR 默认未启用：`AddSignalR()`、Chat service 注册和两个 `MapHub`
 - cshtml：`Pages/Shared/_ModernColorLayout*.cshtml` + `Pages/ModernColorDemo.cshtml`。
 - Blazor：`Components/Layout/ModernColor/*.razor` + `RazorPages/Backend/`。
 - 公共核心：`wwwroot/css/modern-color-layout.css`、`wwwroot/js/modern-color-layout.js`。
-- Blazor 适配：`ModernColorLayoutInitializer.razor` 集中声明 `Stylesheet` / `Script`，由 `site.js` 中的 `ScriptLoader` 加载核心脚本，再显式调用内置 `ModernColorLayout.initBlazor()`；无需单独适配器文件。
+- Blazor 适配：`ModernColorLayoutInitializer.razor` 集中声明 `Stylesheet` / `Script`，由 `site.js` 中的 `ScriptLoader` 加载核心脚本，再调用 `ModernColorLayout.initBlazor()` 处理增强导航。排查断线提示的配色时，参见[默认重连窗口](../../../_markdown/modern-color-layout-blazor-agent-guide.md#默认重连窗口)。
 
 当前是 `ModernColorLayout : LayoutComponentBase` 的单一 Blazor layout。模板指南中的 `UserLayout`、`AdminLayout`、`UserNavMenu` 等是扩展设计示例，不是当前已存在的文件。
 

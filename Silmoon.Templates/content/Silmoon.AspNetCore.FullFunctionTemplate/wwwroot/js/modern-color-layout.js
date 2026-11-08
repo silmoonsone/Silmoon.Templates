@@ -16,6 +16,7 @@
     let backToTopBinding = null;
     let layoutFrame = null;
     let enhancedLoadAttached = false;
+    let reconnectObserver = null;
 
     function queryAll(selector, root) {
         return Array.from((root || document).querySelectorAll(selector));
@@ -77,6 +78,47 @@
         else localStorage.setItem(themeStorageKey, theme);
         applyTheme(theme);
         scheduleViewport();
+    }
+
+    function initReconnectTheme() {
+        if (reconnectObserver || !window.Blazor || !window.MutationObserver) return;
+
+        // Blazor creates its default dialog inside an open shadow root on disconnection.
+        // Keep the override in the loaded script so it also works when the host is offline.
+        const style = document.createElement("style");
+        style.textContent = `
+            .components-reconnect-dialog {
+                color-scheme: dark;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
+            }
+            .components-rejoining-animation div { border-color: var(--link-color); }
+            .components-reconnect-overlay button {
+                background-color: var(--link-color);
+                color: var(--bg-primary);
+            }
+            .components-reconnect-overlay button:hover { background-color: var(--text-primary); }
+            .components-reconnect-overlay button:active { background-color: var(--link-color); }
+        `;
+
+        function sync() {
+            const shadow = document.getElementById("components-reconnect-modal")?.shadowRoot;
+            if (document.documentElement.getAttribute("data-theme") === "dark" && shadow?.querySelector(".components-reconnect-dialog")) {
+                if (style.parentNode !== shadow) shadow.appendChild(style);
+            } else {
+                style.remove();
+            }
+        }
+
+        reconnectObserver = new window.MutationObserver(sync);
+        reconnectObserver.observe(document.body, { childList: true });
+        reconnectObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+        sync();
+        runtimeCleanup.push(function () {
+            reconnectObserver.disconnect();
+            reconnectObserver = null;
+            style.remove();
+        });
     }
 
     function initRuntime() {
@@ -354,6 +396,7 @@
         initLayoutPlacement();
         initRuntime();
         applyTheme(localStorage.getItem(themeStorageKey) || "auto");
+        initReconnectTheme();
         initMenu();
         initSubmenus();
         initBackToTop();

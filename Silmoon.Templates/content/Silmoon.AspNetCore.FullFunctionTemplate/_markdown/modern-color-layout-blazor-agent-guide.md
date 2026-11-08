@@ -225,7 +225,7 @@ builder.Services.AddJsSilmoonAuthInterop();
 
 `Components/App.razor` 中的 viewport 应包含 `minimum-scale=1.0`、`maximum-scale=1.0` 和 `user-scalable=no`，`wwwroot/css/site.css` 再使用 `touch-action: pan-x pan-y` 保留单指滚动并抑制双指缩放和双击放大。应在应用外壳和项目级样式中维护这项站点策略，不要为它修改现代颜色核心 CSS/JS 或添加重复的触摸事件脚本。
 
-`ModernColorLayoutInitializer.razor` 的公开常量统一保存 `Stylesheet = "/css/modern-color-layout.css?v=21"` 和 `Script = "/js/modern-color-layout.js?v=10"`；布局通过 `ModernColorLayoutInitializer.Stylesheet` 引用 CSS。
+布局通过 `ModernColorLayoutInitializer.Stylesheet` 引用核心 CSS，初始化组件通过 `Script` 加载核心 JS。修改资源时更新对应常量中的缓存版本。
 
 `ModernColorLayoutInitializer.razor` 必须是交互式子组件：
 
@@ -243,9 +243,13 @@ await Js.InvokeVoidAsync("ScriptLoader.ensureLoaded", Script);
 await Js.InvokeVoidAsync("ModernColorLayout.initBlazor");
 ```
 
-`ModernColorLayout.initBlazor()` 会立即调用一次 `ModernColorLayout.refresh()`，然后只注册一次 Blazor `enhancedload` 监听。Blazor 在增强导航后替换页面或布局 DOM 时，内置适配会再次刷新当前布局，因此从用户区切换到管理区等场景不需要手动刷新浏览器。
+`ModernColorLayout.initBlazor()` 检查当前页面并订阅一次 `enhancedload`。首次进入和增强导航后，现代颜色布局调用 `refresh()`，其他布局调用 `dispose()`。`refresh()` 在 Blazor 运行时可用时启用默认重连窗口的主题适配。静态页面仍可独立运行，其他动态页面框架可在 DOM 更新后调用 `refresh()`。
 
-`modern-color-layout.js` 内置可选的 Blazor 初始化入口；只在显式调用 `initBlazor()` 后检测并订阅 Blazor，静态页面没有 Blazor 也能独立运行。其他动态页面框架仍由项目适配代码在 DOM 更新后调用 `ModernColorLayout.refresh()`。
+### 默认重连窗口
+
+Blazor 首次断线时会创建 `#components-reconnect-modal`。现代颜色布局在它的开放 Shadow DOM 中为默认面板、正文、进度环和按钮追加暗色样式。样式随布局脚本加载，断网时也能生效。
+
+手动暗色和跟随系统的自动暗色都会启用覆盖。切回亮色时恢复系统外观，离开现代布局时释放观察器并移除覆盖。宿主自定义的重连界面由宿主配色。重试倒计时、`Retry` 和恢复连接由 Blazor 管理。
 
 ## 6. 布局结构
 
@@ -525,7 +529,7 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 
 - 首次启动时刷新当前布局。
 - 订阅一次 Blazor `enhancedload`。
-- 每次增强导航完成后刷新当前布局。
+- 每次增强导航完成后，刷新现代颜色布局或释放已离开的布局。
 
 项目私有行为应放在：
 
@@ -545,6 +549,7 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 - `ModernColorLayoutInitializer.razor` 可以通过 JS interop 加载脚本并重复调用初始化。
 - 从一种布局增强导航到另一种布局后，子菜单无需刷新浏览器即可展开。
 - 在用户区和管理区之间往返导航后，布局交互仍然有效且不会重复响应一次点击。
+- 在使用交互式服务端渲染的页面中断 Blazor 连接，检查默认重连窗口的倒计时和明暗切换。恢复网络后验证自动重连，或在重试耗尽后点击 `Retry`，确认原页面仍能响应操作。
 - `#blazor-error-ui` 默认隐藏，只在真实 Blazor 错误时出现。
 - `RazorPages/Backend/ModernColorDemo.razor` 如果被保留，应能正常访问，并使用现代颜色布局。
 - 路由器默认布局指向预期的具体 Layout，区域 `_Imports.razor` 能正确覆盖默认布局。
@@ -564,4 +569,4 @@ Blazor 子菜单使用和 cshtml 相同的 DOM 结构：
 
 通用核心源位于 Silmoon.Templates 的模板 `wwwroot`。在相邻 Silmoon.Templates 仓库运行 `node tools/modern-color/manage.cjs --check` 检查全部引用目标；确认通用改动后运行 `--write` 同步。目标清单与可选压缩发布包见[现代颜色同步工具](https://github.com/silmoonsone/Silmoon.Templates/blob/master/tests/ModernColor/README.md)。工具只覆盖核心 CSS/JS；业务菜单、页脚内容、布局组件、`site.js`、通用控件和文档不由资产同步覆盖。控件迁移另按[通用控件指南](blazor-components-guide.md)检查。
 
-Blazor 的资源版本由 `ModernColorLayoutInitializer` 集中管理，当前为 CSS v21、核心 JS v10；cshtml 继续使用 `asp-append-version` 内容哈希。发布压缩使用工具产物，源文件保持可读。新的布局应直接将桌面 `.theme-toggle-group` 渲染在 `.content-wrapper` 内；核心 JS 移动旧位置的处理仅用于旧布局兼容。
+Blazor 布局的 CSS、JS 缓存版本分别以 `ModernColorLayoutInitializer.Stylesheet` 和 `ModernColorLayoutInitializer.Script` 为准。cshtml 使用 `asp-append-version` 生成内容哈希。发布压缩使用工具产物，源文件保持可读。新的布局应直接将桌面 `.theme-toggle-group` 渲染在 `.content-wrapper` 内；核心 JS 移动旧位置的处理仅用于旧布局兼容。

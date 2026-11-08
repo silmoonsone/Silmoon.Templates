@@ -51,6 +51,16 @@ node tests/ModernColor/ModernColorMenuPreview.cjs
 
 生命周期测试覆盖重复初始化、返回顶部节点替换、移动菜单原片段替换、监听器释放和重新初始化。尺寸测试覆盖滚动与缩放共用一帧更新、未变化的高度不重复写入、页脚避让、旧版无页脚布局、手机长菜单以及可视视口变化。核心的可选 Blazor 初始化测试验证进入现代布局时刷新、离开时释放，并确保只注册一次 `enhancedload`。
 
+### Blazor 断线与恢复验收
+
+1. 运行模板并打开 `/backend/components-demo`。保持服务端运行，切到暗色，中断该页已建立的 Blazor WebSocket，并阻止它重新连接。检查默认窗口的面板、文字和进度环，确认重试倒计时仍在更新。
+2. 在自动主题下重复断线，在窗口打开时切换系统明暗偏好，检查文字和背景是否同时恢复到对应主题。
+3. 在自动重试期间恢复网络，确认窗口关闭并操作页面上的交互式控件。再断线一次，待出现 `Retry` 后，在服务端会话保留期内恢复网络并点击按钮，验证手动重连也能恢复页面交互。
+
+2026-11-09 使用 Chrome 验证模板 Release 发布产物，实测暗色正文对比度为 11.61:1，亮色为 15.43:1。自动重连和 `Retry` 均恢复了原页面交互。[布局接入与适用范围](../../Silmoon.Templates/content/Silmoon.AspNetCore.FullFunctionTemplate/_markdown/modern-color-layout-blazor-agent-guide.md#默认重连窗口)
+
+### 静态布局预览
+
 预览程序绑定随机回环端口，加载模板实际 CSS、核心 JS（包含可选 Blazor 初始化）；静态依赖使用模板 `libman.json` 还原后的 `wwwroot/lib`。导航由合成菜单和模拟 `enhancedload` 实现，不等同于真实 Blazor 站点联调。
 
 浏览器检查：
