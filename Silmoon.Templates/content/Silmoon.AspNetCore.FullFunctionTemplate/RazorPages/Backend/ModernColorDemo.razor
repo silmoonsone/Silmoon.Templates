@@ -94,6 +94,20 @@
                     <label class="form-check-label" for="backendSwitch">启用后台开关</label>
                 </div>
             </div>
+            <div class="col-lg-6">
+                <label for="backendFile" class="form-label">文件上传</label>
+                <input id="backendFile" type="file" class="form-control mb-3" />
+                <label for="backendFileDisabled" class="form-label">禁用文件上传</label>
+                <input id="backendFileDisabled" type="file" class="form-control" disabled />
+            </div>
+            <div class="col-lg-6">
+                <label for="backendRange" class="form-label">范围滑块</label>
+                <input id="backendRange" type="range" class="form-range mb-3" min="0" max="100" value="65" />
+                <label for="backendRangeDisabled" class="form-label">禁用范围滑块</label>
+                <input id="backendRangeDisabled" type="range" class="form-range mb-3" min="0" max="100" value="35" disabled />
+                <label for="backendColor" class="form-label">颜色选择</label>
+                <input id="backendColor" type="color" class="form-control form-control-color" value="#0d6efd" title="选择颜色" />
+            </div>
         </div>
     </div>
 </section>

@@ -29,6 +29,7 @@
 :root[data-theme="light"] {
     --primary-color: #0d6efd;
     --success-color: #198754;
+    --danger-color: #dc3545;
     --bg-primary: #ffffff;
     --bg-secondary: #f8f9fa;
     --bg-tertiary: rgba(255, 255, 255, 0.95);
@@ -51,6 +52,9 @@
     --choice-bg-hover: #f3f6fa;
     --choice-bg-disabled: #eef1f5;
     --control-color-scheme: light;
+    --select-indicator: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    --switch-indicator: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%236c757d'/%3e%3c/svg%3e");
+    --range-track-bg: #adb5bd;
     --native-indicator-filter: none;
     --focus-ring-color: rgba(13, 110, 253, 0.24);
     --placeholder-color: #788594;
@@ -73,6 +77,8 @@
 /* 暗色主题 - 系统偏好暗色或手动设置暗色 */
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
+        --success-color: #75b798;
+        --danger-color: #ff7080;
         --bg-primary: #1a1a1a;
         --bg-secondary: #2d2d2d;
         --bg-tertiary: rgba(45, 45, 45, 0.95);
@@ -95,6 +101,9 @@
         --choice-bg-hover: #444;
         --choice-bg-disabled: #2b2b2b;
         --control-color-scheme: dark;
+        --select-indicator: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23adb5bd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        --switch-indicator: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23adb5bd'/%3e%3c/svg%3e");
+        --range-track-bg: #788594;
         --native-indicator-filter: invert(1) brightness(1.35);
         --focus-ring-color: rgba(67, 147, 255, 0.32);
         --placeholder-color: #8e99a7;
@@ -114,6 +123,8 @@
 }
 
 :root[data-theme="dark"] {
+    --success-color: #75b798;
+    --danger-color: #ff7080;
     --bg-primary: #1a1a1a;
     --bg-secondary: #2d2d2d;
     --bg-tertiary: rgba(45, 45, 45, 0.95);
@@ -136,6 +147,9 @@
     --choice-bg-hover: #444;
     --choice-bg-disabled: #2b2b2b;
     --control-color-scheme: dark;
+    --select-indicator: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23adb5bd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    --switch-indicator: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23adb5bd'/%3e%3c/svg%3e");
+    --range-track-bg: #788594;
     --native-indicator-filter: invert(1) brightness(1.35);
     --focus-ring-color: rgba(67, 147, 255, 0.32);
     --placeholder-color: #8e99a7;
@@ -1081,27 +1095,39 @@ a:hover {
 
 .form-control,
 .form-select {
-    background-color: var(--interactive-bg);
-    border-color: var(--border-color);
+    background-color: var(--validation-bg, var(--interactive-bg));
+    border-color: var(--validation-color, var(--border-color));
     color: var(--text-primary);
     color-scheme: var(--control-color-scheme);
 }
 
+.form-control-plaintext {
+    color: var(--text-primary);
+}
+
+.form-select {
+    background-image: var(--select-indicator);
+}
+
+.form-switch .form-check-input:not(:checked) {
+    background-image: var(--switch-indicator);
+}
+
 .form-check-input {
     background-color: var(--choice-bg);
-    border-color: var(--border-color);
+    border-color: var(--validation-color, var(--border-color));
     color: var(--text-primary);
 }
 
 .form-control:hover,
 .form-select:hover {
-    background-color: var(--interactive-bg-hover);
-    border-color: rgba(13, 110, 253, 0.45);
+    background-color: var(--validation-bg, var(--interactive-bg-hover));
+    border-color: var(--validation-color, rgba(13, 110, 253, 0.45));
 }
 
 .form-check-input:hover {
     background-color: var(--choice-bg-hover);
-    border-color: rgba(13, 110, 253, 0.45);
+    border-color: var(--validation-color, rgba(13, 110, 253, 0.45));
 }
 
 .form-control:focus,
@@ -1109,16 +1135,16 @@ a:hover {
 .form-control:focus-within,
 .form-select:focus-within {
     background-color: var(--interactive-bg-focus) !important;
-    border-color: var(--primary-color) !important;
+    border-color: var(--validation-color, var(--primary-color)) !important;
     color: var(--text-primary) !important;
-    box-shadow: 0 0 0 0.2rem var(--focus-ring-color) !important;
+    box-shadow: 0 0 0 0.2rem var(--validation-bg, var(--focus-ring-color)) !important;
 }
 
 .form-check-input:focus,
 .form-check-input:focus-within {
     background-color: var(--choice-bg) !important;
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 0.2rem var(--focus-ring-color) !important;
+    border-color: var(--validation-color, var(--primary-color)) !important;
+    box-shadow: 0 0 0 0.2rem var(--validation-bg, var(--focus-ring-color)) !important;
 }
 
 .form-control::placeholder {
@@ -1132,8 +1158,13 @@ a:hover {
     color: var(--text-primary);
 }
 
-.form-control[type="file"]:hover::file-selector-button {
-    background-color: var(--panel-bg-hover);
+.form-control[type="file"]:hover:not(:disabled):not([readonly])::file-selector-button {
+    background-color: var(--interactive-bg-hover);
+}
+
+.form-control[type="file"]:disabled::file-selector-button {
+    background-color: var(--interactive-bg-disabled);
+    color: var(--interactive-text-disabled);
 }
 
 .form-control[type="date"]::-webkit-calendar-picker-indicator,
@@ -1142,7 +1173,8 @@ a:hover {
 .form-control[type="time"]::-webkit-calendar-picker-indicator,
 .form-control[type="week"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
-    filter: var(--native-indicator-filter);
+    /* Native date indicators already follow the input's color-scheme. */
+    filter: none;
     opacity: 0.82;
 }
 
@@ -1179,56 +1211,87 @@ a:hover {
     opacity: 1;
 }
 
-.form-check-input:checked {
-    background-color: var(--primary-color) !important;
-    border-color: var(--primary-color) !important;
-}
-
+.form-check-input:checked,
+.form-check-input[type="checkbox"]:indeterminate,
 .form-check-input:checked:focus,
-.form-check-input:checked:focus-within {
-    background-color: var(--primary-color) !important;
-    border-color: var(--primary-color) !important;
+.form-check-input:checked:focus-within,
+.form-check-input[type="checkbox"]:indeterminate:focus,
+.form-check-input[type="checkbox"]:indeterminate:focus-within {
+    background-color: var(--validation-fill, var(--primary-color)) !important;
+    border-color: var(--validation-color, var(--primary-color)) !important;
 }
 
-.form-check-input:checked:disabled {
+.form-check-input:checked:disabled,
+.form-check-input[type="checkbox"]:indeterminate:disabled {
     background-color: var(--choice-bg-disabled) !important;
     border-color: var(--border-color) !important;
 }
 
 .form-control.is-valid,
 .form-select.is-valid,
+.form-check-input.is-valid,
 .was-validated .form-control:valid,
-.was-validated .form-select:valid {
-    background-color: var(--success-soft-bg);
-    border-color: var(--success-soft-border);
-    color: var(--text-primary);
+.was-validated .form-select:valid,
+.was-validated .form-check-input:valid {
+    --validation-color: var(--success-color);
+    --validation-bg: var(--success-soft-bg);
+    --validation-fill: #198754;
+    --validation-indicator: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    border-color: var(--validation-color);
 }
 
 .form-control.is-invalid,
 .form-select.is-invalid,
+.form-check-input.is-invalid,
 .was-validated .form-control:invalid,
-.was-validated .form-select:invalid {
-    background-color: var(--danger-soft-bg);
-    border-color: var(--danger-soft-border);
-    color: var(--text-primary);
+.was-validated .form-select:invalid,
+.was-validated .form-check-input:invalid {
+    --validation-color: var(--danger-color);
+    --validation-bg: var(--danger-soft-bg);
+    --validation-fill: #dc3545;
+    --validation-indicator: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    border-color: var(--validation-color);
+}
+
+.form-select.is-valid:not([multiple]):not([size]),
+.form-select.is-valid:not([multiple])[size="1"],
+.form-select.is-invalid:not([multiple]):not([size]),
+.form-select.is-invalid:not([multiple])[size="1"],
+.was-validated .form-select:valid:not([multiple]):not([size]),
+.was-validated .form-select:valid:not([multiple])[size="1"],
+.was-validated .form-select:invalid:not([multiple]):not([size]),
+.was-validated .form-select:invalid:not([multiple])[size="1"] {
+    background-image: var(--select-indicator), var(--validation-indicator);
 }
 
 .valid-feedback,
-.valid-tooltip {
+.form-check-input.is-valid ~ .form-check-label,
+.was-validated .form-check-input:valid ~ .form-check-label {
     color: var(--success-color);
 }
 
 .invalid-feedback,
+.form-check-input.is-invalid ~ .form-check-label,
+.was-validated .form-check-input:invalid ~ .form-check-label {
+    color: var(--danger-color);
+}
+
+.valid-tooltip {
+    background-color: #198754;
+    color: #fff;
+}
+
 .invalid-tooltip {
-    color: #dc3545;
+    background-color: #dc3545;
+    color: #fff;
 }
 
 .form-range::-webkit-slider-runnable-track {
-    background-color: var(--bg-secondary);
+    background-color: var(--range-track-bg);
 }
 
 .form-range::-moz-range-track {
-    background-color: var(--bg-secondary);
+    background-color: var(--range-track-bg);
 }
 
 .form-range::-webkit-slider-thumb {
@@ -1238,6 +1301,14 @@ a:hover {
 .form-range::-moz-range-thumb {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
+}
+
+.form-range::-webkit-slider-thumb:active {
+    background-color: var(--link-color);
+}
+
+.form-range::-moz-range-thumb:active {
+    background-color: var(--link-color);
 }
 
 .form-range:focus::-webkit-slider-thumb {

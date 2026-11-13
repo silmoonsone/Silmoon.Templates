@@ -80,6 +80,10 @@
                                     <input type="text" class="form-control" id="readonlyInput" value="只读内容仍需清晰可读" readonly>
                                 </div>
                                 <div class="mb-3">
+                                    <label for="plaintextInput" class="form-label">纯文本只读值</label>
+                                    <input type="text" class="form-control-plaintext" id="plaintextInput" value="作为文本显示的只读内容" readonly>
+                                </div>
+                                <div class="mb-3">
                                     <label for="disabledInput" class="form-label">禁用输入框</label>
                                     <input type="text" class="form-control" id="disabledInput" value="当前不可编辑" disabled>
                                 </div>
@@ -149,6 +153,14 @@
                                     <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" id="checkboxDisabled" disabled>
                                         <label class="form-check-label" for="checkboxDisabled">禁用复选框</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input is-valid" type="checkbox" id="checkboxValid" checked>
+                                        <label class="form-check-label" for="checkboxValid">校验通过的复选框</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input is-invalid" type="checkbox" id="checkboxInvalid">
+                                        <label class="form-check-label" for="checkboxInvalid">校验未通过的复选框</label>
                                     </div>
                                     <div class="form-check form-switch mb-2">
                                         <input class="form-check-input" type="checkbox" id="switch1" checked>
