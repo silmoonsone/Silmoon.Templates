@@ -6,6 +6,7 @@
 DataProtection/
 Migrations/
 .idea/
+_local/
 .DS_Store
 *local*.json
 *local*.md
